@@ -16,50 +16,60 @@ body {
   background: #101827;
   color: white;
   font-family: Arial, sans-serif;
-  padding: 20px;
+  padding: 16px;
 }
 
-.panel {
-  background: #1d293b;
-  max-width: 440px;
-  margin: 20px auto;
-  padding: 25px;
-  border-radius: 16px;
-  text-align: center;
-  box-shadow: 0 10px 35px #0006;
-}
-
-h1 { font-size: 48px; color: #ffcf40; margin: 0; }
-p { color: #cbd5e1; }
-
-button, input {
-  width: 100%;
-  padding: 14px;
-  margin-top: 12px;
-  border: 0;
-  border-radius: 8px;
-  font-size: 16px;
-}
+button, input { font: inherit; }
 
 button {
+  border: 0;
+  border-radius: 8px;
+  padding: 12px 16px;
   background: #ffcf40;
   color: #172033;
   font-weight: bold;
   cursor: pointer;
 }
 
-button:disabled { opacity: .5; cursor: not-allowed; }
+button:disabled {
+  opacity: .45;
+  cursor: not-allowed;
+}
 
 input {
+  width: 100%;
+  padding: 13px;
+  margin-top: 10px;
+  border: 1px solid #526078;
+  border-radius: 8px;
   background: #101827;
   color: white;
-  border: 1px solid #526078;
   text-align: center;
   text-transform: uppercase;
 }
 
+.panel {
+  background: #1d293b;
+  max-width: 480px;
+  margin: 20px auto;
+  padding: 24px;
+  border-radius: 16px;
+  text-align: center;
+  box-shadow: 0 10px 35px #0006;
+}
+
+h1 {
+  font-size: 46px;
+  color: #ffcf40;
+  margin: 0;
+}
+
+h2 { color: #ffcf40; }
+
+p { color: #cbd5e1; }
+
 #status {
-  margin-top: 20px;
+  margin-top: 18px;
   padding: 12px;
   background: #101827;
   border-radius: 8px;
@@ -69,29 +79,49 @@ input {
 
 #roomCodeDisplay {
   color: #ffcf40;
-  font-size: 32px;
+  font-size: 30px;
   font-weight: bold;
   letter-spacing: 5px;
+  margin-top: 12px;
 }
 
-.gallery {
+#gameArea {
   max-width: 1100px;
-  margin: 35px auto;
+  margin: 25px auto;
+  display: none;
 }
 
-.gallery h2 {
-  text-align: center;
-  color: #ffcf40;
+.game-panel {
+  background: #1d293b;
+  border-radius: 14px;
+  padding: 18px;
+  margin-bottom: 16px;
+  box-shadow: 0 5px 18px #0005;
 }
 
-.card-grid {
+.player-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.hp {
+  color: #ff7777;
+  font-weight: bold;
+  font-size: 19px;
+}
+
+.field {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
-  gap: 15px;
+  grid-template-columns: repeat(auto-fit, minmax(135px, 1fr));
+  gap: 12px;
+  margin-top: 14px;
 }
 
 .game-card {
-  min-height: 225px;
+  min-height: 190px;
   border: 3px solid #64748b;
   border-radius: 12px;
   padding: 10px;
@@ -113,14 +143,18 @@ input {
   background: linear-gradient(145deg, #51306e, #21142f);
 }
 
+.game-card.selected {
+  border-color: #ffcf40;
+  box-shadow: 0 0 14px #ffcf4088;
+}
+
 .card-name {
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 900;
-  min-height: 40px;
+  min-height: 35px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
 }
 
 .card-type {
@@ -146,7 +180,7 @@ input {
 
 .stat strong {
   display: block;
-  font-size: 20px;
+  font-size: 19px;
   color: #ffcf40;
 }
 
@@ -159,7 +193,7 @@ input {
   font-size: 11px;
   line-height: 1.4;
   background: #101827bb;
-  padding: 9px 6px;
+  padding: 8px 6px;
   border-radius: 7px;
   flex-grow: 1;
   display: flex;
@@ -175,15 +209,108 @@ input {
 }
 
 .section-title {
-  margin: 30px 0 15px;
+  margin: 22px 0 12px;
   color: #ffcf40;
   border-bottom: 1px solid #526078;
   padding-bottom: 8px;
 }
 
-@media(max-width: 400px) {
-  .card-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .game-card { min-height: 215px; }
+.hand-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
+  gap: 12px;
+}
+
+.hand-grid .game-card {
+  min-height: 205px;
+}
+
+.card-actions {
+  display: grid;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.card-actions button {
+  width: 100%;
+  padding: 9px 5px;
+  font-size: 12px;
+}
+
+.secondary {
+  background: #526078;
+  color: white;
+}
+
+.danger {
+  background: #b94444;
+  color: white;
+}
+
+.action-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.action-row button {
+  flex: 1;
+  min-width: 130px;
+}
+
+.dice {
+  font-size: 48px;
+  color: #ffcf40;
+  font-weight: bold;
+  text-align: center;
+  margin: 10px;
+}
+
+.message {
+  background: #101827;
+  border-left: 4px solid #ffcf40;
+  padding: 13px;
+  border-radius: 7px;
+  margin: 14px 0;
+  overflow-wrap: anywhere;
+}
+
+.muted { color: #aab8ca; }
+
+#bossChoices {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+}
+
+#bossChoices button {
+  min-height: 80px;
+}
+
+.gallery {
+  max-width: 1100px;
+  margin: 35px auto;
+}
+
+.gallery h2 {
+  text-align: center;
+  color: #ffcf40;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+  gap: 15px;
+}
+
+.gallery .game-card { min-height: 225px; }
+
+@media(max-width: 450px) {
+  body { padding: 9px; }
+  .game-panel { padding: 12px; }
+  .field { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .hand-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 </style>
 </head>
@@ -206,6 +333,8 @@ input {
   <div id="status">Connect to start playing.</div>
 </div>
 
+<div id="gameArea"></div>
+
 <div class="gallery">
   <h2>BLAMMO CARD COLLECTION</h2>
   <p style="text-align:center">All cards, stats and abilities</p>
@@ -213,86 +342,26 @@ input {
 </div>
 
 <script>
+// =======================================
 // SUPABASE SETTINGS
+// =======================================
+
 const SUPABASE_URL = "https://dpuibiavdodyugyxjihq.supabase.co";
 const SUPABASE_KEY = "sb_publishable_Iycq9Dnx8tGSWvHpiUMI1A_rdpwzxem";
 
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let user = null;
-let roomId = null;
 let roomCode = null;
-let seat = null;
+let gameView = null;
+let selectedAttackerId = null;
+let pollTimer = null;
+let busy = false;
 
-function statusMessage(message) {
-  document.getElementById("status").textContent = message;
-}
-
-async function connect() {
-  try {
-    statusMessage("Connecting...");
-    const { data, error } = await db.auth.signInAnonymously();
-    if (error) throw error;
-
-    user = data.user;
-    document.getElementById("connectButton").disabled = true;
-    document.getElementById("createButton").disabled = false;
-    document.getElementById("joinButton").disabled = false;
-    statusMessage("Connected! You can create or join a room.");
-  } catch (error) {
-    statusMessage("Connection error: " + error.message);
-  }
-}
-
-async function createRoom() {
-  if (!user) return statusMessage("Connect first!");
-
-  try {
-    statusMessage("Creating room...");
-    const { data, error } = await db.rpc("create_room");
-    if (error) throw error;
-
-    const result = Array.isArray(data) ? data[0] : data;
-    if (!result || !result.room_id || !result.room_code)
-      throw new Error("Unexpected room response.");
-
-    roomId = result.room_id;
-    roomCode = result.room_code;
-    seat = 1;
-
-    document.getElementById("roomCodeDisplay").textContent = roomCode;
-    statusMessage("Room created! Give your friend this code: " + roomCode);
-  } catch (error) {
-    statusMessage("Room error: " + error.message);
-  }
-}
-
-async function joinRoom() {
-  if (!user) return statusMessage("Connect first!");
-
-  const code = document.getElementById("roomCode").value.trim().toUpperCase();
-  if (!code) return statusMessage("Enter a room code.");
-
-  try {
-    statusMessage("Joining room...");
-    const { data, error } = await db.rpc("join_room", { p_code: code });
-    if (error) throw error;
-
-    const result = Array.isArray(data) ? data[0] : data;
-    if (!result || !result.room_id)
-      throw new Error("Unexpected join response.");
-
-    roomId = result.room_id;
-    roomCode = code;
-    seat = 2;
-
-    statusMessage("Successfully joined room " + roomCode + "!");
-  } catch (error) {
-    statusMessage("Join error: " + error.message);
-  }
-}
-
+// =======================================
 // CARD COLLECTION
+// =======================================
+
 const cards = [
 ["Joe the Fish",125,1,"No special ability."],
 ["Dan the Mouse",10,1,"No special ability."],
@@ -336,23 +405,724 @@ const bosses = [
 ["Ultimate Guard",5,"Boss"]
 ];
 
-function makeCard(name, power, level, ability, type="Bodyguard") {
+// =======================================
+// GENERAL HELPERS
+// =======================================
+
+function statusMessage(message) {
+  document.getElementById("status").textContent = message;
+}
+
+function escapeHtml(value) {
+  return String(value ?? "").replace(/[&<>"']/g, char => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;"
+  })[char]);
+}
+
+function myPlayer() {
+  if (!gameView) return null;
+  return gameView.players[gameView.yourSeat - 1];
+}
+
+function enemyPlayer() {
+  if (!gameView) return null;
+  return gameView.players[2 - gameView.yourSeat];
+}
+
+function isMyTurn() {
+  return gameView &&
+    gameView.current === gameView.yourSeat - 1 &&
+    !gameView.gameOver;
+}
+
+function setButtonsDisabled(disabled) {
+  document.querySelectorAll("#gameArea button").forEach(button => {
+    button.disabled = disabled || button.dataset.locked === "true";
+  });
+}
+
+// =======================================
+// CONNECT
+// =======================================
+
+async function connect() {
+  try {
+    statusMessage("Connecting...");
+
+    const { data, error } = await db.auth.signInAnonymously();
+
+    if (error) throw error;
+
+    user = data.user;
+
+    document.getElementById("connectButton").disabled = true;
+    document.getElementById("createButton").disabled = false;
+    document.getElementById("joinButton").disabled = false;
+
+    statusMessage("Connected! Create a room or join your friend's room.");
+  } catch (error) {
+    statusMessage("Connection error: " + error.message);
+  }
+}
+
+// =======================================
+// CREATE ROOM
+// =======================================
+
+async function createRoom() {
+  if (!user) return statusMessage("Connect first!");
+
+  try {
+    statusMessage("Creating room...");
+
+    const { data, error } = await db.rpc("create_room");
+    if (error) throw error;
+
+    const result = Array.isArray(data) ? data[0] : data;
+
+    if (!result || !result.room_id || !result.room_code) {
+      throw new Error("Unexpected room response.");
+    }
+
+    roomCode = result.room_code;
+
+    document.getElementById("roomCodeDisplay").textContent = roomCode;
+
+    statusMessage("Room created! Give your friend this code: " + roomCode);
+
+    await startGameSession();
+  } catch (error) {
+    statusMessage("Room error: " + error.message);
+  }
+}
+
+// =======================================
+// JOIN ROOM
+// =======================================
+
+async function joinRoom() {
+  if (!user) return statusMessage("Connect first!");
+
+  const code = document.getElementById("roomCode").value.trim().toUpperCase();
+
+  if (!code) return statusMessage("Enter a room code.");
+
+  try {
+    statusMessage("Joining room...");
+
+    const { data, error } = await db.rpc("join_room", {
+      p_code: code
+    });
+
+    if (error) throw error;
+
+    const result = Array.isArray(data) ? data[0] : data;
+
+    if (!result || !result.room_id) {
+      throw new Error("Unexpected join response.");
+    }
+
+    roomCode = code;
+
+    document.getElementById("roomCodeDisplay").textContent = roomCode;
+
+    statusMessage("Successfully joined room " + roomCode + "!");
+
+    await startGameSession();
+  } catch (error) {
+    statusMessage("Join error: " + error.message);
+  }
+}
+
+// =======================================
+// EDGE FUNCTION CONNECTION
+// =======================================
+
+async function gameAction(action, extra = {}) {
+  if (!roomCode) throw new Error("You are not in a room.");
+
+  const { data, error } = await db.functions.invoke("blammo-game", {
+    body: {
+      action,
+      roomCode,
+      ...extra
+    }
+  });
+
+  if (error) {
+    let message = error.message || "Game request failed.";
+
+    try {
+      if (error.context && typeof error.context.json === "function") {
+        const details = await error.context.json();
+        if (details.error) message = details.error;
+      }
+    } catch (_) {}
+
+    throw new Error(message);
+  }
+
+  if (data && data.error) {
+    throw new Error(data.error);
+  }
+
+  return data;
+}
+
+// =======================================
+// START GAME SESSION
+// =======================================
+
+async function startGameSession() {
+  document.getElementById("gameArea").style.display = "block";
+
+  await refreshGame();
+
+  if (pollTimer) clearInterval(pollTimer);
+
+  pollTimer = setInterval(async () => {
+    if (!busy && roomCode) {
+      try {
+        await refreshGame();
+      } catch (error) {
+        console.error("Refresh error:", error);
+      }
+    }
+  }, 2500);
+}
+
+async function refreshGame() {
+  const result = await gameAction("get_state");
+
+  gameView = result.view;
+
+  if (gameView) {
+    renderGame();
+  }
+}
+
+// =======================================
+// BOSS SELECTION
+// =======================================
+
+async function chooseBoss(index) {
+  if (busy) return;
+
+  try {
+    busy = true;
+    statusMessage("Choosing Boss...");
+
+    await gameAction("choose_boss", {
+      bossIndex: index
+    });
+
+    await refreshGame();
+    statusMessage("Boss selected.");
+  } catch (error) {
+    statusMessage(error.message);
+  } finally {
+    busy = false;
+  }
+}
+
+// =======================================
+// GAME ACTIONS
+// =======================================
+
+async function performAction(action, extra = {}) {
+  if (busy) return;
+
+  try {
+    busy = true;
+    setButtonsDisabled(true);
+
+    const result = await gameAction(action, extra);
+
+    if (result.view) {
+      gameView = result.view;
+      selectedAttackerId = null;
+      renderGame();
+    } else {
+      await refreshGame();
+    }
+
+    statusMessage("Move completed.");
+  } catch (error) {
+    statusMessage(error.message);
+
+    try {
+      await refreshGame();
+    } catch (_) {}
+  } finally {
+    busy = false;
+    setButtonsDisabled(false);
+    renderGame();
+  }
+}
+
+function rollDice() {
+  performAction("roll");
+}
+
+function endTurn() {
+  performAction("end_turn");
+}
+
+function playCard(cardId) {
+  performAction("play_card", { cardId });
+}
+
+function attackBodyguard(attackerId, targetId) {
+  performAction("attack", {
+    attackerId,
+    targetId
+  });
+}
+
+function attackBoss(attackerId) {
+  performAction("attack", {
+    attackerId
+  });
+}
+
+function selectAttacker(cardId) {
+  selectedAttackerId =
+    selectedAttackerId === cardId ? null : cardId;
+
+  renderGame();
+}
+
+// =======================================
+// CARD DISPLAY
+// =======================================
+
+function makeGameCard(card, options = {}) {
+  const element = document.createElement("div");
+
+  element.className = "game-card";
+
+  if (card.t === "Tool") element.classList.add("tool");
+
+  if (options.selected) element.classList.add("selected");
+
+  const type = card.t || "Bodyguard";
+  const power = card.p ?? "—";
+
+  const frozen = card.frozen > 0
+    ? `<div class="card-footer">FROZEN</div>`
+    : "";
+
+  const used = card.used
+    ? `<div class="card-footer">ALREADY USED</div>`
+    : "";
+
+  const turns = card.turnsLeft !== undefined
+    ? `<div class="card-footer">${escapeHtml(card.turnsLeft)} TURNS LEFT</div>`
+    : "";
+
+  element.innerHTML = `
+    <div>
+      <div class="card-name">${escapeHtml(card.name)}</div>
+      <div class="card-type">${escapeHtml(type)}</div>
+    </div>
+
+    <div class="card-stats">
+      <div class="stat">
+        <strong>${escapeHtml(power)}</strong>
+        <small>POWER</small>
+      </div>
+
+      <div class="stat">
+        <strong>${escapeHtml(card.l)}</strong>
+        <small>LEVEL</small>
+      </div>
+    </div>
+
+    <div class="card-ability">
+      ${escapeHtml(card.a || "No special ability.")}
+    </div>
+
+    ${turns}
+    ${frozen}
+    ${used}
+
+    <div class="card-footer">BLAMMO TCG</div>
+  `;
+
+  return element;
+}
+
+// =======================================
+// RENDER GAME
+// =======================================
+
+function renderGame() {
+  const area = document.getElementById("gameArea");
+
+  if (!gameView) return;
+
+  if (!gameView.started) {
+    renderBossSelection(area);
+    return;
+  }
+
+  const me = myPlayer();
+  const enemy = enemyPlayer();
+  const myTurn = isMyTurn();
+
+  area.innerHTML = "";
+
+  // GAME HEADER
+  const header = document.createElement("div");
+  header.className = "game-panel";
+
+  header.innerHTML = `
+    <h2 style="text-align:center">BLAMMO BATTLE</h2>
+
+    <div class="player-heading">
+      <strong>ROOM: ${escapeHtml(roomCode)}</strong>
+      <strong>ROUND ${escapeHtml(gameView.round)}</strong>
+    </div>
+
+    <div class="message">
+      ${escapeHtml(gameView.message || "Game in progress.")}
+    </div>
+
+    <div style="text-align:center">
+      ${
+        gameView.gameOver
+          ? `<h2>GAME OVER — ${escapeHtml(gameView.winner)} WINS!</h2>`
+          : myTurn
+            ? `<h2 style="color:#69e69b">YOUR TURN</h2>`
+            : `<h2 style="color:#fca5a5">OPPONENT'S TURN</h2>`
+      }
+    </div>
+  `;
+
+  area.appendChild(header);
+
+  // ENEMY
+  const enemyPanel = document.createElement("div");
+  enemyPanel.className = "game-panel";
+
+  enemyPanel.innerHTML = `
+    <div class="player-heading">
+      <h2>OPPONENT</h2>
+      <div class="hp">${escapeHtml(enemy.boss.name)}: ${escapeHtml(enemy.boss.hp)} HP</div>
+    </div>
+
+    <div class="muted">Opponent's deck: ${escapeHtml(enemy.deckCount)} cards</div>
+
+    <h3 class="section-title">OPPONENT'S BODYGUARDS</h3>
+  `;
+
+  const enemyField = document.createElement("div");
+  enemyField.className = "field";
+
+  if (enemy.field.length === 0) {
+    enemyField.innerHTML = '<p class="muted">No Bodyguards on the field.</p>';
+  } else {
+    enemy.field.forEach(card => {
+      const cardElement = makeGameCard(card);
+
+      if (myTurn && selectedAttackerId) {
+        const attackButton = document.createElement("button");
+        attackButton.textContent = "Attack this Bodyguard";
+
+        attackButton.onclick = () => {
+          attackBodyguard(selectedAttackerId, card.id);
+        };
+
+        cardElement.appendChild(attackButton);
+      }
+
+      enemyField.appendChild(cardElement);
+    });
+  }
+
+  enemyPanel.appendChild(enemyField);
+  area.appendChild(enemyPanel);
+
+  // TURN PANEL
+  const turnPanel = document.createElement("div");
+  turnPanel.className = "game-panel";
+
+  turnPanel.innerHTML = `
+    <h2 style="text-align:center">YOUR TURN STATUS</h2>
+
+    <div class="dice">
+      ${gameView.rolled ? "🎲 " + escapeHtml(gameView.rollValue) : "🎲 ?"}
+    </div>
+
+    <p style="text-align:center">
+      Level used: ${escapeHtml(gameView.spentThisTurn)}
+      /
+      ${escapeHtml(gameView.rollValue)}
+    </p>
+
+    <p style="text-align:center">
+      Cards remaining this turn: ${escapeHtml(gameView.playsLeft)}
+      / 2
+    </p>
+
+    <p style="text-align:center">
+      Boss damage this turn: ${escapeHtml(gameView.bossDamageThisTurn)} / 1
+    </p>
+
+    <div class="action-row">
+      <button id="rollButton">ROLL DICE</button>
+      <button id="endTurnButton" class="secondary">END TURN</button>
+    </div>
+  `;
+
+  area.appendChild(turnPanel);
+
+  document.getElementById("rollButton").onclick = rollDice;
+  document.getElementById("endTurnButton").onclick = endTurn;
+
+  document.getElementById("rollButton").disabled =
+    !myTurn || gameView.rolled || busy;
+
+  document.getElementById("endTurnButton").disabled =
+    !myTurn || !gameView.rolled || busy;
+
+  // YOUR FIELD
+  const myFieldPanel = document.createElement("div");
+  myFieldPanel.className = "game-panel";
+
+  myFieldPanel.innerHTML = `
+    <div class="player-heading">
+      <h2>YOUR FIELD</h2>
+      <div class="hp">${escapeHtml(me.boss.name)}: ${escapeHtml(me.boss.hp)} HP</div>
+    </div>
+
+    <p class="muted">Your Bodyguards: ${me.field.length} / 3</p>
+  `;
+
+  const myField = document.createElement("div");
+  myField.className = "field";
+
+  if (me.field.length === 0) {
+    myField.innerHTML = '<p class="muted">You have no Bodyguards on the field.</p>';
+  } else {
+    me.field.forEach(card => {
+      const selected = selectedAttackerId === card.id;
+      const cardElement = makeGameCard(card, { selected });
+
+      const actions = document.createElement("div");
+      actions.className = "card-actions";
+
+      const selectButton = document.createElement("button");
+      selectButton.textContent = selected
+        ? "Cancel selection"
+        : "Select attacker";
+
+      selectButton.className = "secondary";
+
+      selectButton.disabled =
+        !myTurn ||
+        !gameView.rolled ||
+        card.used ||
+        card.frozen > 0 ||
+        busy;
+
+      selectButton.onclick = () => selectAttacker(card.id);
+
+      actions.appendChild(selectButton);
+
+      if (enemy.field.length === 0) {
+        const bossButton = document.createElement("button");
+        bossButton.textContent = "Attack Boss";
+
+        bossButton.disabled =
+          !myTurn ||
+          !gameView.rolled ||
+          card.used ||
+          card.frozen > 0 ||
+          gameView.round <= 1 ||
+          gameView.bossDamageThisTurn >= 1 ||
+          busy;
+
+        bossButton.onclick = () => attackBoss(card.id);
+
+        actions.appendChild(bossButton);
+      }
+
+      cardElement.appendChild(actions);
+      myField.appendChild(cardElement);
+    });
+  }
+
+  myFieldPanel.appendChild(myField);
+  area.appendChild(myFieldPanel);
+
+  // YOUR HAND
+  const handPanel = document.createElement("div");
+  handPanel.className = "game-panel";
+
+  handPanel.innerHTML = `
+    <h2>YOUR HAND</h2>
+    <p class="muted">
+      Playing a card uses one of your two plays.
+      Tools are displayed but not playable yet.
+    </p>
+  `;
+
+  const handGrid = document.createElement("div");
+  handGrid.className = "hand-grid";
+
+  (me.hand || []).forEach(card => {
+    const cardElement = makeGameCard(card);
+    const actions = document.createElement("div");
+    actions.className = "card-actions";
+
+    const playButton = document.createElement("button");
+
+    if (card.t === "Tool") {
+      playButton.textContent = "Tool coming soon";
+      playButton.disabled = true;
+    } else {
+      playButton.textContent = "PLAY BODYGUARD";
+
+      playButton.disabled =
+        !myTurn ||
+        !gameView.rolled ||
+        gameView.playsLeft <= 0 ||
+        me.field.length >= 3 ||
+        gameView.spentThisTurn + card.l > gameView.rollValue ||
+        busy;
+      
+      playButton.onclick = () => playCard(card.id);
+    }
+
+    actions.appendChild(playButton);
+    cardElement.appendChild(actions);
+    handGrid.appendChild(cardElement);
+  });
+
+  if (!me.hand || me.hand.length === 0) {
+    handGrid.innerHTML = '<p class="muted">Your hand is empty.</p>';
+  }
+
+  handPanel.appendChild(handGrid);
+  area.appendChild(handPanel);
+
+  // VOID AND DECK
+  const extraPanel = document.createElement("div");
+  extraPanel.className = "game-panel";
+
+  extraPanel.innerHTML = `
+    <h3>YOUR DECK</h3>
+    <p>${escapeHtml(me.deckCount)} cards remaining</p>
+
+    <h3>YOUR VOID</h3>
+    <p>${me.void.length ? me.void.map(c => escapeHtml(c.name)).join(", ") : "Your Void is empty."}</p>
+  `;
+
+  area.appendChild(extraPanel);
+
+  if (gameView.gameOver) {
+    const winnerPanel = document.createElement("div");
+    winnerPanel.className = "game-panel";
+    winnerPanel.innerHTML = `
+      <h2 style="text-align:center">
+        🏆 ${escapeHtml(gameView.winner)} WINS!
+      </h2>
+    `;
+    area.appendChild(winnerPanel);
+  }
+}
+
+// =======================================
+// BOSS SELECTION SCREEN
+// =======================================
+
+function renderBossSelection(area) {
+  const chosen = gameView.choices || {};
+  const myChoice = chosen[String(gameView.yourSeat)];
+
+  area.innerHTML = `
+    <div class="game-panel">
+      <h2 style="text-align:center">CHOOSE YOUR BOSS</h2>
+      <p style="text-align:center">
+        Both players must select a Boss before the battle begins.
+      </p>
+
+      <div id="bossChoices"></div>
+
+      <div class="message" id="bossStatus">
+        ${
+          myChoice !== undefined
+            ? "You have selected your Boss. Waiting for the other player..."
+            : "Choose your Boss below."
+        }
+      </div>
+    </div>
+  `;
+
+  const choices = document.getElementById("bossChoices");
+
+  bosses.forEach((boss, index) => {
+    const button = document.createElement("button");
+
+    button.innerHTML = `
+      ${escapeHtml(boss[0])}
+      <br>
+      <small>Level ${escapeHtml(boss[1])} · 6 HP</small>
+    `;
+
+    if (myChoice !== undefined) {
+      button.disabled = true;
+
+      if (myChoice === index) {
+        button.textContent = boss[0] + " — SELECTED";
+      }
+    }
+
+    button.onclick = () => chooseBoss(index);
+
+    choices.appendChild(button);
+  });
+}
+
+// =======================================
+// CARD GALLERY
+// =======================================
+
+function makeGalleryCard(name, power, level, ability, type = "Bodyguard") {
   const card = document.createElement("div");
-  card.className = "game-card " + (type === "Tool" ? "tool" : "");
-  const powerText = power === null ? "—" : power;
+
+  card.className = "game-card";
+
+  if (type === "Tool") card.classList.add("tool");
+  if (type === "Boss") card.classList.add("boss");
 
   card.innerHTML = `
     <div>
-      <div class="card-name">${name}</div>
-      <div class="card-type">${type}</div>
+      <div class="card-name">${escapeHtml(name)}</div>
+      <div class="card-type">${escapeHtml(type)}</div>
     </div>
+
     <div class="card-stats">
-      <div class="stat"><strong>${powerText}</strong><small>POWER</small></div>
-      <div class="stat"><strong>${level}</strong><small>LEVEL</small></div>
+      <div class="stat">
+        <strong>${power === null ? "—" : escapeHtml(power)}</strong>
+        <small>${type === "Boss" ? "BOSS" : "POWER"}</small>
+      </div>
+
+      <div class="stat">
+        <strong>${escapeHtml(level)}</strong>
+        <small>LEVEL</small>
+      </div>
     </div>
-    <div class="card-ability">${ability}</div>
+
+    <div class="card-ability">${escapeHtml(ability)}</div>
     <div class="card-footer">BLAMMO TCG</div>
   `;
+
   return card;
 }
 
@@ -364,29 +1134,53 @@ function renderGallery() {
 
   const bodySection = document.createElement("section");
   bodySection.innerHTML = '<h3 class="section-title">BODYGUARDS</h3>';
+
   const bodyGrid = document.createElement("div");
   bodyGrid.className = "card-grid";
 
-  bodyguards.forEach(c => bodyGrid.appendChild(makeCard(c[0],c[1],c[2],c[3])));
+  bodyguards.forEach(c => {
+    bodyGrid.appendChild(
+      makeGalleryCard(c[0], c[1], c[2], c[3])
+    );
+  });
+
   bodySection.appendChild(bodyGrid);
 
   const toolSection = document.createElement("section");
   toolSection.innerHTML = '<h3 class="section-title">TOOLS</h3>';
+
   const toolGrid = document.createElement("div");
   toolGrid.className = "card-grid";
 
-  tools.forEach(c => toolGrid.appendChild(makeCard(c[0],c[1],c[2],c[3],"Tool")));
+  tools.forEach(c => {
+    toolGrid.appendChild(
+      makeGalleryCard(c[0], c[1], c[2], c[3], "Tool")
+    );
+  });
+
   toolSection.appendChild(toolGrid);
 
   const bossSection = document.createElement("section");
   bossSection.innerHTML = '<h3 class="section-title">BOSSES</h3>';
+
   const bossGrid = document.createElement("div");
   bossGrid.className = "card-grid";
 
-  bosses.forEach(b => bossGrid.appendChild(makeCard(b[0],null,b[1],"Starts with 6 Boss HP.","Boss")));
+  bosses.forEach(b => {
+    bossGrid.appendChild(
+      makeGalleryCard(
+        b[0],
+        null,
+        b[1],
+        "Starts with 6 Boss HP.",
+        "Boss"
+      )
+    );
+  });
+
   bossSection.appendChild(bossGrid);
 
-  gallery.append(bodySection,toolSection,bossSection);
+  gallery.replaceChildren(bodySection, toolSection, bossSection);
 }
 
 renderGallery();
