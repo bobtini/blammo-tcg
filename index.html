@@ -2,232 +2,395 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BLAMMO TCG</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BLAMMO TCG</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+* { box-sizing: border-box; }
 
-  <style>
-    * { box-sizing: border-box; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: #101827;
+  color: white;
+  font-family: Arial, sans-serif;
+  padding: 20px;
+}
 
-    body {
-      margin: 0;
-      min-height: 100vh;
-      background: #101827;
-      color: white;
-      font-family: Arial, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 20px;
-    }
+.panel {
+  background: #1d293b;
+  max-width: 440px;
+  margin: 20px auto;
+  padding: 25px;
+  border-radius: 16px;
+  text-align: center;
+  box-shadow: 0 10px 35px #0006;
+}
 
-    .panel {
-      background: #1d293b;
-      width: 100%;
-      max-width: 440px;
-      padding: 30px;
-      border-radius: 16px;
-      text-align: center;
-      box-shadow: 0 10px 35px #0006;
-    }
+h1 { font-size: 48px; color: #ffcf40; margin: 0; }
+p { color: #cbd5e1; }
 
-    h1 {
-      font-size: 48px;
-      color: #ffcf40;
-      margin: 0 0 8px;
-    }
+button, input {
+  width: 100%;
+  padding: 14px;
+  margin-top: 12px;
+  border: 0;
+  border-radius: 8px;
+  font-size: 16px;
+}
 
-    p { color: #cbd5e1; }
+button {
+  background: #ffcf40;
+  color: #172033;
+  font-weight: bold;
+  cursor: pointer;
+}
 
-    button, input {
-      width: 100%;
-      padding: 14px;
-      margin-top: 12px;
-      border: 0;
-      border-radius: 8px;
-      font-size: 16px;
-    }
+button:disabled { opacity: .5; cursor: not-allowed; }
 
-    button {
-      background: #ffcf40;
-      color: #172033;
-      font-weight: bold;
-      cursor: pointer;
-    }
+input {
+  background: #101827;
+  color: white;
+  border: 1px solid #526078;
+  text-align: center;
+  text-transform: uppercase;
+}
 
-    button:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
+#status {
+  margin-top: 20px;
+  padding: 12px;
+  background: #101827;
+  border-radius: 8px;
+  overflow-wrap: anywhere;
+  font-size: 14px;
+}
 
-    input {
-      background: #101827;
-      color: white;
-      border: 1px solid #526078;
-      text-align: center;
-      text-transform: uppercase;
-    }
+#roomCodeDisplay {
+  color: #ffcf40;
+  font-size: 32px;
+  font-weight: bold;
+  letter-spacing: 5px;
+}
 
-    #status {
-      margin-top: 20px;
-      padding: 12px;
-      background: #101827;
-      border-radius: 8px;
-      overflow-wrap: anywhere;
-      font-size: 14px;
-    }
+.gallery {
+  max-width: 1100px;
+  margin: 35px auto;
+}
 
-    #roomCodeDisplay {
-      color: #ffcf40;
-      font-size: 32px;
-      font-weight: bold;
-      letter-spacing: 5px;
-    }
-  </style>
+.gallery h2 {
+  text-align: center;
+  color: #ffcf40;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+  gap: 15px;
+}
+
+.game-card {
+  min-height: 225px;
+  border: 3px solid #64748b;
+  border-radius: 12px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background: linear-gradient(145deg, #34445c, #172235);
+  box-shadow: 0 5px 12px #0007;
+  text-align: center;
+}
+
+.game-card.tool {
+  border-color: #eab308;
+  background: linear-gradient(145deg, #66501a, #30250c);
+}
+
+.game-card.boss {
+  border-color: #c084fc;
+  background: linear-gradient(145deg, #51306e, #21142f);
+}
+
+.card-name {
+  font-size: 17px;
+  font-weight: 900;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+}
+
+.card-type {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #cbd5e1;
+  margin: 5px 0;
+}
+
+.card-stats {
+  display: flex;
+  justify-content: space-around;
+  margin: 8px 0;
+}
+
+.stat {
+  background: #101827bb;
+  border-radius: 7px;
+  padding: 6px;
+  min-width: 52px;
+}
+
+.stat strong {
+  display: block;
+  font-size: 20px;
+  color: #ffcf40;
+}
+
+.stat small {
+  font-size: 9px;
+  color: #cbd5e1;
+}
+
+.card-ability {
+  font-size: 11px;
+  line-height: 1.4;
+  background: #101827bb;
+  padding: 9px 6px;
+  border-radius: 7px;
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 5px;
+}
+
+.card-footer {
+  font-size: 10px;
+  color: #cbd5e1;
+  margin-top: 7px;
+}
+
+.section-title {
+  margin: 30px 0 15px;
+  color: #ffcf40;
+  border-bottom: 1px solid #526078;
+  padding-bottom: 8px;
+}
+
+@media(max-width: 400px) {
+  .card-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .game-card { min-height: 215px; }
+}
+</style>
 </head>
 
 <body>
-  <div class="panel">
-    <h1>BLAMMO</h1>
-    <p>Online Trading Card Game</p>
 
-    <button id="connectButton" onclick="connect()">
-      Connect
-    </button>
+<div class="panel">
+  <h1>BLAMMO</h1>
+  <p>Online Trading Card Game</p>
 
-    <button id="createButton" onclick="createRoom()" disabled>
-      Create Room
-    </button>
+  <button id="connectButton" onclick="connect()">Connect</button>
+  <button id="createButton" onclick="createRoom()" disabled>Create Room</button>
 
-    <hr style="border-color:#526078; margin-top:24px;">
+  <hr style="border-color:#526078;margin-top:24px;">
 
-    <input
-      id="roomCode"
-      maxlength="6"
-      placeholder="ENTER ROOM CODE"
-    >
+  <input id="roomCode" maxlength="6" placeholder="ENTER ROOM CODE">
+  <button id="joinButton" onclick="joinRoom()" disabled>Join Room</button>
 
-    <button id="joinButton" onclick="joinRoom()" disabled>
-      Join Room
-    </button>
+  <div id="roomCodeDisplay"></div>
+  <div id="status">Connect to start playing.</div>
+</div>
 
-    <div id="roomCodeDisplay"></div>
-    <div id="status">Connect to start playing.</div>
-  </div>
+<div class="gallery">
+  <h2>BLAMMO CARD COLLECTION</h2>
+  <p style="text-align:center">All cards, stats and abilities</p>
+  <div id="cardGallery"></div>
+</div>
 
-  <script>
-    // SUPABASE SETTINGS
-    const SUPABASE_URL = "https://dpuibiavdodyugyxjihq.supabase.co";
-    const SUPABASE_KEY = "sb_publishable_Iycq9Dnx8tGSWvHpiUMI1A_rdpwzxem";
+<script>
+// SUPABASE SETTINGS
+const SUPABASE_URL = "https://dpuibiavdodyugyxjihq.supabase.co";
+const SUPABASE_KEY = "sb_publishable_Iycq9Dnx8tGSWvHpiUMI1A_rdpwzxem";
 
-    // CONNECT TO SUPABASE
-    const db = supabase.createClient(
-      SUPABASE_URL,
-      SUPABASE_KEY
-    );
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    let user = null;
-    let roomId = null;
-    let roomCode = null;
-    let seat = null;
+let user = null;
+let roomId = null;
+let roomCode = null;
+let seat = null;
 
-    function statusMessage(message) {
-      document.getElementById("status").textContent = message;
-    }
+function statusMessage(message) {
+  document.getElementById("status").textContent = message;
+}
 
-    async function connect() {
-      try {
-        statusMessage("Connecting...");
+async function connect() {
+  try {
+    statusMessage("Connecting...");
+    const { data, error } = await db.auth.signInAnonymously();
+    if (error) throw error;
 
-        const { data, error } = await db.auth.signInAnonymously();
+    user = data.user;
+    document.getElementById("connectButton").disabled = true;
+    document.getElementById("createButton").disabled = false;
+    document.getElementById("joinButton").disabled = false;
+    statusMessage("Connected! You can create or join a room.");
+  } catch (error) {
+    statusMessage("Connection error: " + error.message);
+  }
+}
 
-        if (error) throw error;
+async function createRoom() {
+  if (!user) return statusMessage("Connect first!");
 
-        user = data.user;
+  try {
+    statusMessage("Creating room...");
+    const { data, error } = await db.rpc("create_room");
+    if (error) throw error;
 
-        document.getElementById("connectButton").disabled = true;
-        document.getElementById("createButton").disabled = false;
-        document.getElementById("joinButton").disabled = false;
+    const result = Array.isArray(data) ? data[0] : data;
+    if (!result || !result.room_id || !result.room_code)
+      throw new Error("Unexpected room response.");
 
-        statusMessage("Connected! You can create or join a room.");
+    roomId = result.room_id;
+    roomCode = result.room_code;
+    seat = 1;
 
-      } catch (error) {
-        statusMessage("Connection error: " + error.message);
-      }
-    }
+    document.getElementById("roomCodeDisplay").textContent = roomCode;
+    statusMessage("Room created! Give your friend this code: " + roomCode);
+  } catch (error) {
+    statusMessage("Room error: " + error.message);
+  }
+}
 
-    async function createRoom() {
-      if (!user) {
-        statusMessage("Connect first!");
-        return;
-      }
+async function joinRoom() {
+  if (!user) return statusMessage("Connect first!");
 
-      try {
-        statusMessage("Creating room...");
+  const code = document.getElementById("roomCode").value.trim().toUpperCase();
+  if (!code) return statusMessage("Enter a room code.");
 
-        const { data, error } = await db.rpc("create_room");
+  try {
+    statusMessage("Joining room...");
+    const { data, error } = await db.rpc("join_room", { p_code: code });
+    if (error) throw error;
 
-        if (error) throw error;
+    const result = Array.isArray(data) ? data[0] : data;
+    if (!result || !result.room_id)
+      throw new Error("Unexpected join response.");
 
-        const result = Array.isArray(data) ? data[0] : data;
+    roomId = result.room_id;
+    roomCode = code;
+    seat = 2;
 
-        if (!result || !result.room_id || !result.room_code) {
-          throw new Error("The room function returned unexpected data.");
-        }
+    statusMessage("Successfully joined room " + roomCode + "!");
+  } catch (error) {
+    statusMessage("Join error: " + error.message);
+  }
+}
 
-        roomId = result.room_id;
-        roomCode = result.room_code;
-        seat = 1;
+// CARD COLLECTION
+const cards = [
+["Joe the Fish",125,1,"No special ability."],
+["Dan the Mouse",10,1,"No special ability."],
+["Crud",120,1,"No special ability."],
+["Jim the Special Unicorn",100,1,"No special ability."],
+["King Jim",140,2,"On death: summon Peasant Boy."],
+["Ice Golem",240,4,"On play: freeze an enemy Bodyguard for 1 turn."],
+["Dirt J.R",250,5,"On death: summon Dirt Golem."],
+["Flame J.R",170,3,"On death: summon Fire Golem."],
+["Tim the Rat",125,1,"No special ability."],
+["Big Sacrifice",null,4,"Lose 1 Boss HP to play a card from your Void for free."],
+["Electro J.R",150,3,"On death: summon Electric Golem."],
+["Ice J.R",200,4,"On death: summon Ice Golem."],
+["Peasant Boy",125,1,"No special ability."],
+["Water Golem",175,4,"On death: destroy the Bodyguard that killed it."],
+["Dragone",200,3,"On death: give one of your Bodyguards +50 Power for 1 turn."],
+["Pedro",130,1,"No special ability."],
+["Fire Golem",200,4,"On death: roll; if even, Void the weakest enemy Bodyguard."],
+["Black Hole",null,2,"Void one of your Bodyguards and summon a card of the same Level."],
+["Dirt Golem",310,5,"Once per turn: roll; on a 1, Void the weakest enemy Bodyguard."],
+["Electric Golem",230,3,"On death: opponent's next roll gets -1."],
+["Glubinator",300,6,"+50 Power for each Glub in your Void."],
+["Uncle Terry",null,3,"On play: roll; Power becomes 50 × the result."],
+["Elemental Sword",null,5,"Destroy all Elemental cards in play."],
+["Dice Ghost",200,4,"On death: may use opponent's last dice roll next turn."],
+["Rich Boy",120,2,"On play: summon Butler."],
+["Element Machine",null,3,"Roll; if even, your Elementals gain +100 Power permanently."],
+["Butler",275,4,"Only played when summoned by Rich Boy."],
+["Wind Golem",190,4,"On death: opponent's next roll gets -2."],
+["Lucky Dice",null,2,"Your next dice roll gets +2."],
+["Frankenstein",145,2,"Once per turn: inspect the top card of your deck."],
+["Krud",100,1,"No special ability."],
+["Glub",null,1,"On play: roll; Power becomes 30 × the result."],
+["Time Machine",null,3,"Make your opponent roll again."],
+["Doggo",350,6,"No special ability."]
+];
 
-        document.getElementById("roomCodeDisplay").textContent = roomCode;
+const bosses = [
+["Hotdog Boss",8,"Boss"],
+["Element Overlord",6,"Boss"],
+["Ultimate Guard",5,"Boss"]
+];
 
-        statusMessage("Room created! Give your friend this code: " + roomCode);
+function makeCard(name, power, level, ability, type="Bodyguard") {
+  const card = document.createElement("div");
+  card.className = "game-card " + (type === "Tool" ? "tool" : "");
+  const powerText = power === null ? "—" : power;
 
-      } catch (error) {
-        statusMessage("Room error: " + error.message);
-      }
-    }
+  card.innerHTML = `
+    <div>
+      <div class="card-name">${name}</div>
+      <div class="card-type">${type}</div>
+    </div>
+    <div class="card-stats">
+      <div class="stat"><strong>${powerText}</strong><small>POWER</small></div>
+      <div class="stat"><strong>${level}</strong><small>LEVEL</small></div>
+    </div>
+    <div class="card-ability">${ability}</div>
+    <div class="card-footer">BLAMMO TCG</div>
+  `;
+  return card;
+}
 
-    async function joinRoom() {
-      if (!user) {
-        statusMessage("Connect first!");
-        return;
-      }
+function renderGallery() {
+  const gallery = document.getElementById("cardGallery");
 
-      const code = document.getElementById("roomCode").value.trim().toUpperCase();
+  const bodyguards = cards.filter(c => c[1] !== null);
+  const tools = cards.filter(c => c[1] === null);
 
-      if (!code) {
-        statusMessage("Enter a room code.");
-        return;
-      }
+  const bodySection = document.createElement("section");
+  bodySection.innerHTML = '<h3 class="section-title">BODYGUARDS</h3>';
+  const bodyGrid = document.createElement("div");
+  bodyGrid.className = "card-grid";
 
-      try {
-        statusMessage("Joining room...");
+  bodyguards.forEach(c => bodyGrid.appendChild(makeCard(c[0],c[1],c[2],c[3])));
+  bodySection.appendChild(bodyGrid);
 
-        const { data, error } = await db.rpc("join_room", {
-          p_code: code
-        });
+  const toolSection = document.createElement("section");
+  toolSection.innerHTML = '<h3 class="section-title">TOOLS</h3>';
+  const toolGrid = document.createElement("div");
+  toolGrid.className = "card-grid";
 
-        if (error) throw error;
+  tools.forEach(c => toolGrid.appendChild(makeCard(c[0],c[1],c[2],c[3],"Tool")));
+  toolSection.appendChild(toolGrid);
 
-        const result = Array.isArray(data) ? data[0] : data;
+  const bossSection = document.createElement("section");
+  bossSection.innerHTML = '<h3 class="section-title">BOSSES</h3>';
+  const bossGrid = document.createElement("div");
+  bossGrid.className = "card-grid";
 
-        if (!result || !result.room_id) {
-          throw new Error("The join function returned unexpected data.");
-        }
+  bosses.forEach(b => bossGrid.appendChild(makeCard(b[0],null,b[1],"Starts with 6 Boss HP.","Boss")));
+  bossSection.appendChild(bossGrid);
 
-        roomId = result.room_id;
-        roomCode = code;
-        seat = 2;
+  gallery.append(bodySection,toolSection,bossSection);
+}
 
-        statusMessage("Successfully joined room " + roomCode + "!");
+renderGallery();
+</script>
 
-      } catch (error) {
-        statusMessage("Join error: " + error.message);
-      }
-    }
-  </script>
 </body>
 </html>
