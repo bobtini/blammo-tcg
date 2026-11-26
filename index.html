@@ -394,7 +394,7 @@ const cards = [
 ["Lucky Dice",null,2,"Your next dice roll gets +2."],
 ["Frankenstein",145,2,"Once per turn: inspect the top card of your deck."],
 ["Krud",100,1,"No special ability."],
-["Glub",null,1,"On play: roll; Power becomes 30 × the result."],
+["Glub",null,1,"On play: roll; Power becomes 30 × result."],
 ["Time Machine",null,3,"Make your opponent roll again."],
 ["Doggo",350,6,"No special ability."]
 ];
@@ -995,7 +995,7 @@ function renderGame() {
         me.field.length >= 3 ||
         gameView.spentThisTurn + card.l > gameView.rollValue ||
         busy;
-      
+
       playButton.onclick = () => playCard(card.id);
     }
 
