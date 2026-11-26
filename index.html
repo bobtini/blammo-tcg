@@ -1,0 +1,750 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BLAMMO TCG</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#101522;color:white;font-family:Arial;overflow:hidden}
+button{cursor:pointer;border:0;border-radius:7px;padding:7px 10px;font-weight:bold}
+button:disabled{opacity:.35;cursor:not-allowed}
+#game{height:100vh;display:flex;flex-direction:column;padding:6px;gap:5px;max-width:1500px;margin:auto}
+header{display:flex;justify-content:space-between;align-items:center;min-height:30px}
+h1{font-size:21px;letter-spacing:3px;color:#ffd34d;margin:0}
+#turnLabel{font-size:11px;color:#c5d1e5}
+.player{flex:1;min-height:0;border:2px solid #35445f;border-radius:11px;background:#192337;padding:6px;display:flex;flex-direction:column;gap:5px}
+.player.active{border-color:#ffd34d;box-shadow:0 0 10px #ffd34d33}
+.playerTop{display:flex;justify-content:space-between;align-items:center;gap:5px}
+.playerName{font-size:13px;font-weight:bold}
+.stats{font-size:10px;color:#c7d2e6}
+.controls{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end}
+.controls button{font-size:10px;background:#344766;color:white;padding:6px 8px}
+.controls .primary{background:#d99a22;color:#111}
+.controls .abilityButton{background:#7455a6;color:white}
+.battleArea{display:flex;gap:6px;flex:1;min-height:0}
+.boss{width:95px;min-width:95px;border:2px solid #d5a73a;border-radius:9px;background:#342b20;padding:5px;display:flex;flex-direction:column;justify-content:space-between;text-align:center;cursor:pointer}
+.boss h3{font-size:11px;margin:3px 0}
+.bossLevel{font-size:9px;color:#f7d77b}
+.hp{font-size:17px;color:#ff7777;font-weight:bold}
+.field{flex:1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;min-width:0;min-height:0}
+.card{min-width:0;min-height:0;border:1px solid #687995;border-radius:8px;background:linear-gradient(145deg,#283954,#182438);padding:5px;display:flex;flex-direction:column;justify-content:space-between;cursor:pointer;overflow:hidden}
+.card.selected{outline:3px solid #ffd34d;outline-offset:-2px}
+.card.used{opacity:.55}
+.card.frozen{border-color:#6bdcff}
+.card .name{font-size:10px;font-weight:bold;line-height:1.15}
+.card .type{font-size:8px;color:#b8c8df}
+.card .power{font-size:13px;font-weight:bold;color:#ffd34d}
+.card .level{font-size:9px;color:#a9c6ff}
+.card .ability{font-size:8px;line-height:1.2;color:#d6dfed;overflow:hidden}
+.card .tag{font-size:8px;color:#a6b8d3}
+.empty{border:1px dashed #50617d;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#71809a;font-size:10px}
+#middle{flex:0 0 auto;min-height:105px;max-height:140px;background:#111a29;border:1px solid #34445f;border-radius:10px;padding:5px;display:flex;flex-direction:column;gap:5px}
+#middleTop{display:flex;justify-content:space-between;align-items:center;gap:5px}
+#handTitle{font-size:11px;font-weight:bold}
+#message{font-size:9px;color:#ffd978;text-align:right}
+#hand{display:flex;gap:5px;overflow-x:auto;min-height:0;flex:1}
+.handCard{width:95px;min-width:95px}
+#bottomBar{display:flex;justify-content:space-between;align-items:center;font-size:10px;color:#aebbd0;gap:5px}
+#bottomBar button{background:#344766;color:white;font-size:10px;padding:5px 8px}
+#log{max-width:55%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+#overlay{position:fixed;inset:0;background:#000b;display:none;align-items:center;justify-content:center;padding:15px;z-index:10}
+#popup{background:#202d43;border:1px solid #637897;border-radius:12px;padding:17px;max-width:350px;width:100%;text-align:center;max-height:80vh;overflow:auto}
+#popup h2{margin-top:0}
+#popup button{margin:5px;background:#d99a22;color:#111}
+#popup .secondary{background:#435574;color:white}
+#setup{position:fixed;inset:0;background:#101522;z-index:20;display:flex;align-items:center;justify-content:center;padding:15px}
+#setupBox{background:#1d2a40;border:1px solid #566985;border-radius:14px;padding:20px;width:340px;max-width:100%;text-align:center}
+#setup select{width:100%;padding:10px;margin:7px 0;border-radius:7px}
+#setup button{background:#e5ad35;padding:11px 20px;margin-top:10px}
+@media(max-height:650px){
+ #game{padding:3px;gap:3px}h1{font-size:17px}
+ .player{padding:4px;gap:3px}.card{padding:3px}
+ .card .name{font-size:9px}.card .ability{font-size:7px}
+ .boss{width:78px;min-width:78px;padding:3px}
+ #middle{min-height:90px;max-height:105px}
+ .handCard{width:82px;min-width:82px}
+}
+@media(max-width:600px){
+ .boss{width:68px;min-width:68px}
+ .field{gap:3px}
+ .card .ability{font-size:7px}
+ .controls button{padding:5px;font-size:8px}
+ .playerName{font-size:10px}
+}
+</style>
+</head>
+<body>
+
+<div id="setup">
+ <div id="setupBox">
+  <h1>BLAMMO TCG</h1>
+  <p>Choose each player's Boss.</p>
+  <label>Player 1 Boss</label>
+  <select id="boss1"></select>
+  <label>Player 2 Boss</label>
+  <select id="boss2"></select>
+  <button onclick="startGame()">START GAME</button>
+ </div>
+</div>
+
+<div id="game">
+ <header>
+  <h1>BLAMMO TCG</h1>
+  <div id="turnLabel">Waiting to start</div>
+ </header>
+
+ <section class="player" id="player2">
+  <div class="playerTop">
+   <div>
+    <div class="playerName">PLAYER 2</div>
+    <div class="stats" id="stats2"></div>
+   </div>
+   <div class="controls">
+    <button onclick="rollDice(1)" id="roll2">ROLL</button>
+    <button onclick="combine(1)" id="combine2">COMBINE</button>
+    <button class="abilityButton" onclick="useSelectedAbility(1)" id="ability2">USE ABILITY</button>
+    <button class="primary" onclick="endTurn(1)">END TURN</button>
+   </div>
+  </div>
+  <div class="battleArea">
+   <div class="boss" id="bossCard2" onclick="bossClicked(1)"></div>
+   <div class="field" id="field2"></div>
+  </div>
+ </section>
+
+ <section id="middle">
+  <div id="middleTop">
+   <div id="handTitle">PLAYER 1 HAND</div>
+   <div id="message">Roll to begin your turn</div>
+  </div>
+  <div id="hand"></div>
+ </section>
+
+ <section class="player" id="player1">
+  <div class="battleArea">
+   <div class="boss" id="bossCard1" onclick="bossClicked(0)"></div>
+   <div class="field" id="field1"></div>
+  </div>
+  <div class="playerTop">
+   <div>
+    <div class="playerName">PLAYER 1</div>
+    <div class="stats" id="stats1"></div>
+   </div>
+   <div class="controls">
+    <button onclick="rollDice(0)" id="roll1">ROLL</button>
+    <button onclick="combine(0)" id="combine1">COMBINE</button>
+    <button class="abilityButton" onclick="useSelectedAbility(0)" id="ability1">USE ABILITY</button>
+    <button class="primary" onclick="endTurn(0)">END TURN</button>
+   </div>
+  </div>
+ </section>
+
+ <div id="bottomBar">
+  <div id="log">Welcome to BLAMMO TCG!</div>
+  <div>
+   <button onclick="showVoid()">VOID</button>
+   <button onclick="showRules()">RULES</button>
+  </div>
+ </div>
+</div>
+
+<div id="overlay">
+ <div id="popup">
+  <h2 id="popupTitle"></h2>
+  <div id="popupContent"></div>
+  <button onclick="closePopup()">CLOSE</button>
+ </div>
+</div>
+
+<script>
+const cardData=[
+{name:"Joe the Fish",p:125,l:1},
+{name:"Dan the Mouse",p:10,l:1},
+{name:"Crud",p:120,l:1},
+{name:"Jim the Special Unicorn",p:100,l:1},
+{name:"King Jim",p:140,l:2,a:"On death: summon Peasant Boy for free."},
+{name:"Ice Golem",p:240,l:4,a:"Once played: freeze an enemy Bodyguard for 1 turn."},
+{name:"Dirt J.R",p:250,l:5,a:"On death: summon Dirt Golem for free."},
+{name:"Flame J.R",p:170,l:3,a:"On death: summon Fire Golem for free."},
+{name:"Tim the Rat",p:125,l:1},
+{name:"Big Sacrifice",p:0,l:4,t:"Tool",a:"Lose 1 Boss HP, then play a card from your Void for free."},
+{name:"Electro J.R",p:150,l:3,a:"On death: summon Electric Golem for free."},
+{name:"Ice J.R",p:200,l:4,a:"On death: summon Ice Golem for free."},
+{name:"Peasant Boy",p:125,l:1},
+{name:"Water Golem",p:175,l:4,a:"On death: destroy the Bodyguard that killed it."},
+{name:"Dragone",p:200,l:3,a:"On death: give a Bodyguard +50 Power for 1 turn."},
+{name:"Pedro",p:130,l:1},
+{name:"Fire Golem",p:200,l:4,a:"On death: roll; if even, Void the enemy's weakest Bodyguard."},
+{name:"Black Hole",p:0,l:2,t:"Tool",a:"Void one of your Bodyguards and summon a card of the same level."},
+{name:"Dirt Golem",p:310,l:5,a:"Once per turn: roll; on 1, Void the enemy's weakest Bodyguard."},
+{name:"Electric Golem",p:230,l:3,a:"On death: reduce enemy's next roll by 1."},
+{name:"Glubinator",p:300,l:6,a:"Once played: +50 Power for every Glub in your Void."},
+{name:"Uncle Terry",p:0,l:3,a:"Once played: roll; Power becomes 50 × result."},
+{name:"Elemental Sword",p:0,l:5,t:"Tool",a:"Destroy all Elemental cards in play."},
+{name:"Dice Ghost",p:200,l:4,a:"On death: may use opponent's last dice roll next turn."},
+{name:"Rich Boy",p:120,l:2,a:"Once played: summon Butler for free."},
+{name:"Element Machine",p:0,l:3,t:"Tool",a:"Roll; if even, Elementals gain 100 permanent Power."},
+{name:"Butler",p:275,l:4,a:"Can only be played when summoned by Rich Boy."},
+{name:"Wind Golem",p:190,l:4,a:"On death: reduce enemy's next roll by 2."},
+{name:"Lucky Dice",p:0,l:2,t:"Tool",a:"Add 2 to your next dice roll."},
+{name:"Frankenstein",p:145,l:2,a:"Once per turn: inspect the top card of your deck."},
+{name:"Krud",p:100,l:1},
+{name:"Glub",p:0,l:1,a:"Once played: roll; Power becomes 30 × result."},
+{name:"Time Machine",p:0,l:3,t:"Tool",a:"Make opponent roll again."},
+{name:"Doggo",p:350,l:6}
+];
+
+const bosses=[
+{name:"Hotdog Boss",level:8},
+{name:"Element Overlord",level:6},
+{name:"Ultimate Guard",level:5}
+];
+
+let players=[],current=0,round=1,rolled=false,rollValue=0;
+let selectedHand=null,selectedAttacker=null;
+let combineSelection=[],combineMode=false;
+let bossDamageThisTurn=0,gameOver=false,forcedRoll=0;
+let nextRollBonus=[0,0],nextRollPenalty=[0,0],lastRoll=[0,0];
+let playsLeft=2,spentThisTurn=0;
+
+function makeCard(data){
+ return {...data,id:Math.random().toString(36).slice(2),used:false,frozen:0,abilityUsedTurn:false};
+}
+function shuffle(a){
+ for(let i=a.length-1;i>0;i--){
+  let j=Math.floor(Math.random()*(i+1));
+  [a[i],a[j]]=[a[j],a[i]];
+ }
+ return a;
+}
+function makeDeck(){
+ let deck=[],counts={};
+ while(deck.length<30){
+  let d=cardData[Math.floor(Math.random()*cardData.length)];
+  counts[d.name]=counts[d.name]||0;
+  if(counts[d.name]<5){deck.push(makeCard(d));counts[d.name]++}
+ }
+ return shuffle(deck);
+}
+function startGame(){
+ let b1=bosses[+document.getElementById("boss1").value];
+ let b2=bosses[+document.getElementById("boss2").value];
+ players=[
+  {boss:{...b1,hp:6},deck:makeDeck(),hand:[],field:[],void:[],name:"PLAYER 1"},
+  {boss:{...b2,hp:6},deck:makeDeck(),hand:[],field:[],void:[],name:"PLAYER 2"}
+ ];
+ for(let p of players)for(let i=0;i<3;i++)draw(p);
+ document.getElementById("setup").style.display="none";
+ current=0;round=1;rolled=false;gameOver=false;
+ spentThisTurn=0;playsLeft=2;
+ render();say("Player 1 starts. Roll the dice!");
+}
+function draw(p){
+ if(p.deck.length===0&&p.void.length)p.deck=shuffle(p.void.splice(0));
+ if(p.deck.length&&p.hand.length<3)p.hand.push(p.deck.pop());
+}
+function say(s){document.getElementById("log").textContent=s}
+function render(){
+ for(let i=0;i<2;i++){
+  let p=players[i];
+  document.getElementById("player"+(i+1)).classList.toggle("active",i===current);
+  document.getElementById("stats"+(i+1)).textContent=
+   "Boss HP: "+p.boss.hp+" | Deck: "+p.deck.length+" | Void: "+p.void.length;
+  let b=document.getElementById("bossCard"+(i+1));
+  b.innerHTML="<div class='bossLevel'>BOSS LEVEL "+p.boss.level+"</div><h3>"+p.boss.name+"</h3><div class='hp'>"+p.boss.hp+" HP</div><div class='tag'>Boss Card</div>";
+  let f=document.getElementById("field"+(i+1));f.innerHTML="";
+  for(let j=0;j<3;j++){
+   let c=p.field[j];
+   if(!c){
+    let e=document.createElement("div");e.className="empty";e.textContent="Empty";f.appendChild(e);
+   }else{
+    let el=cardElement(c,()=>fieldClicked(i,j),false);
+    if(i===current&&selectedAttacker===j)el.classList.add("selected");
+    f.appendChild(el);
+   }
+  }
+  document.getElementById("roll"+(i+1)).disabled=i!==current||rolled||gameOver;
+  document.getElementById("combine"+(i+1)).disabled=i!==current||!rolled||gameOver;
+  document.getElementById("ability"+(i+1)).disabled=i!==current||!rolled||selectedAttacker===null||gameOver;
+ }
+ document.getElementById("turnLabel").textContent=
+  "ROUND "+round+" • "+players[current].name+"'S TURN"+(rolled?" • ROLL: "+rollValue:"");
+ document.getElementById("handTitle").textContent=players[current].name+" HAND";
+ let h=document.getElementById("hand");h.innerHTML="";
+ players[current].hand.forEach((c,i)=>{
+  let el=cardElement(c,()=>handClicked(i),true);
+  if(selectedHand===i)el.classList.add("selected");
+  h.appendChild(el);
+ });
+ document.getElementById("message").textContent=rolled?
+  "Dice: "+rollValue+" | Spent: "+spentThisTurn+" | Left: "+(rollValue-spentThisTurn)+" | Cards: "+(2-playsLeft)+"/2":
+  "Roll to begin your turn";
+}
+function cardElement(c,click,hand){
+ let d=document.createElement("div");
+ d.className="card"+(c.used?" used":"")+(c.frozen>0?" frozen":"");
+ if(hand)d.classList.add("handCard");
+ d.innerHTML="<div><div class='name'>"+c.name+"</div><div class='type'>"+(c.t||"Bodyguard")+"</div></div>"+
+  "<div class='power'>"+(c.t?"TOOL":c.p+" PWR")+"</div>"+
+  "<div class='level'>LEVEL "+c.l+"</div>"+
+  "<div class='ability'>"+(c.a||"No ability")+"</div>"+
+  (c.frozen>0?"<div class='tag'>FROZEN</div>":"");
+ d.onclick=click;return d;
+}
+function rollDice(p){
+ if(p!==current||rolled||gameOver)return;
+ let result=forcedRoll||Math.floor(Math.random()*6)+1;
+ forcedRoll=0;
+ result+=nextRollBonus[p];nextRollBonus[p]=0;
+ result-=nextRollPenalty[p];nextRollPenalty[p]=0;
+ result=Math.max(1,Math.min(6,result));
+ rollValue=result;spentThisTurn=0;
+ lastRoll[p]=result;rolled=true;playsLeft=2;bossDamageThisTurn=0;
+ players[p].field.forEach(c=>{if(c&&c.frozen>0)c.frozen--});
+ say(players[p].name+" rolled "+result+". Total spending budget: "+result+".");
+ render();
+}
+function handClicked(index){
+ if(!rolled||gameOver||playsLeft<=0)return;
+ let c=players[current].hand[index];
+ if(selectedHand===index){playSelected();return}
+ if(spentThisTurn+c.l>rollValue)
+  return say("Not enough remaining points! You have "+(rollValue-spentThisTurn)+" left.");
+ if(c.name==="Butler"&&!players[current].field.some(x=>x&&x.name==="Rich Boy"))
+  return say("Butler can only be summoned by Rich Boy.");
+ if(c.t==="Tool"){
+  selectedHand=index;render();say("Selected "+c.name+". Click it again to use it.");return;
+ }
+ if(players[current].field.filter(Boolean).length>=3)
+  return say("You can only have 3 Bodyguards in play.");
+ selectedHand=index;selectedAttacker=null;render();
+ say("Selected "+c.name+". Click again to play it.");
+}
+function playSelected(){
+ if(selectedHand===null||!rolled||playsLeft<=0)return;
+ let p=players[current],c=p.hand[selectedHand];
+ if(spentThisTurn+c.l>rollValue)return say("Not enough remaining points!");
+ if(c.t==="Tool"){useTool(c,selectedHand);return}
+ if(p.field.filter(Boolean).length>=3)return say("Your field is full.");
+ p.hand.splice(selectedHand,1);p.field.push(c);
+ spentThisTurn+=c.l;selectedHand=null;playsLeft--;draw(p);
+ say(c.name+" entered the field. Spent "+spentThisTurn+" of "+rollValue+" points.");
+ onPlayed(c,current);render();
+}
+function useTool(c,index){
+ let p=players[current];
+
+ if(spentThisTurn+c.l>rollValue)
+  return say("Not enough remaining points to use "+c.name+".");
+
+ if(c.name==="Big Sacrifice"&&p.boss.hp<=1)
+  return say("You cannot use this: your Boss would reach 0 HP.");
+
+ if(c.name==="Black Hole"){
+  if(!p.field.some(Boolean))
+   return say("You need a Bodyguard in play to use Black Hole.");
+  showBlackHoleSacrifice(index);
+  return;
+ }
+
+ if(c.name==="Big Sacrifice"){
+  p.boss.hp--;
+  p.hand.splice(index,1);
+  p.void.push(c);
+  spentThisTurn+=c.l;
+  playsLeft--;
+  draw(p);
+  render();
+  say("Big Sacrifice used. Choose a card in your Void to summon.");
+  showVoid(true);
+  return;
+ }
+
+ if(c.name==="Lucky Dice")nextRollBonus[current]+=2;
+
+ if(c.name==="Time Machine"){
+  forcedRoll=Math.floor(Math.random()*6)+1;
+  say("Time Machine: the opponent's next roll is set to "+forcedRoll+".");
+ }
+
+ if(c.name==="Element Machine"){
+  let r=Math.floor(Math.random()*6)+1;
+  say("Element Machine rolled "+r+".");
+  if(r%2===0){
+   players.forEach(pl=>pl.field.forEach(x=>{
+    if(x&&isElement(x))x.p+=100
+   }));
+   say("Even roll! Elemental cards gained 100 Power.");
+  }
+ }
+
+ if(c.name==="Elemental Sword"){
+  players.forEach(pl=>{
+   pl.field=pl.field.filter(x=>{
+    if(x&&isElement(x)){
+     pl.void.push(x);
+     return false;
+    }
+    return true;
+   });
+  });
+ }
+
+ p.hand.splice(index,1);
+ p.void.push(c);
+ spentThisTurn+=c.l;
+ playsLeft--;
+ draw(p);
+
+ if(c.name==="Elemental Sword")
+  say("Elemental Sword destroyed all Elementals.");
+ else if(c.name!=="Element Machine"&&c.name!=="Time Machine")
+  say(c.name+" used.");
+
+ render();
+}
+
+/* BLACK HOLE ABILITY */
+function showBlackHoleSacrifice(toolIndex){
+ let p=players[current];
+ let html="<p>Choose a Bodyguard to sacrifice.</p>";
+
+ p.field.forEach(c=>{
+  if(!c)return;
+  html+="<button class='secondary' onclick='blackHoleSacrifice(\""+
+   c.id+"\","+toolIndex+")'>"+
+   c.name+" (Level "+c.l+")</button>";
+ });
+
+ showPopup("BLACK HOLE",html);
+}
+
+function blackHoleSacrifice(cardId,toolIndex){
+ let p=players[current];
+ let target=p.field.find(c=>c&&c.id===cardId);
+ let tool=p.hand[toolIndex];
+
+ if(!target||!tool||tool.name!=="Black Hole"){
+  closePopup();
+  return say("Black Hole could not complete.");
+ }
+
+ // Find eligible cards in both zones before sacrificing.
+ let options=[
+  ...p.deck.filter(c=>c.l===target.l)
+   .map(c=>({card:c,source:"deck"})),
+  ...p.void.filter(c=>c.l===target.l)
+   .map(c=>({card:c,source:"void"}))
+ ];
+
+ if(options.length===0){
+  closePopup();
+  return say("No Level "+target.l+" cards in your Deck or Void. Nothing was sacrificed.");
+ }
+
+ // Sacrifice the chosen Bodyguard.
+ p.field.splice(p.field.indexOf(target),1);
+ p.void.push(target);
+
+ // Pay for and use Black Hole.
+ p.hand.splice(toolIndex,1);
+ p.void.push(tool);
+ spentThisTurn+=tool.l;
+ playsLeft--;
+ draw(p);
+
+ // Create the choice popup.
+ let html="<p>Choose a Level "+target.l+
+  " card to summon for free.</p>";
+
+ options.forEach(option=>{
+  html+="<button class='secondary' onclick='blackHoleChoose(\""+
+   option.card.id+"\")'>"+
+   option.card.name+" (Level "+option.card.l+") - "+
+   option.source.toUpperCase()+"</button>";
+ });
+
+ closePopup();
+ render();
+ showPopup("BLACK HOLE: CHOOSE YOUR CARD",html);
+ say("Choose a same-level card from your Deck or Void.");
+}
+
+function blackHoleChoose(cardId){
+ let p=players[current];
+
+ let deckIndex=p.deck.findIndex(c=>c.id===cardId);
+ let voidIndex=p.void.findIndex(c=>c.id===cardId);
+ let chosen=null;
+ let source="";
+
+ if(deckIndex!==-1){
+  chosen=p.deck.splice(deckIndex,1)[0];
+  source="Deck";
+ }else if(voidIndex!==-1){
+  chosen=p.void.splice(voidIndex,1)[0];
+  source="Void";
+ }
+
+ if(!chosen){
+  closePopup();
+  return say("That card is no longer available.");
+ }
+
+ if(p.field.filter(Boolean).length>=3){
+  // Return the selected card if the field is full.
+  if(source==="Deck")p.deck.push(chosen);
+  else p.void.push(chosen);
+  closePopup();
+  return say("Your field is full.");
+ }
+
+ p.field.push(chosen);
+ closePopup();
+ onPlayed(chosen,current);
+ render();
+ say("Black Hole summoned "+chosen.name+" from your "+source+" for free!");
+}
+
+function isElement(c){return /Golem|J\\.R/.test(c.name)}
+function onPlayed(c,owner){
+ let p=players[owner],op=players[1-owner];
+ if(c.name==="Ice Golem"){
+  let targets=op.field.filter(Boolean);
+  if(targets.length){targets[0].frozen=1;say("Ice Golem froze "+targets[0].name+".")}
+ }
+ if(c.name==="Glubinator"){
+  let n=p.void.filter(x=>x.name==="Glub").length;c.p+=50*n;
+ }
+ if(c.name==="Uncle Terry"||c.name==="Glub"){
+  let r=Math.floor(Math.random()*6)+1;
+  c.p=c.name==="Glub"?30*r:50*r;
+  say(c.name+" rolled "+r+" and now has "+c.p+" Power.");
+ }
+ if(c.name==="Rich Boy"){
+  if(p.field.filter(Boolean).length<3){
+   p.field.push(makeCard(cardData.find(x=>x.name==="Butler")));
+   say("Rich Boy summoned Butler!");
+  }
+ }
+}
+function fieldClicked(owner,index){
+ if(gameOver)return;
+ if(owner===current){
+  if(combineMode){chooseCombine(index);return}
+  selectOwnCard(index);return;
+ }
+ if(selectedAttacker===null)return say("Select one of your Bodyguards first.");
+ attackBodyguard(selectedAttacker,index);
+}
+function selectOwnCard(index){
+ let c=players[current].field[index];
+ if(!c)return;
+ selectedAttacker=index;selectedHand=null;
+ render();
+ say("Selected "+c.name+". Use USE ABILITY or select an enemy to attack.");
+}
+function attackBodyguard(ai,ti){
+ let p=players[current],op=players[1-current];
+ let a=p.field[ai],t=op.field[ti];
+ if(!a||!t)return;
+ if(!rolled)return say("Roll first.");
+ if(a.used)return say("That Bodyguard has already attacked.");
+ if(a.frozen>0)return say("That Bodyguard is frozen.");
+ if(a.p<=t.p)return say("Your Power must be HIGHER than the enemy's Power.");
+ a.used=true;op.field.splice(ti,1);p.void.push(t);
+ say(a.name+" defeated "+t.name+"!");
+ onDeath(t,1-current,current,a);
+ selectedAttacker=null;render();
+}
+function bossClicked(owner){
+ if(gameOver||owner===current)return;
+ if(!rolled)return say("Roll first.");
+ if(round===1)return say("Bosses cannot be attacked on Round 1.");
+ if(selectedAttacker===null)return say("Select your Bodyguard first.");
+ let p=players[current],op=players[owner];
+ if(op.field.some(Boolean))return say("Defeat all enemy Bodyguards first.");
+ if(bossDamageThisTurn>=1)return say("You can only deal 1 Boss damage per turn.");
+ let a=p.field[selectedAttacker];
+ if(!a||a.used)return say("Choose a Bodyguard that has not attacked.");
+ if(a.frozen>0)return say("That Bodyguard is frozen.");
+ a.used=true;op.boss.hp--;bossDamageThisTurn++;
+ say(a.name+" hit the Boss for 1 damage!");
+ selectedAttacker=null;
+ if(op.boss.hp<=0){finishGame(current);return}
+ render();
+}
+
+/* MANUAL ACTIVE ABILITIES */
+function useSelectedAbility(owner){
+ if(owner!==current||!rolled||gameOver)return;
+ if(selectedAttacker===null)return say("Select one of your Bodyguards first.");
+ let p=players[current],op=players[1-current];
+ let c=p.field[selectedAttacker];
+ if(!c)return;
+ if(c.abilityUsedTurn)return say(c.name+" has already used its ability this turn.");
+
+ if(c.name==="Dirt Golem"){
+  let enemies=op.field.filter(Boolean);
+  if(!enemies.length)return say("There are no enemy Bodyguards to target.");
+  c.abilityUsedTurn=true;
+  let r=Math.floor(Math.random()*6)+1;
+  say("Dirt Golem rolled "+r+".");
+  if(r===1){
+   let weakest=enemies.reduce((a,b)=>a.p<=b.p?a:b);
+   op.field.splice(op.field.indexOf(weakest),1);
+   op.void.push(weakest);
+   say("Dirt Golem rolled a 1! "+weakest.name+" was sent to the Void.");
+  }else{
+   say("Dirt Golem's ability did not activate.");
+  }
+  render();return;
+ }
+
+ if(c.name==="Frankenstein"){
+  c.abilityUsedTurn=true;
+  if(p.deck.length===0&&p.void.length)p.deck=shuffle(p.void.splice(0));
+  if(p.deck.length===0)return say("Your deck is empty.");
+  let top=p.deck[p.deck.length-1];
+  showPopup("FRANKENSTEIN",
+   "<p>Top card: <b>"+top.name+"</b></p>"+
+   "<button onclick='frankensteinChoice(\"keep\")'>KEEP ON TOP</button>"+
+   "<button onclick='frankensteinChoice(\"bottom\")'>PUT ON BOTTOM</button>");
+  render();return;
+ }
+
+ say(c.name+" does not have a manually activated ability.");
+}
+function frankensteinChoice(choice){
+ let p=players[current];
+ if(p.deck.length===0){closePopup();return}
+ if(choice==="bottom"){
+  let top=p.deck.pop();
+  p.deck.unshift(top);
+  say("You moved "+top.name+" to the bottom of your deck.");
+ }else{
+  say("You kept the top card on your deck.");
+ }
+ closePopup();render();
+}
+
+function onDeath(c,owner,killer,attacker){
+ let p=players[owner],op=players[killer];
+ if(c.name==="King Jim")summon(owner,"Peasant Boy");
+ if(c.name==="Dirt J.R")summon(owner,"Dirt Golem");
+ if(c.name==="Flame J.R")summon(owner,"Fire Golem");
+ if(c.name==="Electro J.R")summon(owner,"Electric Golem");
+ if(c.name==="Ice J.R")summon(owner,"Ice Golem");
+ if(c.name==="Water Golem"){
+  let i=op.field.indexOf(attacker);
+  if(i>=0){op.void.push(attacker);op.field.splice(i,1);say("Water Golem destroyed its attacker!")}
+ }
+ if(c.name==="Dragone"&&p.field.some(Boolean))p.field.find(Boolean).p+=50;
+ if(c.name==="Fire Golem"){
+  let r=Math.floor(Math.random()*6)+1;
+  if(r%2===0&&op.field.some(Boolean)){
+   let weak=op.field.filter(Boolean).reduce((a,b)=>a.p<=b.p?a:b);
+   op.field.splice(op.field.indexOf(weak),1);op.void.push(weak);
+   say("Fire Golem's ability removed "+weak.name+".");
+  }
+ }
+ if(c.name==="Electric Golem")nextRollPenalty[killer]+=1;
+ if(c.name==="Wind Golem")nextRollPenalty[killer]+=2;
+}
+function summon(owner,name){
+ let p=players[owner];
+ if(p.field.filter(Boolean).length>=3)return;
+ let data=cardData.find(x=>x.name===name);
+ if(data){p.field.push(makeCard(data));say(name+" was summoned for free!")}
+}
+function combine(owner){
+ if(owner!==current||!rolled)return;
+ if(players[current].field.filter(Boolean).length<2)return say("You need at least two Bodyguards.");
+ combineMode=true;combineSelection=[];
+ say("Click two of your Bodyguards to combine them.");
+}
+function chooseCombine(index){
+ let p=players[current],c=p.field[index];
+ if(!c)return;
+ if(!combineMode){selectOwnCard(index);return}
+ if(combineSelection.includes(index))return;
+ combineSelection.push(index);
+ if(combineSelection.length<2){say("Choose your second Bodyguard.");return}
+ let [i,j]=combineSelection;
+ let a=p.field[i],b=p.field[j];
+ let survivor=a.l>=b.l?a:b;
+ let sacrificed=survivor===a?b:a;
+ survivor.p=a.p+b.p;
+ p.void.push(sacrificed);
+ p.field.splice(p.field.indexOf(sacrificed),1);
+ survivor.used=true;
+ combineSelection=[];combineMode=false;
+ say("Combined Power! "+survivor.name+" now has "+survivor.p+" Power.");
+ render();
+}
+function endTurn(owner){
+ if(owner!==current||gameOver)return;
+ selectedHand=null;selectedAttacker=null;combineSelection=[];combineMode=false;
+ current=1-current;round++;
+ rolled=false;rollValue=0;playsLeft=2;spentThisTurn=0;bossDamageThisTurn=0;
+ players[current].field.forEach(c=>{
+  if(c){c.used=false;c.abilityUsedTurn=false}
+ });
+ render();
+ document.getElementById("player1").classList.add("flip");
+ document.getElementById("player2").classList.add("flip");
+ setTimeout(()=>{
+  document.getElementById("player1").classList.remove("flip");
+  document.getElementById("player2").classList.remove("flip");
+ },350);
+ say(players[current].name+"'s turn. Roll the dice!");
+}
+function finishGame(winner){
+ gameOver=true;
+ showPopup(players[winner].name+" WINS!","The enemy Boss has been defeated!");
+}
+function showPopup(title,content){
+ document.getElementById("popupTitle").textContent=title;
+ document.getElementById("popupContent").innerHTML=content;
+ document.getElementById("overlay").style.display="flex";
+}
+function closePopup(){document.getElementById("overlay").style.display="none"}
+function showVoid(sacrifice=false){
+ let p=players[current];
+ let html=p.void.length?p.void.map((c,i)=>
+  "<button class='secondary' onclick='voidChoice("+i+","+sacrifice+")'>"+c.name+" (Lv "+c.l+")</button>"
+ ).join(""):"Your Void is empty.";
+ showPopup("VOID",html);
+}
+function voidChoice(i,sacrifice){
+ let p=players[current],c=p.void[i];
+ if(!c)return;
+ if(sacrifice){
+  if(p.field.filter(Boolean).length>=3)return say("Your field is full.");
+  p.void.splice(i,1);p.field.push(c);
+  closePopup();say(c.name+" returned from the Void for free.");render();
+ }
+}
+function showRules(){
+ showPopup("GAME RULES",
+ "<p>Roll a dice. The result is your TOTAL level budget for the turn.</p>"+
+ "<p>You can play up to 2 cards per turn and have up to 3 Bodyguards in play.</p>"+
+ "<p>Round 1: Bosses cannot be attacked.</p>"+
+ "<p>Each Bodyguard can attack once per turn. Its Power must be higher than the target's Power.</p>"+
+ "<p>You can deal a maximum of 1 damage to a Boss per turn.</p>"+
+ "<p>Select a Bodyguard and press USE ABILITY to activate its manual ability.</p>"+
+ "<p>On Death and Once Played abilities activate automatically.</p>"+
+ "<p>Win by reducing the enemy Boss to 0 HP.</p>");
+}
+function setup(){
+ bosses.forEach((b,i)=>{
+  document.getElementById("boss1").innerHTML+="<option value='"+i+"'>"+b.name+" (Level "+b.level+")</option>";
+  document.getElementById("boss2").innerHTML+="<option value='"+i+"'>"+b.name+" (Level "+b.level+")</option>";
+ });
+}
+setup();
+</script>
+</body>
+</html>
