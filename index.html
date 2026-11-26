@@ -2,183 +2,232 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>BLAMMO TCG</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<style>
-*{box-sizing:border-box}
-body{margin:0;background:#101522;color:white;font-family:Arial}
-button,input{border:0;border-radius:7px;padding:10px;font-weight:bold}
-button{cursor:pointer;background:#d99a22;color:#111}
-button:disabled{opacity:.4}
-#setup{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:15px}
-#setupBox{background:#1d2a40;border:1px solid #566985;border-radius:14px;padding:22px;width:360px;max-width:100%;text-align:center}
-h1{color:#ffd34d;letter-spacing:3px}
-input{width:100%;margin:7px 0;background:#fff}
-.action{width:100%;margin:5px 0}
-#game{display:none;height:100vh;max-width:1500px;margin:auto;padding:6px;gap:5px;flex-direction:column}
-header{display:flex;justify-content:space-between;align-items:center}
-.player{flex:1;min-height:0;border:2px solid #35445f;border-radius:11px;background:#192337;padding:7px;display:flex;flex-direction:column;gap:6px}
-.player.active{border-color:#ffd34d}
-.playerTop{display:flex;justify-content:space-between;align-items:center;gap:5px}
-.playerName{font-size:13px;font-weight:bold}
-.stats{font-size:10px;color:#c7d2e6}
-.controls{display:flex;gap:4px;flex-wrap:wrap}
-.controls button{font-size:10px;background:#344766;color:white;padding:7px}
-.controls .primary{background:#d99a22;color:#111}
-.battleArea{display:flex;gap:6px;flex:1;min-height:0}
-.boss{width:95px;min-width:95px;border:2px solid #d5a73a;border-radius:9px;background:#342b20;padding:6px;text-align:center;display:flex;flex-direction:column;justify-content:space-between}
-.boss h3{font-size:11px}
-.hp{font-size:18px;color:#ff7777}
-.field{flex:1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
-.card,.empty{min-width:0;border:1px solid #687995;border-radius:8px;background:linear-gradient(145deg,#283954,#182438);padding:6px;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden}
-.card{cursor:pointer}
-.card.selected{outline:3px solid #ffd34d}
-.card .name{font-size:10px;font-weight:bold}
-.card .type,.card .ability,.card .tag{font-size:8px;color:#c5d1e5}
-.card .power{font-size:13px;color:#ffd34d;font-weight:bold}
-.card .level{font-size:9px;color:#a9c6ff}
-.empty{align-items:center;justify-content:center;color:#71809a;font-size:10px;border-style:dashed}
-#middle{min-height:110px;background:#111a29;border:1px solid #34445f;border-radius:10px;padding:6px;display:flex;flex-direction:column;gap:5px}
-#middleTop{display:flex;justify-content:space-between;font-size:11px}
-#hand{display:flex;gap:5px;overflow-x:auto;flex:1}
-.handCard{width:95px;min-width:95px}
-#bottomBar{display:flex;justify-content:space-between;align-items:center;font-size:10px}
-#bottomBar button{background:#344766;color:white}
-#overlay{display:none;position:fixed;inset:0;background:#000b;align-items:center;justify-content:center;padding:15px}
-#popup{background:#202d43;border:1px solid #637897;border-radius:12px;padding:17px;max-width:350px;width:100%;text-align:center;max-height:80vh;overflow:auto}
-#popup button{margin:5px}
-@media(max-width:600px){.boss{width:68px;min-width:68px}.controls button{font-size:8px;padding:5px}}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BLAMMO TCG</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: #101827;
+      color: white;
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .panel {
+      background: #1d293b;
+      width: 100%;
+      max-width: 440px;
+      padding: 30px;
+      border-radius: 16px;
+      text-align: center;
+      box-shadow: 0 10px 35px #0006;
+    }
+
+    h1 {
+      font-size: 48px;
+      color: #ffcf40;
+      margin: 0 0 8px;
+    }
+
+    p { color: #cbd5e1; }
+
+    button, input {
+      width: 100%;
+      padding: 14px;
+      margin-top: 12px;
+      border: 0;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+
+    button {
+      background: #ffcf40;
+      color: #172033;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    input {
+      background: #101827;
+      color: white;
+      border: 1px solid #526078;
+      text-align: center;
+      text-transform: uppercase;
+    }
+
+    #status {
+      margin-top: 20px;
+      padding: 12px;
+      background: #101827;
+      border-radius: 8px;
+      overflow-wrap: anywhere;
+      font-size: 14px;
+    }
+
+    #roomCodeDisplay {
+      color: #ffcf40;
+      font-size: 32px;
+      font-weight: bold;
+      letter-spacing: 5px;
+    }
+  </style>
 </head>
+
 <body>
+  <div class="panel">
+    <h1>BLAMMO</h1>
+    <p>Online Trading Card Game</p>
 
-<div id="setup">
- <div id="setupBox">
-  <h1>BLAMMO TCG</h1>
-  <p>Online multiplayer</p>
-  <input id="playerName" placeholder="Your player name" maxlength="20">
-  <button class="action" onclick="connect()">CONNECT</button>
-  <hr>
-  <button class="action" onclick="createRoom()">CREATE ROOM</button>
-  <input id="roomCode" placeholder="Enter room code">
-  <button class="action" onclick="joinRoom()">JOIN ROOM</button>
-  <p id="status">Connect to start playing.</p>
- </div>
-</div>
+    <button id="connectButton" onclick="connect()">
+      Connect
+    </button>
 
-<div id="game">
- <header><h1>BLAMMO TCG</h1><div id="turnLabel"></div></header>
- <section class="player" id="player2">
-  <div class="playerTop">
-   <div><div class="playerName" id="name2">PLAYER 2</div><div class="stats" id="stats2"></div></div>
-   <div class="controls">
-    <button id="roll2" onclick="sendAction('roll')">ROLL</button>
-    <button onclick="sendAction('combine')">COMBINE</button>
-    <button onclick="sendAction('ability')">USE ABILITY</button>
-    <button class="primary" onclick="sendAction('end')">END TURN</button>
-   </div>
+    <button id="createButton" onclick="createRoom()" disabled>
+      Create Room
+    </button>
+
+    <hr style="border-color:#526078; margin-top:24px;">
+
+    <input
+      id="roomCode"
+      maxlength="6"
+      placeholder="ENTER ROOM CODE"
+    >
+
+    <button id="joinButton" onclick="joinRoom()" disabled>
+      Join Room
+    </button>
+
+    <div id="roomCodeDisplay"></div>
+    <div id="status">Connect to start playing.</div>
   </div>
-  <div class="battleArea"><div class="boss" id="boss2"></div><div class="field" id="field2"></div></div>
- </section>
- <section id="middle">
-  <div id="middleTop"><b id="handTitle">YOUR HAND</b><span id="message">Waiting for game...</span></div>
-  <div id="hand"></div>
- </section>
- <section class="player" id="player1">
-  <div class="battleArea"><div class="boss" id="boss1"></div><div class="field" id="field1"></div></div>
-  <div class="playerTop">
-   <div><div class="playerName" id="name1">PLAYER 1</div><div class="stats" id="stats1"></div></div>
-   <div class="controls">
-    <button id="roll1" onclick="sendAction('roll')">ROLL</button>
-    <button onclick="sendAction('combine')">COMBINE</button>
-    <button onclick="sendAction('ability')">USE ABILITY</button>
-    <button class="primary" onclick="sendAction('end')">END TURN</button>
-   </div>
-  </div>
- </section>
- <div id="bottomBar"><span id="log">Welcome to BLAMMO!</span><div><button onclick="showVoid()">VOID</button> <button onclick="showRules()">RULES</button></div></div>
-</div>
 
-<div id="overlay"><div id="popup"><h2 id="popupTitle"></h2><div id="popupContent"></div><button onclick="closePopup()">CLOSE</button></div></div>
+  <script>
+    // SUPABASE SETTINGS
+    const SUPABASE_URL = "https://dpuibiavdodyugyxjihq.supabase.co";
+    const SUPABASE_KEY = "PASTE_YOUR_PUBLISHABLE_KEY_HERE";
 
-<script>
-const SUPABASE_URL = "https://dpuibiavdodyugyxjihq.supabase.co";
-const SUPABASE_KEY = "sb_publishable_Iycq9Dnx8tGSWvHpiUMI1A_rdpwzxem";
+    // CONNECT TO SUPABASE
+    const db = supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_KEY
+    );
 
-const db = supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-let user=null,roomId=null,roomCode=null,seat=null,channel=null;
-let gameState=null;
+    let user = null;
+    let roomId = null;
+    let roomCode = null;
+    let seat = null;
 
-async function connect(){
- try{
-  const {data,error}=await db.auth.signInAnonymously();
-  if(error)throw error;
-  user=data.user;
-  document.getElementById("status").textContent="Connected! You can create or join a room.";
- }catch(e){statusMessage(e.message)}
-}
-async function createRoom(){
- if(!user)return statusMessage("Connect first!");
- try{
-  const {data,error}=await db.rpc("create_room");
-  if(error)throw error;
-  roomId=data[0].room_id;roomCode=data[0].room_code;seat=1;
-  statusMessage("Room created! Give your friend code: "+roomCode);
-  await waitForOpponent();
- }catch(e){statusMessage(e.message)}
-}
-async function joinRoom(){
- if(!user)return statusMessage("Connect first!");
- const code=document.getElementById("roomCode").value.trim().toUpperCase();
- if(!code)return statusMessage("Enter a room code.");
- try{
-  const {data,error}=await db.rpc("join_room",{p_code:code});
-  if(error)throw error;
-  roomId=data[0].room_id;seat=2;roomCode=code;
-  await enterRoom();
- }catch(e){statusMessage(e.message)}
-}
-async function waitForOpponent(){
- statusMessage("Waiting for your friend. Room code: "+roomCode);
- const timer=setInterval(async()=>{
-  if(!roomId){clearInterval(timer);return}
-  const {data}=await db.from("players").select("*").eq("room_id",roomId);
-  if(data&&data.length===2){clearInterval(timer);await enterRoom()}
- },2000);
-}
-async function enterRoom(){
- document.getElementById("setup").style.display="none";
- document.getElementById("game").style.display="flex";
- channel=db.channel("room-"+roomId);
- channel.on("postgres_changes",{event:"*",schema:"public",table:"game_states",filter:"room_id=eq."+roomId},payload=>{
-  if(payload.new)loadGame();
- }).subscribe();
- await loadGame();
-}
-async function loadGame(){
- const {data,error}=await db.from("game_states").select("*").eq("room_id",roomId).single();
- if(error)return;
- gameState=data.state;
- render();
-}
-async function sendAction(action){
- alert("The secure BLAMMO game engine is the next file to install. No moves have been submitted yet.");
-}
-function statusMessage(s){document.getElementById("status").textContent=s}
-function render(){
- if(!gameState)return;
- document.getElementById("turnLabel").textContent="ROUND "+gameState.round;
-}
-function showPopup(title,content){
- document.getElementById("popupTitle").textContent=title;
- document.getElementById("popupContent").innerHTML=content;
- document.getElementById("overlay").style.display="flex";
-}
-function closePopup(){document.getElementById("overlay").style.display="none"}
-function showVoid(){showPopup("VOID","Void cards will appear here when the game engine is connected.")}
-function showRules(){showPopup("BLAMMO RULES","Roll your dice, use your level budget, play up to two cards and defeat the enemy Boss!")}
-</script>
+    function statusMessage(message) {
+      document.getElementById("status").textContent = message;
+    }
+
+    async function connect() {
+      try {
+        statusMessage("Connecting...");
+
+        const { data, error } = await db.auth.signInAnonymously();
+
+        if (error) throw error;
+
+        user = data.user;
+
+        document.getElementById("connectButton").disabled = true;
+        document.getElementById("createButton").disabled = false;
+        document.getElementById("joinButton").disabled = false;
+
+        statusMessage("Connected! You can create or join a room.");
+
+      } catch (error) {
+        statusMessage("Connection error: " + error.message);
+      }
+    }
+
+    async function createRoom() {
+      if (!user) {
+        statusMessage("Connect first!");
+        return;
+      }
+
+      try {
+        statusMessage("Creating room...");
+
+        const { data, error } = await db.rpc("create_room");
+
+        if (error) throw error;
+
+        const result = Array.isArray(data) ? data[0] : data;
+
+        if (!result || !result.room_id || !result.room_code) {
+          throw new Error("The room function returned unexpected data.");
+        }
+
+        roomId = result.room_id;
+        roomCode = result.room_code;
+        seat = 1;
+
+        document.getElementById("roomCodeDisplay").textContent = roomCode;
+
+        statusMessage("Room created! Give your friend this code: " + roomCode);
+
+      } catch (error) {
+        statusMessage("Room error: " + error.message);
+      }
+    }
+
+    async function joinRoom() {
+      if (!user) {
+        statusMessage("Connect first!");
+        return;
+      }
+
+      const code = document.getElementById("roomCode").value.trim().toUpperCase();
+
+      if (!code) {
+        statusMessage("Enter a room code.");
+        return;
+      }
+
+      try {
+        statusMessage("Joining room...");
+
+        const { data, error } = await db.rpc("join_room", {
+          p_code: code
+        });
+
+        if (error) throw error;
+
+        const result = Array.isArray(data) ? data[0] : data;
+
+        if (!result || !result.room_id) {
+          throw new Error("The join function returned unexpected data.");
+        }
+
+        roomId = result.room_id;
+        roomCode = code;
+        seat = 2;
+
+        statusMessage("Successfully joined room " + roomCode + "!");
+
+      } catch (error) {
+        statusMessage("Join error: " + error.message);
+      }
+    }
+  </script>
 </body>
 </html>
