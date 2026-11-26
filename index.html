@@ -545,7 +545,7 @@ async function joinRoom() {
 async function gameAction(action, extra = {}) {
   if (!roomCode) throw new Error("You are not in a room.");
 
-  const { data, error } = await db.functions.invoke("blammo-game", {
+  const { data, error } = await db.functions.invoke("blammo-tcg", {
     body: {
       action,
       roomCode,
