@@ -1,8 +1,9 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>BLAMMO TCG</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -30,7 +31,7 @@ button, input { font: inherit; }
 button {
   border: 0;
   border-radius: 7px;
-  padding: 10px 14px;
+  padding: 9px 12px;
   background: var(--gold);
   color: #172033;
   font-weight: bold;
@@ -100,6 +101,11 @@ p { color: #cbd5e1; }
   color: var(--gold);
 }
 
+.section-title {
+  color: var(--gold);
+  margin-top: 30px;
+}
+
 .card-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
@@ -109,10 +115,11 @@ p { color: #cbd5e1; }
 /* GAME SCREEN */
 
 body.in-game {
-  padding: 8px;
+  padding: 4px;
   height: 100dvh;
   min-height: 0;
   overflow: hidden;
+  overscroll-behavior: none;
 }
 
 body.in-game > .panel,
@@ -124,12 +131,17 @@ body.in-game > .gallery {
 
 #gameArea.game-screen {
   width: 100%;
-  height: calc(100dvh - 16px);
-  max-width: 1500px;
+  height: calc(100dvh - 8px);
+  max-width: 1600px;
   margin: 0 auto;
   display: grid;
-  grid-template-rows: 34px minmax(0, 1fr) 65px minmax(0, 1fr) 190px;
-  gap: 7px;
+  grid-template-rows:
+    32px
+    minmax(0, 1fr)
+    66px
+    minmax(0, 1fr)
+    minmax(135px, 22vh);
+  gap: 6px;
   overflow: hidden;
 }
 
@@ -139,13 +151,15 @@ body.in-game > .gallery {
   background: #1d293b;
   border: 1px solid #526078;
   border-radius: 8px;
-  padding: 5px 12px;
+  padding: 4px 12px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   min-width: 0;
-  font-size: 13px;
+  gap: 8px;
+  font-size: 12px;
   font-weight: bold;
+  white-space: nowrap;
 }
 
 .topbar .brand {
@@ -161,11 +175,12 @@ body.in-game > .gallery {
 .player-zone {
   position: relative;
   min-height: 0;
+  min-width: 0;
   overflow: hidden;
   background: linear-gradient(145deg, #1d293b, #142033);
   border: 1px solid #526078;
   border-radius: 12px;
-  padding: 7px 10px;
+  padding: 5px 8px;
   display: flex;
   flex-direction: column;
 }
@@ -173,32 +188,34 @@ body.in-game > .gallery {
 .player-heading {
   position: relative;
   z-index: 4;
-  height: 25px;
-  min-height: 25px;
+  height: 23px;
+  min-height: 23px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  font-size: 13px;
+  font-size: 12px;
 }
 
 .player-heading h2 {
-  font-size: 14px;
+  font-size: 13px;
   margin: 0;
 }
 
 .hp {
   color: #ff7777;
   font-weight: bold;
-  font-size: 13px;
+  font-size: 12px;
+  text-align: right;
 }
 
-/* BOSS AND BODYGUARDS */
+/* BATTLEFIELD */
 
 .battlefield {
   position: relative;
   flex: 1;
   min-height: 0;
+  min-width: 0;
   display: flex;
   align-items: flex-end;
   justify-content: center;
@@ -210,46 +227,58 @@ body.in-game > .gallery {
   left: 50%;
   transform: translateX(-50%);
   z-index: 1;
+  pointer-events: none;
 }
+
+/* Bodyguards sit in front of the Boss. */
 
 .field {
   position: relative;
   z-index: 2;
   width: 100%;
+  min-width: 0;
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 135px));
+  grid-template-columns: repeat(3, minmax(0, 140px));
   justify-content: center;
   align-items: end;
-  gap: 12px;
+  gap: clamp(4px, 1vw, 12px);
   margin-bottom: 2px;
 }
 
-/* Keep the Boss visible behind the Bodyguards. */
-.boss-slot .game-card {
-  width: 100px;
-  height: 119px;
+/* Each card and its buttons have their own wrapper. */
+
+.field-card-wrap,
+.hand-card-wrap {
+  width: 100%;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 3px;
+  position: relative;
+  z-index: 3;
 }
 
 .field-empty {
   grid-column: 1 / -1;
   text-align: center;
   color: var(--muted);
-  font-size: 12px;
-  padding: 12px;
-  background: #101827aa;
+  font-size: 11px;
+  padding: 8px;
+  background: #101827dd;
   border-radius: 8px;
-  margin-bottom: 4px;
+  align-self: center;
 }
 
 /* CARD DESIGN */
 
 .game-card {
   width: 100%;
-  height: 148px;
+  height: clamp(88px, 16vh, 145px);
   min-width: 0;
   border: 2px solid #64748b;
   border-radius: 9px;
-  padding: 6px;
+  padding: 5px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -265,8 +294,8 @@ body.in-game > .gallery {
 }
 
 .game-card.boss {
-  width: 100px;
-  height: 119px;
+  width: clamp(66px, 9vw, 100px);
+  height: clamp(82px, 13vh, 115px);
   border: 2px solid #c084fc;
   background: linear-gradient(145deg, #65418b, #21142f);
   box-shadow: 0 0 16px #c084fc55;
@@ -278,9 +307,9 @@ body.in-game > .gallery {
 }
 
 .card-name {
-  font-size: 12px;
+  font-size: clamp(9px, 1vw, 12px);
   font-weight: 900;
-  min-height: 25px;
+  min-height: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -288,7 +317,7 @@ body.in-game > .gallery {
 }
 
 .card-type {
-  font-size: 8px;
+  font-size: 7px;
   text-transform: uppercase;
   letter-spacing: 1px;
   color: #cbd5e1;
@@ -298,34 +327,34 @@ body.in-game > .gallery {
 .card-stats {
   display: flex;
   justify-content: space-around;
-  gap: 4px;
-  margin: 4px 0;
+  gap: 3px;
+  margin: 3px 0;
 }
 
 .stat {
   background: #101827bb;
   border-radius: 5px;
-  padding: 4px;
+  padding: 3px;
   min-width: 0;
   flex: 1;
 }
 
 .stat strong {
   display: block;
-  font-size: 15px;
+  font-size: clamp(10px, 1.3vw, 15px);
   color: var(--gold);
 }
 
 .stat small {
-  font-size: 7px;
+  font-size: 6px;
   color: #cbd5e1;
 }
 
 .card-ability {
-  font-size: 8px;
-  line-height: 1.25;
+  font-size: clamp(6px, .7vw, 8px);
+  line-height: 1.2;
   background: #101827bb;
-  padding: 5px 4px;
+  padding: 3px;
   border-radius: 5px;
   flex: 1;
   display: flex;
@@ -335,22 +364,28 @@ body.in-game > .gallery {
 }
 
 .card-footer {
-  font-size: 7px;
+  font-size: 6px;
   color: #cbd5e1;
-  margin-top: 3px;
+  margin-top: 2px;
 }
+
+/* ACTION BUTTONS OUTSIDE CARDS */
 
 .card-actions {
   display: grid;
+  grid-template-columns: 1fr;
   gap: 3px;
-  margin-top: 4px;
+  width: 100%;
 }
 
 .card-actions button {
   width: 100%;
-  padding: 5px 3px;
-  font-size: 9px;
+  min-width: 0;
+  padding: 5px 2px;
+  font-size: clamp(7px, .75vw, 9px);
   border-radius: 5px;
+  white-space: normal;
+  line-height: 1.1;
 }
 
 .secondary {
@@ -369,11 +404,11 @@ body.in-game > .gallery {
   background: #25364e;
   border: 1px solid #65758d;
   border-radius: 10px;
-  padding: 5px 12px;
+  padding: 5px 10px;
   display: grid;
-  grid-template-columns: 90px 1fr 1fr 1fr auto;
+  grid-template-columns: 70px 1fr 1fr 1fr auto;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   min-width: 0;
 }
 
@@ -381,71 +416,81 @@ body.in-game > .gallery {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 5px;
   color: var(--gold);
-  font-size: 27px;
+  font-size: 24px;
   font-weight: 900;
 }
 
 .turn-stat {
   text-align: center;
-  font-size: 10px;
+  font-size: 9px;
   color: var(--muted);
 }
 
 .turn-stat strong {
   display: block;
   color: white;
-  font-size: 15px;
+  font-size: 13px;
   margin-top: 3px;
 }
 
 .turn-buttons {
   display: flex;
-  gap: 6px;
+  gap: 5px;
 }
 
 .turn-buttons button {
   white-space: nowrap;
-  padding: 9px 12px;
-  font-size: 10px;
+  padding: 8px 10px;
+  font-size: 9px;
 }
 
 /* HAND */
 
 .hand-panel {
   min-height: 0;
+  min-width: 0;
   overflow: hidden;
   background: #1d293b;
   border: 1px solid #526078;
   border-radius: 12px;
-  padding: 7px 10px;
+  padding: 5px 8px;
   display: flex;
   flex-direction: column;
 }
 
 .hand-heading {
-  height: 23px;
-  min-height: 23px;
+  height: 21px;
+  min-height: 21px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   color: var(--gold);
   font-weight: bold;
-  font-size: 13px;
+  font-size: 12px;
 }
 
 .hand-grid {
   flex: 1;
   min-height: 0;
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 135px));
+  grid-template-columns: repeat(3, minmax(0, 140px));
   justify-content: center;
   align-items: center;
-  gap: 12px;
+  gap: clamp(4px, 1vw, 12px);
 }
 
-.hand-grid .game-card { height: 150px; }
+.hand-grid .game-card {
+  height: clamp(85px, 15vh, 135px);
+}
+
+.hand-empty {
+  color: var(--muted);
+  text-align: center;
+  font-size: 12px;
+  grid-column: 1 / -1;
+}
 
 /* MESSAGES */
 
@@ -459,8 +504,8 @@ body.in-game > .gallery {
   background: #101827;
   border: 1px solid var(--gold);
   border-radius: 8px;
-  padding: 8px 14px;
-  font-size: 11px;
+  padding: 7px 12px;
+  font-size: 10px;
   text-align: center;
   box-shadow: 0 4px 15px #0009;
   pointer-events: none;
@@ -472,6 +517,7 @@ body.in-game > .gallery {
   display: flex !important;
   align-items: center;
   justify-content: center;
+  overflow: auto !important;
 }
 
 .boss-selection-panel {
@@ -479,7 +525,7 @@ body.in-game > .gallery {
   background: #1d293b;
   border: 1px solid #526078;
   border-radius: 16px;
-  padding: 24px;
+  padding: 20px;
   text-align: center;
 }
 
@@ -491,28 +537,27 @@ body.in-game > .gallery {
 .boss-choices {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 18px;
-  margin-top: 20px;
+  gap: 14px;
+  margin-top: 18px;
 }
 
 .boss-choice {
   background: #26364d;
   border: 2px solid #64748b;
   border-radius: 12px;
-  padding: 12px;
+  padding: 10px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .boss-choice .game-card {
-  width: 135px;
-  height: 170px;
+  width: 125px;
+  height: 155px;
 }
 
 .boss-choice button { width: 100%; }
-
 .boss-choice.selected-choice { border-color: var(--gold); }
 
 /* WAITING ROOM */
@@ -522,9 +567,10 @@ body.in-game > .gallery {
   align-items: center;
   justify-content: center;
   width: 100%;
-  height: calc(100dvh - 16px);
+  height: calc(100dvh - 8px);
   max-width: 1500px;
   margin: 0 auto;
+  overflow: auto;
 }
 
 .waiting-panel {
@@ -532,14 +578,14 @@ body.in-game > .gallery {
   background: #1d293b;
   border: 2px solid #526078;
   border-radius: 16px;
-  padding: 28px;
+  padding: 25px;
   text-align: center;
   box-shadow: 0 10px 35px #0008;
 }
 
 .waiting-panel h2 {
   color: var(--gold);
-  font-size: 25px;
+  font-size: 24px;
   margin-top: 0;
 }
 
@@ -547,14 +593,14 @@ body.in-game > .gallery {
   background: #101827;
   border: 1px solid var(--gold);
   border-radius: 10px;
-  padding: 15px;
-  margin: 20px 0;
+  padding: 14px;
+  margin: 18px 0;
 }
 
 .waiting-code strong {
   display: block;
   color: var(--gold);
-  font-size: 34px;
+  font-size: 32px;
   letter-spacing: 6px;
   margin-bottom: 12px;
 }
@@ -562,7 +608,7 @@ body.in-game > .gallery {
 .player-status {
   background: #101827;
   border-radius: 8px;
-  padding: 12px;
+  padding: 11px;
   margin: 8px 0;
   color: #cbd5e1;
 }
@@ -573,12 +619,12 @@ body.in-game > .gallery {
 }
 
 .waiting-spinner {
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
   border: 4px solid #526078;
   border-top-color: var(--gold);
   border-radius: 50%;
-  margin: 20px auto;
+  margin: 18px auto;
   animation: waitingSpin 1s linear infinite;
 }
 
@@ -586,79 +632,135 @@ body.in-game > .gallery {
   to { transform: rotate(360deg); }
 }
 
-/* RESPONSIVE */
-
-@media (max-height: 760px) {
-  #gameArea.game-screen {
-    grid-template-rows: 30px minmax(0, 1fr) 57px minmax(0, 1fr) 165px;
-    gap: 5px;
-  }
-
-  .game-card { height: 130px; }
-  .game-card.boss { height: 105px; }
-  .hand-grid .game-card { height: 132px; }
-  .card-ability { font-size: 7px; }
-}
+/* SMALL SCREENS */
 
 @media (max-width: 650px) {
-  body.in-game { padding: 4px; }
-
   #gameArea.game-screen {
-    height: calc(100dvh - 8px);
-    grid-template-rows: 28px minmax(0, 1fr) 58px minmax(0, 1fr) 165px;
+    grid-template-rows:
+      27px
+      minmax(0, 1fr)
+      57px
+      minmax(0, 1fr)
+      minmax(125px, 22vh);
     gap: 4px;
   }
 
-  .player-zone { padding: 4px; }
+  .topbar {
+    font-size: 9px;
+    padding: 3px 6px;
+    gap: 4px;
+  }
+
+  .topbar .brand {
+    font-size: 12px;
+    letter-spacing: 1px;
+  }
+
+  .player-zone { padding: 3px; }
+  .player-heading { height: 19px; min-height: 19px; }
+  .player-heading h2 { font-size: 10px; }
+  .hp { font-size: 9px; }
 
   .field, .hand-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 5px;
+    gap: 4px;
+    padding: 0 2px;
   }
 
   .game-card {
-    height: 125px;
-    padding: 4px;
+    height: clamp(78px, 15vh, 115px);
+    padding: 3px;
+    border-radius: 6px;
   }
 
   .game-card.boss {
-    width: 78px;
-    height: 98px;
+    width: 65px;
+    height: 80px;
   }
 
-  .hand-grid .game-card { height: 130px; }
-  .card-name { font-size: 10px; }
-  .card-ability { font-size: 7px; }
-  .card-stats { gap: 2px; }
-  .stat strong { font-size: 12px; }
+  .card-name { font-size: 9px; min-height: 15px; }
+  .card-type { font-size: 6px; }
+  .card-ability { font-size: 6px; padding: 2px; }
+  .card-stats { gap: 2px; margin: 2px 0; }
+  .stat { padding: 2px; }
+  .stat strong { font-size: 10px; }
+  .stat small { font-size: 5px; }
+
+  .card-actions { gap: 2px; }
+  .card-actions button {
+    font-size: 7px;
+    padding: 4px 1px;
+  }
 
   .turn-panel {
-    grid-template-columns: 48px 1fr 1fr 1fr;
-    gap: 3px;
+    grid-template-columns: 37px 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 2px;
     padding: 3px;
   }
 
-  .dice-box { font-size: 20px; }
-  .turn-stat { font-size: 8px; }
-  .turn-stat strong { font-size: 11px; }
-
-  .turn-buttons {
-    grid-column: 1 / -1;
-    justify-content: center;
+  .dice-box {
+    grid-row: 1 / 3;
+    font-size: 18px;
   }
 
-  .turn-buttons button { padding: 5px 10px; }
-  .hand-panel { padding: 4px; }
-  .hand-heading { font-size: 11px; }
-  .card-actions button { font-size: 8px; padding: 4px 2px; }
+  .turn-stat { font-size: 7px; }
+  .turn-stat strong { font-size: 10px; margin-top: 1px; }
 
-  .boss-selection-panel { padding: 10px; }
+  .turn-buttons {
+    grid-column: 2 / 5;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .turn-buttons button {
+    padding: 4px 9px;
+    font-size: 8px;
+  }
+
+  .hand-panel { padding: 3px; }
+  .hand-heading { font-size: 10px; height: 18px; min-height: 18px; }
+
+  .hand-grid .game-card {
+    height: clamp(76px, 14vh, 105px);
+  }
+
+  .boss-selection-panel { padding: 9px; }
   .boss-choices { gap: 5px; }
-  .boss-choice { padding: 5px; }
-  .boss-choice .game-card { width: 100%; height: 135px; }
-  .boss-choice button { font-size: 9px; padding: 7px 2px; }
+  .boss-choice { padding: 5px; gap: 5px; }
+  .boss-choice .game-card { width: 100%; height: 120px; }
+  .boss-choice button { font-size: 8px; padding: 6px 2px; }
+  .waiting-panel { padding: 16px; }
+}
 
-  .waiting-panel { padding: 18px; }
+/* SHORT / LANDSCAPE SCREENS */
+
+@media (max-height: 600px) {
+  #gameArea.game-screen {
+    grid-template-rows: 25px minmax(0, 1fr) 48px minmax(0, 1fr) 105px;
+    gap: 3px;
+  }
+
+  .player-zone { padding: 2px 5px; }
+  .player-heading { height: 17px; min-height: 17px; }
+  .game-card { height: clamp(65px, 18vh, 95px); }
+  .game-card.boss { height: 68px; width: 58px; }
+  .hand-grid .game-card { height: 78px; }
+  .card-ability { font-size: 5px; }
+  .card-name { font-size: 8px; }
+  .card-actions button { padding: 3px 1px; font-size: 6px; }
+  .turn-panel { padding: 2px; }
+  .turn-buttons button { padding: 3px 6px; font-size: 7px; }
+  .hand-heading { height: 15px; min-height: 15px; }
+}
+
+/* VERY NARROW PHONES */
+
+@media (max-width: 380px) {
+  .field, .hand-grid { gap: 3px; }
+  .card-actions button { font-size: 6px; }
+  .topbar { font-size: 8px; }
+  .topbar .brand { font-size: 10px; }
 }
 </style>
 </head>
@@ -797,7 +899,6 @@ async function connect() {
     statusMessage("Connecting...");
 
     const { data, error } = await db.auth.signInAnonymously();
-
     if (error) throw error;
 
     user = data.user;
@@ -1145,10 +1246,12 @@ function createPlayerZone(player, isMine) {
   const heading = document.createElement("div");
   heading.className = "player-heading";
 
+  const boss = player.boss || {};
+
   heading.innerHTML = `
     <h2>${isMine ? "YOUR FIELD" : "OPPONENT'S FIELD"}</h2>
     <div class="hp">
-      ${escapeHtml(player.boss.name)} · ${escapeHtml(player.boss.hp)} HP
+      ${escapeHtml(boss.name)} · ${escapeHtml(boss.hp)} HP
     </div>
   `;
 
@@ -1159,13 +1262,20 @@ function createPlayerZone(player, isMine) {
 
   const bossSlot = document.createElement("div");
   bossSlot.className = "boss-slot";
-  bossSlot.appendChild(makeBossCard(player.boss));
+  bossSlot.appendChild(makeBossCard(boss));
   battlefield.appendChild(bossSlot);
 
   const field = document.createElement("div");
   field.className = "field";
 
-  if (!player.field || player.field.length === 0) {
+  // Support the normal backend field property and a bodyguards alias.
+  const bodyguards = Array.isArray(player.field)
+    ? player.field
+    : Array.isArray(player.bodyguards)
+      ? player.bodyguards
+      : [];
+
+  if (bodyguards.length === 0) {
     const empty = document.createElement("div");
     empty.className = "field-empty";
     empty.textContent = isMine
@@ -1173,9 +1283,15 @@ function createPlayerZone(player, isMine) {
       : "No enemy Bodyguards.";
     field.appendChild(empty);
   } else {
-    player.field.forEach(card => {
+    bodyguards.forEach(card => {
+      // Wrapper keeps buttons outside the clipped card itself.
+      const wrapper = document.createElement("div");
+      wrapper.className = "field-card-wrap";
+
       const selected = isMine && selectedAttackerId === card.id;
       const cardElement = makeGameCard(card, { selected });
+
+      wrapper.appendChild(cardElement);
 
       const actions = document.createElement("div");
       actions.className = "card-actions";
@@ -1213,7 +1329,10 @@ function createPlayerZone(player, isMine) {
           actions.appendChild(abilityButton);
         }
 
-        if (enemyPlayer().field.length === 0) {
+        const enemy = enemyPlayer();
+        const enemyField = Array.isArray(enemy?.field) ? enemy.field : [];
+
+        if (enemyField.length === 0) {
           const bossButton = document.createElement("button");
 
           bossButton.textContent = "ATTACK BOSS";
@@ -1233,14 +1352,17 @@ function createPlayerZone(player, isMine) {
         const attackButton = document.createElement("button");
 
         attackButton.textContent = "ATTACK HERE";
-        attackButton.onclick = () => attackBodyguard(selectedAttackerId, card.id);
         attackButton.disabled = busy;
+        attackButton.onclick = () => attackBodyguard(selectedAttackerId, card.id);
 
         actions.appendChild(attackButton);
       }
 
-      cardElement.appendChild(actions);
-      field.appendChild(cardElement);
+      if (actions.children.length > 0) {
+        wrapper.appendChild(actions);
+      }
+
+      field.appendChild(wrapper);
     });
   }
 
@@ -1313,8 +1435,6 @@ function renderGame() {
 
   area.innerHTML = "";
 
-  // WAIT UNTIL BOTH PLAYERS HAVE JOINED.
-  // The backend supplies playersJoined before the game starts.
   if (
     !gameView.started &&
     Number(gameView.playersJoined || 0) < 2
@@ -1323,7 +1443,6 @@ function renderGame() {
     return;
   }
 
-  // BOTH PLAYERS ARE HERE: SHOW BOSS SELECTION.
   if (!gameView.started) {
     renderBossSelection(area);
     return;
@@ -1335,6 +1454,7 @@ function renderGame() {
   const enemy = enemyPlayer();
 
   if (!me || !enemy) {
+    area.textContent = "Waiting for player data...";
     return;
   }
 
@@ -1422,9 +1542,11 @@ function renderGame() {
   handGrid.className = "hand-grid";
 
   (me.hand || []).forEach(card => {
+    const wrapper = document.createElement("div");
+    wrapper.className = "hand-card-wrap";
+
     const cardElement = makeGameCard(card);
     const actions = document.createElement("div");
-
     actions.className = "card-actions";
 
     const playButton = document.createElement("button");
@@ -1444,16 +1566,15 @@ function renderGame() {
     playButton.onclick = () => playCard(card.id);
 
     actions.appendChild(playButton);
-    cardElement.appendChild(actions);
-    handGrid.appendChild(cardElement);
+    wrapper.appendChild(cardElement);
+    wrapper.appendChild(actions);
+    handGrid.appendChild(wrapper);
   });
 
   if (!me.hand || me.hand.length === 0) {
     const empty = document.createElement("div");
-
     empty.className = "hand-empty";
     empty.textContent = "Your hand is empty.";
-
     handGrid.appendChild(empty);
   }
 
@@ -1463,20 +1584,16 @@ function renderGame() {
   // GAME MESSAGE
   if (gameView.message) {
     const message = document.createElement("div");
-
     message.className = "game-message";
     message.textContent = gameView.message;
-
     area.appendChild(message);
   }
 
   // GAME OVER
   if (gameView.gameOver) {
     const message = document.createElement("div");
-
     message.className = "game-message";
     message.textContent = `🏆 ${gameView.winner} WINS!`;
-
     area.appendChild(message);
   }
 }
