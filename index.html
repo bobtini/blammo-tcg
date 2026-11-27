@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,192 +7,314 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-:root {
-  --bg: #080b20;
-  --panel: rgba(18, 22, 53, .88);
-  --panel2: rgba(25, 30, 72, .92);
-  --line: #4541a8;
-  --purple: #9b5cff;
-  --purple2: #6d4aff;
-  --blue: #36cfff;
-  --cyan: #72edff;
-  --text: #f3f2ff;
-  --muted: #b7bbdf;
-  --glow: rgba(107, 80, 255, .32);
-}
 * { box-sizing: border-box; }
-html { min-height: 100%; background: var(--bg); }
-body {
-  margin: 0; min-height: 100vh; padding: 18px;
-  color: var(--text); font-family: Inter, Arial, sans-serif;
-  background:
-    radial-gradient(ellipse at 12% 0%, rgba(111, 58, 255, .28), transparent 38%),
-    radial-gradient(ellipse at 90% 15%, rgba(0, 174, 255, .18), transparent 34%),
-    linear-gradient(145deg, #080b20 0%, #101034 48%, #080d25 100%);
-  background-attachment: fixed;
-}
-button, input { font: inherit; }
-button {
-  border: 1px solid rgba(135, 116, 255, .75); border-radius: 9px;
-  padding: 11px 15px; color: white; font-weight: 800; cursor: pointer;
-  background: linear-gradient(110deg, #7045e8, #286bdc 85%);
-  box-shadow: 0 0 15px rgba(102, 79, 255, .22), inset 0 1px rgba(255,255,255,.16);
-  transition: transform .15s ease, filter .15s ease, box-shadow .15s ease;
-}
-button:hover:not(:disabled) { transform: translateY(-1px); filter: brightness(1.13); box-shadow: 0 0 20px rgba(70, 190, 255, .28); }
-button:disabled { opacity: .4; cursor: not-allowed; box-shadow: none; }
-input {
-  width: 100%; padding: 13px; margin-top: 10px; border: 1px solid #5554b4;
-  border-radius: 9px; background: #0b102b; color: white; text-align: center;
-  text-transform: uppercase; outline: none; box-shadow: inset 0 0 12px #050817;
-}
-input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(54,207,255,.14); }
-.panel {
-  max-width: 500px; margin: 20px auto; padding: 25px; border-radius: 18px;
-  text-align: center; background: linear-gradient(145deg, rgba(28,30,78,.96), rgba(13,19,51,.96));
-  border: 1px solid #5145b8; box-shadow: 0 14px 45px #0008, 0 0 25px var(--glow);
-}
-h1 { margin: 0; font-size: clamp(38px, 7vw, 56px); font-weight: 1000; letter-spacing: 5px;
-  color: #fff; text-shadow: 0 0 9px var(--purple), 0 0 25px #5865ff, 0 0 40px #238bff; }
-h2, .gallery h2 { color: var(--cyan); text-shadow: 0 0 12px rgba(54,207,255,.28); }
-p { color: var(--muted); }
-#status { margin-top: 18px; padding: 12px; background: #0a102b; border: 1px solid #343a82; border-radius: 8px; overflow-wrap: anywhere; font-size: 14px; }
-#roomCodeDisplay { color: var(--cyan); font-size: 30px; font-weight: 900; letter-spacing: 5px; margin-top: 12px; text-shadow: 0 0 14px #249bff; }
-#gameArea { max-width: 1180px; margin: 25px auto; display: none; }
-.game-panel {
-  min-width: 0; background: linear-gradient(145deg, rgba(23,27,72,.96), rgba(12,18,49,.96));
-  border: 1px solid #4644a4; border-radius: 14px; padding: 17px; margin-bottom: 15px;
-  box-shadow: 0 8px 25px #0006, inset 0 1px rgba(255,255,255,.035);
-}
-.player-heading { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
-.hp { color: #ff83c9; font-weight: 900; font-size: 18px; }
-.field { display: grid; grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)); gap: 10px; margin-top: 12px; align-items: start; }
-.game-card {
-  min-width: 0; min-height: 0; height: auto; padding: 9px; gap: 5px;
-  display: flex; flex-direction: column; justify-content: flex-start; text-align: center;
-  border: 1.5px solid #6560db; border-radius: 11px;
-  background: linear-gradient(155deg, rgba(54,48,126,.98), rgba(14,32,79,.98) 72%, rgba(11,47,83,.98));
-  box-shadow: 0 5px 15px #0007, 0 0 11px rgba(91,90,255,.13), inset 0 1px rgba(255,255,255,.12);
-  overflow: visible;
-}
-.game-card.tool { border-color: #31c9ed; background: linear-gradient(145deg, #174f87, #18245f 78%); box-shadow: 0 0 13px rgba(42,200,255,.17); }
-.game-card.boss { border-color: #bd73ff; background: linear-gradient(145deg, #632e9e, #231c65 75%); box-shadow: 0 0 16px rgba(164,87,255,.22); }
-.game-card.selected { border-color: #70efff; box-shadow: 0 0 0 2px rgba(76,221,255,.28), 0 0 20px rgba(54,207,255,.42); }
-.card-name { min-height: 0; font-size: clamp(12px, 1.15vw, 15px); line-height: 1.2; font-weight: 900; display: flex; align-items: center; justify-content: center; overflow-wrap: anywhere; }
-.card-type { font-size: 9px; text-transform: uppercase; letter-spacing: 1.1px; color: #c8d6ff; margin: 3px 0; }
-.card-stats { display: flex; justify-content: space-around; gap: 5px; margin: 4px 0; }
-.stat { min-width: 0; flex: 1 1 0; padding: 5px 4px; border: 1px solid rgba(105,135,255,.28); border-radius: 7px; background: rgba(5,10,35,.62); }
-.stat strong { display: block; font-size: 17px; color: #78eaff; text-shadow: 0 0 9px rgba(54,207,255,.35); }
-.stat small { font-size: 8px; color: #c3c9f1; }
-.card-ability {
-  display: block; flex: 0 0 auto; width: 100%; min-width: 0; min-height: 0; height: auto; max-height: none;
-  padding: 7px; margin-top: 3px; border: 1px solid rgba(107,125,225,.28); border-radius: 7px;
-  background: rgba(5,10,34,.68); color: #e4e9ff; font-size: 10.5px; line-height: 1.35;
-  text-align: left; white-space: normal; overflow: visible; overflow-wrap: anywhere; word-break: normal;
-}
-.card-footer { font-size: 8px; color: #aeb8e8; margin-top: 3px; letter-spacing: .7px; }
-.section-title { margin: 20px 0 11px; color: #9fefff; border-bottom: 1px solid #464b9d; padding-bottom: 8px; }
-.hand-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)); gap: 9px; align-items: start; }
-.hand-grid .game-card, .gallery .game-card { min-height: 0; height: auto; }
-.card-actions { display: grid; gap: 5px; margin-top: 6px; }
-.card-actions button { width: 100%; padding: 7px 5px; font-size: 10px; white-space: normal; }
-.secondary { background: linear-gradient(110deg, #414b91, #245d9b); border-color: #627bd5; color: white; }
-.danger { background: linear-gradient(110deg, #a83275, #742c9c); color: white; }
-.action-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
-.action-row button { flex: 1; min-width: 130px; }
-.dice { font-size: 46px; color: var(--cyan); font-weight: 900; text-align: center; margin: 10px; text-shadow: 0 0 18px #3e8eff; }
-.message { background: #0b1232; border: 1px solid #343c8d; border-left: 4px solid var(--blue); padding: 12px; border-radius: 7px; margin: 13px 0; overflow-wrap: anywhere; }
-.muted { color: #aeb9df; }
-#bossChoices { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
-#bossChoices button { min-height: 75px; }
-.gallery { max-width: 1180px; margin: 35px auto; }
-.gallery h2 { text-align: center; }
-.card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(145px, 1fr)); gap: 10px; align-items: start; }
-.battlefield { position: relative; padding-top: 4px; }
-.boss-backdrop { width: 205px; max-width: 90%; min-height: 0; margin: 0 auto -20px; position: relative; z-index: 1; opacity: .98; }
-.field { position: relative; z-index: 2; }
-.boss-backdrop .card-ability { min-height: 0; }
-@media (min-width: 900px) { .field { grid-template-columns: repeat(3, minmax(0, 1fr)); } .hand-grid { grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)); } }
-@media (max-width: 650px) {
-  body { padding: 9px; }
-  .panel { padding: 18px 14px; }
-  .game-panel { padding: 11px; }
-  .field, .hand-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
-  .game-card { padding: 7px; border-width: 1.5px; }
-  .card-name { font-size: 12px; }
-  .card-ability { font-size: 10px; line-height: 1.34; padding: 6px 5px; }
-  .boss-backdrop { width: 175px; margin-bottom: -16px; }
-  .card-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
-}
-@media (max-width: 350px) { .field, .hand-grid, .card-grid { grid-template-columns: minmax(0, 1fr); } }
 
-/* SINGLE-SCREEN BATTLE BOARD */
-html, body { min-height: 100%; }
-body { padding: 10px; }
-#gameArea { width: min(1500px, 100%); max-width: none; margin: 8px auto 0; }
-.game-board {
-  height: calc(100dvh - 20px);
-  min-height: 540px;
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: #101827;
+  color: white;
+  font-family: Arial, sans-serif;
+  padding: 16px;
+}
+
+button, input { font: inherit; }
+
+button {
+  border: 0;
+  border-radius: 8px;
+  padding: 12px 16px;
+  background: #ffcf40;
+  color: #172033;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: .45;
+  cursor: not-allowed;
+}
+
+input {
+  width: 100%;
+  padding: 13px;
+  margin-top: 10px;
+  border: 1px solid #526078;
+  border-radius: 8px;
+  background: #101827;
+  color: white;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.panel {
+  background: #1d293b;
+  max-width: 480px;
+  margin: 20px auto;
+  padding: 24px;
+  border-radius: 16px;
+  text-align: center;
+  box-shadow: 0 10px 35px #0006;
+}
+
+h1 {
+  font-size: 46px;
+  color: #ffcf40;
+  margin: 0;
+}
+
+h2 { color: #ffcf40; }
+
+p { color: #cbd5e1; }
+
+#status {
+  margin-top: 18px;
+  padding: 12px;
+  background: #101827;
+  border-radius: 8px;
+  overflow-wrap: anywhere;
+  font-size: 14px;
+}
+
+#roomCodeDisplay {
+  color: #ffcf40;
+  font-size: 30px;
+  font-weight: bold;
+  letter-spacing: 5px;
+  margin-top: 12px;
+}
+
+#gameArea {
+  max-width: 1100px;
+  margin: 25px auto;
+  display: none;
+}
+
+.game-panel {
+  background: #1d293b;
+  border-radius: 14px;
+  padding: 18px;
+  margin-bottom: 16px;
+  box-shadow: 0 5px 18px #0005;
+}
+
+.player-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.hp {
+  color: #ff7777;
+  font-weight: bold;
+  font-size: 19px;
+}
+
+.field {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  grid-template-rows: auto minmax(0, 1fr) minmax(0, 1.15fr);
-  gap: 9px;
-  overflow: hidden;
+  grid-template-columns: repeat(auto-fit, minmax(135px, 1fr));
+  gap: 12px;
+  margin-top: 14px;
 }
-.game-board > .game-panel {
-  min-width: 0; min-height: 0; margin: 0; padding: 10px;
-  overflow: hidden; border-radius: 12px;
+
+.game-card {
+  min-height: 190px;
+  border: 3px solid #64748b;
+  border-radius: 12px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background: linear-gradient(145deg, #34445c, #172235);
+  box-shadow: 0 5px 12px #0007;
+  text-align: center;
 }
-.game-board > .board-header { grid-column: 1 / -1; }
-.game-board > .enemy-panel { grid-column: 1; grid-row: 2; }
-.game-board > .turn-panel { grid-column: 2; grid-row: 2; }
-.game-board > .my-field-panel { grid-column: 1; grid-row: 3; }
-.game-board > .hand-panel { grid-column: 2; grid-row: 3; }
-.game-board > .board-extra { display: none; }
-.game-board > .game-panel:not(.board-header):not(.enemy-panel):not(.turn-panel):not(.my-field-panel):not(.hand-panel):not(.board-extra) { grid-column: 1 / -1; }
-.game-board .section-title { margin: 8px 0 6px; padding-bottom: 5px; }
-.game-board .field { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin-top: 6px; }
-.game-board .hand-grid { grid-template-columns: repeat(auto-fit, minmax(105px, 1fr)); gap: 6px; }
-.game-board .game-card { padding: 6px; gap: 3px; border-radius: 8px; }
-.game-board .card-name { font-size: 11px; }
-.game-board .card-type, .game-board .card-footer { font-size: 7px; }
-.game-board .card-stats { margin: 2px 0; gap: 3px; }
-.game-board .stat { padding: 3px 2px; }
-.game-board .stat strong { font-size: 13px; }
-.game-board .stat small { font-size: 7px; }
-.game-board .card-ability { padding: 4px; margin-top: 2px; font-size: 9px; line-height: 1.2; }
-.game-board .card-actions { gap: 3px; margin-top: 3px; }
-.game-board .card-actions button { padding: 5px 3px; font-size: 9px; }
-.game-board .boss-backdrop { width: 145px; margin-bottom: -12px; }
-.game-board .dice { font-size: 36px; margin: 5px; }
-.game-board .action-row { gap: 6px; margin-top: 8px; }
-.game-board .action-row button { min-width: 90px; padding: 8px; }
-.game-board .message { margin: 7px 0; padding: 7px; font-size: 12px; }
-.game-board .muted, .game-board p { font-size: 11px; margin: 5px 0; }
-body.in-room { overflow: hidden; }
-body.in-room > .panel, body.in-room > .gallery { display: none !important; }
-body.in-room #gameArea { display: block !important; }
-@media (max-width: 760px) {
-  body { padding: 6px; }
-  #gameArea { margin: 0 auto; }
-  .game-board {
-    height: calc(100dvh - 12px); min-height: 0;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    grid-template-rows: auto minmax(0, 1fr) minmax(0, 1.1fr);
-    gap: 5px;
-  }
-  .game-board > .game-panel { padding: 6px; }
-  .game-board h2 { font-size: 14px; margin: 3px 0; }
-  .game-board .player-heading { gap: 4px; }
-  .game-board .hp { font-size: 12px; }
-  .game-board .field { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; }
-  .game-board .hand-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; }
-  .game-board .card-ability { font-size: 8px; padding: 3px; }
-  .game-board .card-name { font-size: 10px; }
-  .game-board .boss-backdrop { width: 110px; margin-bottom: -8px; }
-  .game-board .dice { font-size: 26px; }
-  .game-board .action-row { flex-direction: column; }
-  .game-board .action-row button { width: 100%; }
+
+.game-card.tool {
+  border-color: #eab308;
+  background: linear-gradient(145deg, #66501a, #30250c);
+}
+
+.game-card.boss {
+  border-color: #c084fc;
+  background: linear-gradient(145deg, #51306e, #21142f);
+}
+
+.game-card.selected {
+  border-color: #ffcf40;
+  box-shadow: 0 0 14px #ffcf4088;
+}
+
+.card-name {
+  font-size: 16px;
+  font-weight: 900;
+  min-height: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card-type {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #cbd5e1;
+  margin: 5px 0;
+}
+
+.card-stats {
+  display: flex;
+  justify-content: space-around;
+  margin: 8px 0;
+}
+
+.stat {
+  background: #101827bb;
+  border-radius: 7px;
+  padding: 6px;
+  min-width: 52px;
+}
+
+.stat strong {
+  display: block;
+  font-size: 19px;
+  color: #ffcf40;
+}
+
+.stat small {
+  font-size: 9px;
+  color: #cbd5e1;
+}
+
+.card-ability {
+  font-size: 11px;
+  line-height: 1.4;
+  background: #101827bb;
+  padding: 8px 6px;
+  border-radius: 7px;
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 5px;
+}
+
+.card-footer {
+  font-size: 10px;
+  color: #cbd5e1;
+  margin-top: 7px;
+}
+
+.section-title {
+  margin: 22px 0 12px;
+  color: #ffcf40;
+  border-bottom: 1px solid #526078;
+  padding-bottom: 8px;
+}
+
+.hand-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
+  gap: 12px;
+}
+
+.hand-grid .game-card {
+  min-height: 205px;
+}
+
+.card-actions {
+  display: grid;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.card-actions button {
+  width: 100%;
+  padding: 9px 5px;
+  font-size: 12px;
+}
+
+.secondary {
+  background: #526078;
+  color: white;
+}
+
+.danger {
+  background: #b94444;
+  color: white;
+}
+
+.action-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.action-row button {
+  flex: 1;
+  min-width: 130px;
+}
+
+.dice {
+  font-size: 48px;
+  color: #ffcf40;
+  font-weight: bold;
+  text-align: center;
+  margin: 10px;
+}
+
+.message {
+  background: #101827;
+  border-left: 4px solid #ffcf40;
+  padding: 13px;
+  border-radius: 7px;
+  margin: 14px 0;
+  overflow-wrap: anywhere;
+}
+
+.muted { color: #aab8ca; }
+
+#bossChoices {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+}
+
+#bossChoices button {
+  min-height: 80px;
+}
+
+.gallery {
+  max-width: 1100px;
+  margin: 35px auto;
+}
+
+.gallery h2 {
+  text-align: center;
+  color: #ffcf40;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+  gap: 15px;
+}
+
+.gallery .game-card { min-height: 225px; }
+
+.battlefield { position: relative; padding-top: 4px; }
+.boss-backdrop { width: 220px; max-width: 90%; min-height: 135px; margin: 0 auto -28px; position: relative; z-index: 1; opacity: .96; }
+.field { position: relative; z-index: 2; }
+.boss-backdrop .card-ability { min-height: 28px; }
+
+@media(max-width: 450px) {
+  body { padding: 9px; }
+  .game-panel { padding: 12px; }
+  .field { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .hand-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 </style>
 </head>
@@ -277,7 +398,7 @@ const cards = [
 ["Lucky Dice",null,2,"Your next dice roll gets +2."],
 ["Frankenstein",145,2,"Once per turn: inspect the top card of your deck."],
 ["Krud",100,1,"No special ability."],
-["Glub",null,1,"On play: Power becomes 30 × the result."],
+["Glub",null,1,"On play: roll; Power becomes 30 × the result."],
 ["Time Machine",145,3,"Once per turn: force your opponent to reroll their next dice roll."],
 ["Doggo",350,6,"No special ability."]
 ];
@@ -305,841 +426,3 @@ function escapeHtml(value) {
     "'": "&#39;"
   })[char]);
 }
-
-function myPlayer() {
-  if (!gameView) return null;
-  return gameView.players[gameView.yourSeat - 1];
-}
-
-function enemyPlayer() {
-  if (!gameView) return null;
-  return gameView.players[2 - gameView.yourSeat];
-}
-
-function isMyTurn() {
-  return gameView &&
-    gameView.current === gameView.yourSeat - 1 &&
-    !gameView.gameOver;
-}
-
-function setButtonsDisabled(disabled) {
-  document.querySelectorAll("#gameArea button").forEach(button => {
-    button.disabled = disabled || button.dataset.locked === "true";
-  });
-}
-
-// =======================================
-// CONNECT
-// =======================================
-
-async function connect() {
-  try {
-    statusMessage("Connecting...");
-
-    const { data, error } = await db.auth.signInAnonymously();
-
-    if (error) throw error;
-
-    user = data.user;
-
-    document.getElementById("connectButton").disabled = true;
-    document.getElementById("createButton").disabled = false;
-    document.getElementById("joinButton").disabled = false;
-
-    statusMessage("Connected! Create a room or join your friend's room.");
-  } catch (error) {
-    statusMessage("Connection error: " + error.message);
-  }
-}
-
-// =======================================
-// CREATE ROOM
-// =======================================
-
-async function createRoom() {
-  if (!user) return statusMessage("Connect first!");
-
-  try {
-    statusMessage("Creating room...");
-
-    const { data, error } = await db.rpc("create_room");
-    if (error) throw error;
-
-    const result = Array.isArray(data) ? data[0] : data;
-
-    if (!result || !result.room_id || !result.room_code) {
-      throw new Error("Unexpected room response.");
-    }
-
-    roomCode = result.room_code;
-
-    document.getElementById("roomCodeDisplay").textContent = roomCode;
-
-    statusMessage("Room created! Give your friend this code: " + roomCode);
-
-    await startGameSession();
-  } catch (error) {
-    statusMessage("Room error: " + error.message);
-  }
-}
-
-// =======================================
-// JOIN ROOM
-// =======================================
-
-async function joinRoom() {
-  if (!user) return statusMessage("Connect first!");
-
-  const code = document.getElementById("roomCode").value.trim().toUpperCase();
-
-  if (!code) return statusMessage("Enter a room code.");
-
-  try {
-    statusMessage("Joining room...");
-
-    const { data, error } = await db.rpc("join_room", {
-      p_code: code
-    });
-
-    if (error) throw error;
-
-    const result = Array.isArray(data) ? data[0] : data;
-
-    if (!result || !result.room_id) {
-      throw new Error("Unexpected join response.");
-    }
-
-    roomCode = code;
-
-    document.getElementById("roomCodeDisplay").textContent = roomCode;
-
-    statusMessage("Successfully joined room " + roomCode + "!");
-
-    await startGameSession();
-  } catch (error) {
-    statusMessage("Join error: " + error.message);
-  }
-}
-
-// =======================================
-// EDGE FUNCTION CONNECTION
-// =======================================
-
-async function gameAction(action, extra = {}) {
-  if (!roomCode) throw new Error("You are not in a room.");
-
-  const { data, error } = await db.functions.invoke("blammo-tcg", {
-    body: {
-      action,
-      roomCode,
-      ...extra
-    }
-  });
-
-  if (error) {
-    let message = error.message || "Game request failed.";
-
-    try {
-      if (error.context && typeof error.context.json === "function") {
-        const details = await error.context.json();
-        if (details.error) message = details.error;
-      }
-    } catch (_) {}
-
-    throw new Error(message);
-  }
-
-  if (data && data.error) {
-    throw new Error(data.error);
-  }
-
-  return data;
-}
-
-// =======================================
-// START GAME SESSION
-// =======================================
-
-async function startGameSession() {
-  document.body.classList.add("in-room");
-  const area = document.getElementById("gameArea");
-  area.style.display = "block";
-  area.innerHTML = '<div class="game-panel"><h2>LOADING YOUR GAME...</h2><p>Connecting to the room and loading the board.</p></div>';
-
-  try {
-    await refreshGame();
-  } catch (error) {
-    showGameLoadError(error);
-  }
-
-  if (pollTimer) clearInterval(pollTimer);
-
-  pollTimer = setInterval(async () => {
-    if (!busy && roomCode) {
-      try {
-        await refreshGame();
-      } catch (error) {
-        console.error("Refresh error:", error);
-        showGameLoadError(error);
-      }
-    }
-  }, 2500);
-}
-
-function showGameLoadError(error) {
-  const area = document.getElementById("gameArea");
-  if (!area.querySelector(".game-board") && !area.querySelector("#bossChoices")) {
-    area.innerHTML = `<div class="game-panel"><h2>COULDN'T LOAD THE GAME</h2><p>${escapeHtml(error?.message || "The game state was empty.")}</p><p>Room: ${escapeHtml(roomCode || "not set")}</p><button onclick="refreshGame().catch(showGameLoadError)">TRY AGAIN</button></div>`;
-  }
-}
-
-async function refreshGame() {
-  const result = await gameAction("get_state");
-
-  // The Edge Function's existing response is { view: ... }.
-  // The fallbacks make the board resilient if the function returns the view directly.
-  gameView = result?.view || result?.gameView || result?.state ||
-    (result && Array.isArray(result.players) ? result : null);
-
-  if (!gameView) {
-    throw new Error("The room was found, but the game function did not return a game view. Check the get_state response in the Supabase Edge Function.");
-  }
-
-  renderGame();
-}
-
-// =======================================
-// BOSS SELECTION
-// =======================================
-
-async function chooseBoss(index) {
-  if (busy) return;
-
-  try {
-    busy = true;
-    statusMessage("Choosing Boss...");
-
-    await gameAction("choose_boss", {
-      bossIndex: index
-    });
-
-    await refreshGame();
-    statusMessage("Boss selected.");
-  } catch (error) {
-    statusMessage(error.message);
-  } finally {
-    busy = false;
-  }
-}
-
-// =======================================
-// GAME ACTIONS
-// =======================================
-
-async function performAction(action, extra = {}) {
-  if (busy) return;
-
-  try {
-    busy = true;
-    setButtonsDisabled(true);
-
-    const result = await gameAction(action, extra);
-
-    if (result.view) {
-      gameView = result.view;
-      selectedAttackerId = null;
-      renderGame();
-    } else {
-      await refreshGame();
-    }
-
-    statusMessage("Move completed.");
-  } catch (error) {
-    statusMessage(error.message);
-
-    try {
-      await refreshGame();
-    } catch (_) {}
-  } finally {
-    busy = false;
-    setButtonsDisabled(false);
-    renderGame();
-  }
-}
-
-function rollDice() {
-  performAction("roll");
-}
-
-function endTurn() {
-  performAction("end_turn");
-}
-
-function playCard(cardId) {
-  performAction("play_card", { cardId });
-}
-
-function attackBodyguard(attackerId, targetId) {
-  performAction("attack", {
-    attackerId,
-    targetId
-  });
-}
-
-function attackBoss(attackerId) {
-  performAction("attack", {
-    attackerId
-  });
-}
-
-async function playCard(cardId) {
-  const me = myPlayer();
-  const card = (me?.hand || []).find(c => c.id === cardId);
-  if (!card) return;
-  const extra = { cardId };
-  if (card.name === "Big Sacrifice") {
-    if (!me.void.length) return statusMessage("Your Void is empty.");
-    const options = me.void.map((c, i) => `${i + 1}. ${c.name} (Level ${c.l})`).join("\n");
-    const answer = prompt("Choose a Bodyguard from your Void to revive:\n" + options + "\nEnter its number:");
-    const index = Number(answer) - 1;
-    if (!Number.isInteger(index) || index < 0 || index >= me.void.length) return;
-    extra.voidCardId = me.void[index].id;
-  }
-  if (card.name === "Black Hole") {
-    if (!me.field.length) return statusMessage("You need a Bodyguard on your field to sacrifice.");
-    const options = me.field.map((c, i) => `${i + 1}. ${c.name} (Level ${c.l})`).join("\n");
-    const answer = prompt("Choose a Bodyguard to send to the Void:\n" + options + "\nEnter its number:");
-    const index = Number(answer) - 1;
-    if (!Number.isInteger(index) || index < 0 || index >= me.field.length) return;
-    extra.sacrificeId = me.field[index].id;
-  }
-  performAction("play_card", extra);
-}
-
-function useAbility(cardId) {
-  performAction("ability", { cardId });
-}
-
-function selectAttacker(cardId) {
-  selectedAttackerId =
-    selectedAttackerId === cardId ? null : cardId;
-
-  renderGame();
-}
-
-// =======================================
-// CARD DISPLAY
-// =======================================
-
-function makeGameCard(card, options = {}) {
-  const element = document.createElement("div");
-
-  element.className = "game-card";
-
-  if (card.t === "Tool") element.classList.add("tool");
-  if (options.boss) element.classList.add("boss", "boss-backdrop");
-  if (options.selected) element.classList.add("selected");
-
-  const type = card.t || "Bodyguard";
-  const power = card.p ?? "—";
-
-  const frozen = card.frozen > 0
-    ? `<div class="card-footer">FROZEN</div>`
-    : "";
-
-  const used = card.used
-    ? `<div class="card-footer">ALREADY USED</div>`
-    : "";
-  const abilityUsed = card.abilityUsedTurn
-    ? `<div class="card-footer">ABILITY USED THIS TURN</div>`
-    : "";
-
-  const turns = card.turnsLeft !== undefined
-    ? `<div class="card-footer">${escapeHtml(card.turnsLeft)} TURNS LEFT</div>`
-    : "";
-
-  element.innerHTML = `
-    <div>
-      <div class="card-name">${escapeHtml(card.name)}</div>
-      <div class="card-type">${escapeHtml(type)}</div>
-    </div>
-
-    <div class="card-stats">
-      <div class="stat">
-        <strong>${escapeHtml(power)}</strong>
-        <small>POWER</small>
-      </div>
-
-      <div class="stat">
-        <strong>${escapeHtml(card.l)}</strong>
-        <small>LEVEL</small>
-      </div>
-    </div>
-
-    <div class="card-ability">
-      ${escapeHtml(card.a || "No special ability.")}
-    </div>
-
-    ${turns}
-    ${frozen}
-    ${used}
-    ${abilityUsed}
-
-    <div class="card-footer">BLAMMO TCG</div>
-  `;
-
-  return element;
-}
-
-// =======================================
-// RENDER GAME
-// =======================================
-
-function renderGame() {
-  const area = document.getElementById("gameArea");
-
-  if (!gameView) return;
-
-  if (!gameView.started) {
-    renderBossSelection(area);
-    return;
-  }
-
-  const me = myPlayer();
-  const enemy = enemyPlayer();
-  const myTurn = isMyTurn();
-
-  area.innerHTML = "";
-  const board = document.createElement("div");
-  board.className = "game-board";
-
-  // GAME HEADER
-  const header = document.createElement("div");
-  header.className = "game-panel board-header";
-
-  header.innerHTML = `
-    <h2 style="text-align:center">BLAMMO BATTLE</h2>
-
-    <div class="player-heading">
-      <strong>ROOM: ${escapeHtml(roomCode)}</strong>
-      <strong>ROUND ${escapeHtml(gameView.round)}</strong>
-    </div>
-
-    <div class="message">
-      ${escapeHtml(gameView.message || "Game in progress.")}
-    </div>
-
-    <div style="text-align:center">
-      ${
-        gameView.gameOver
-          ? `<h2>GAME OVER — ${escapeHtml(gameView.winner)} WINS!</h2>`
-          : myTurn
-            ? `<h2 style="color:#69e69b">YOUR TURN</h2>`
-            : `<h2 style="color:#fca5a5">OPPONENT'S TURN</h2>`
-      }
-    </div>
-  `;
-
-  board.appendChild(header);
-
-  // ENEMY
-  const enemyPanel = document.createElement("div");
-  enemyPanel.className = "game-panel enemy-panel";
-
-  enemyPanel.innerHTML = `
-    <div class="player-heading">
-      <h2>OPPONENT</h2>
-      <div class="hp">${escapeHtml(enemy.boss.name)}: ${escapeHtml(enemy.boss.hp)} HP</div>
-    </div>
-
-    <div class="muted">Opponent's deck: ${escapeHtml(enemy.deckCount)} cards</div>
-
-    <h3 class="section-title">OPPONENT'S BODYGUARDS</h3>
-  `;
-
-  const enemyBattlefield = document.createElement("div");
-  enemyBattlefield.className = "battlefield";
-  const enemyBossCard = makeGameCard({ name: enemy.boss.name, p: enemy.boss.level, l: enemy.boss.level, a: `BOSS • ${enemy.boss.hp} HP` }, { boss: true });
-  enemyBattlefield.appendChild(enemyBossCard);
-
-  const enemyField = document.createElement("div");
-  enemyField.className = "field";
-
-  if (enemy.field.length === 0) {
-    enemyField.innerHTML = '<p class="muted">No Bodyguards on the field.</p>';
-  } else {
-    enemy.field.forEach(card => {
-      const cardElement = makeGameCard(card);
-
-      if (myTurn && selectedAttackerId) {
-        const attackButton = document.createElement("button");
-        attackButton.textContent = "Attack this Bodyguard";
-
-        attackButton.onclick = () => {
-          attackBodyguard(selectedAttackerId, card.id);
-        };
-
-        cardElement.appendChild(attackButton);
-      }
-
-      enemyField.appendChild(cardElement);
-    });
-  }
-
-  enemyBattlefield.appendChild(enemyField);
-  enemyPanel.appendChild(enemyBattlefield);
-  board.appendChild(enemyPanel);
-
-  // TURN PANEL
-  const turnPanel = document.createElement("div");
-  turnPanel.className = "game-panel turn-panel";
-
-  turnPanel.innerHTML = `
-    <h2 style="text-align:center">YOUR TURN STATUS</h2>
-
-    <div class="dice">
-      ${gameView.rolled ? "🎲 " + escapeHtml(gameView.rollValue) : "🎲 ?"}
-    </div>
-
-    <p style="text-align:center">
-      Level used: ${escapeHtml(gameView.spentThisTurn)}
-      /
-      ${escapeHtml(gameView.rollValue)}
-    </p>
-
-    <p style="text-align:center">
-      Cards remaining this turn: ${escapeHtml(gameView.playsLeft)}
-      / 2
-    </p>
-
-    <p style="text-align:center">
-      Boss damage this turn: ${escapeHtml(gameView.bossDamageThisTurn)} / 1
-    </p>
-
-    <div class="action-row">
-      <button id="rollButton">ROLL DICE</button>
-      <button id="endTurnButton" class="secondary">END TURN</button>
-    </div>
-  `;
-
-  board.appendChild(turnPanel);
-
-  document.getElementById("rollButton").onclick = rollDice;
-  document.getElementById("endTurnButton").onclick = endTurn;
-
-  document.getElementById("rollButton").disabled =
-    !myTurn || gameView.rolled || busy;
-
-  document.getElementById("endTurnButton").disabled =
-    !myTurn || !gameView.rolled || busy;
-
-  // YOUR FIELD
-  const myFieldPanel = document.createElement("div");
-  myFieldPanel.className = "game-panel my-field-panel";
-
-  myFieldPanel.innerHTML = `
-    <div class="player-heading">
-      <h2>YOUR FIELD</h2>
-      <div class="hp">${escapeHtml(me.boss.name)}: ${escapeHtml(me.boss.hp)} HP</div>
-    </div>
-
-    <p class="muted">Your Bodyguards: ${me.field.length} / 3</p>
-  `;
-
-  const myBattlefield = document.createElement("div");
-  myBattlefield.className = "battlefield";
-  const myBossCard = makeGameCard({ name: me.boss.name, p: me.boss.level, l: me.boss.level, a: `BOSS • ${me.boss.hp} HP` }, { boss: true });
-  myBattlefield.appendChild(myBossCard);
-
-  const myField = document.createElement("div");
-  myField.className = "field";
-
-  if (me.field.length === 0) {
-    myField.innerHTML = '<p class="muted">You have no Bodyguards on the field.</p>';
-  } else {
-    me.field.forEach(card => {
-      const selected = selectedAttackerId === card.id;
-      const cardElement = makeGameCard(card, { selected });
-
-      const actions = document.createElement("div");
-      actions.className = "card-actions";
-
-      const selectButton = document.createElement("button");
-      selectButton.textContent = selected
-        ? "Cancel selection"
-        : "Select attacker";
-
-      selectButton.className = "secondary";
-
-      selectButton.disabled =
-        !myTurn ||
-        !gameView.rolled ||
-        card.used ||
-        card.frozen > 0 ||
-        busy;
-
-      selectButton.onclick = () => selectAttacker(card.id);
-
-      actions.appendChild(selectButton);
-
-      if (["Dirt Golem", "Frankenstein", "Time Machine"].includes(card.name)) {
-        const abilityButton = document.createElement("button");
-        abilityButton.textContent = "USE ABILITY";
-        abilityButton.className = "secondary";
-        abilityButton.disabled = !myTurn || !gameView.rolled || card.abilityUsedTurn || card.frozen > 0 || busy;
-        abilityButton.onclick = () => useAbility(card.id);
-        actions.appendChild(abilityButton);
-      }
-
-      if (enemy.field.length === 0) {
-        const bossButton = document.createElement("button");
-        bossButton.textContent = "Attack Boss";
-
-        bossButton.disabled =
-          !myTurn ||
-          !gameView.rolled ||
-          card.used ||
-          card.frozen > 0 ||
-          gameView.round <= 1 ||
-          gameView.bossDamageThisTurn >= 1 ||
-          busy;
-
-        bossButton.onclick = () => attackBoss(card.id);
-
-        actions.appendChild(bossButton);
-      }
-
-      cardElement.appendChild(actions);
-      myField.appendChild(cardElement);
-    });
-  }
-
-  myBattlefield.appendChild(myField);
-  myFieldPanel.appendChild(myBattlefield);
-  board.appendChild(myFieldPanel);
-
-  // YOUR HAND
-  const handPanel = document.createElement("div");
-  handPanel.className = "game-panel hand-panel";
-
-  handPanel.innerHTML = `
-    <h2>YOUR HAND</h2>
-    <p class="muted">
-      Playing a Bodyguard or Tool uses one of your two plays. Tools activate immediately.
-    </p>
-  `;
-
-  const handGrid = document.createElement("div");
-  handGrid.className = "hand-grid";
-
-  (me.hand || []).forEach(card => {
-    const cardElement = makeGameCard(card);
-    const actions = document.createElement("div");
-    actions.className = "card-actions";
-
-    const playButton = document.createElement("button");
-
-    playButton.textContent = card.t === "Tool" ? "USE TOOL" : "PLAY BODYGUARD";
-    playButton.disabled =
-      !myTurn ||
-      !gameView.rolled ||
-      gameView.playsLeft <= 0 ||
-      (card.t !== "Tool" && me.field.length >= 3) ||
-      gameView.spentThisTurn + card.l > gameView.rollValue ||
-      (card.name === "Big Sacrifice" && (!me.void || me.void.length === 0 || me.field.length >= 3)) ||
-      (card.name === "Black Hole" && me.field.length === 0) ||
-      busy;
-    playButton.onclick = () => playCard(card.id);
-
-    actions.appendChild(playButton);
-    cardElement.appendChild(actions);
-    handGrid.appendChild(cardElement);
-  });
-
-  if (!me.hand || me.hand.length === 0) {
-    handGrid.innerHTML = '<p class="muted">Your hand is empty.</p>';
-  }
-
-  handPanel.appendChild(handGrid);
-  board.appendChild(handPanel);
-
-  // VOID AND DECK
-  const extraPanel = document.createElement("div");
-  extraPanel.className = "game-panel board-extra";
-
-  extraPanel.innerHTML = `
-    <h3>YOUR DECK</h3>
-    <p>${escapeHtml(me.deckCount)} cards remaining</p>
-
-    <h3>YOUR VOID</h3>
-    <p>${me.void.length ? me.void.map(c => escapeHtml(c.name)).join(", ") : "Your Void is empty."}</p>
-    ${me.peekedCard ? `<p class="message">Frankenstein saw: ${escapeHtml(me.peekedCard.name)} (Level ${escapeHtml(me.peekedCard.l)}, Power ${escapeHtml(me.peekedCard.p ?? "—")})</p>` : ""}
-  `;
-
-  board.appendChild(extraPanel);
-
-  if (gameView.gameOver) {
-    const winnerPanel = document.createElement("div");
-    winnerPanel.className = "game-panel";
-    winnerPanel.innerHTML = `
-      <h2 style="text-align:center">
-        🏆 ${escapeHtml(gameView.winner)} WINS!
-      </h2>
-    `;
-    board.appendChild(winnerPanel);
-  }
-
-  area.appendChild(board);
-}
-
-// =======================================
-// BOSS SELECTION SCREEN
-// =======================================
-
-function renderBossSelection(area) {
-  const chosen = gameView.choices || {};
-  const myChoice = chosen[String(gameView.yourSeat)];
-
-  area.innerHTML = `
-    <div class="game-panel">
-      <h2 style="text-align:center">CHOOSE YOUR BOSS</h2>
-      <p style="text-align:center">
-        Both players must select a Boss before the battle begins.
-      </p>
-
-      <div id="bossChoices"></div>
-
-      <div class="message" id="bossStatus">
-        ${
-          myChoice !== undefined
-            ? "You have selected your Boss. Waiting for the other player..."
-            : "Choose your Boss below."
-        }
-      </div>
-    </div>
-  `;
-
-  const choices = document.getElementById("bossChoices");
-
-  bosses.forEach((boss, index) => {
-    const button = document.createElement("button");
-
-    button.innerHTML = `
-      ${escapeHtml(boss[0])}
-      <br>
-      <small>Level ${escapeHtml(boss[1])} · 6 HP</small>
-    `;
-
-    if (myChoice !== undefined) {
-      button.disabled = true;
-
-      if (myChoice === index) {
-        button.textContent = boss[0] + " — SELECTED";
-      }
-    }
-
-    button.onclick = () => chooseBoss(index);
-
-    choices.appendChild(button);
-  });
-}
-
-// =======================================
-// CARD GALLERY
-// =======================================
-
-function makeGalleryCard(name, power, level, ability, type = "Bodyguard") {
-  const card = document.createElement("div");
-
-  card.className = "game-card";
-
-  if (type === "Tool") card.classList.add("tool");
-  if (type === "Boss") card.classList.add("boss");
-
-  card.innerHTML = `
-    <div>
-      <div class="card-name">${escapeHtml(name)}</div>
-      <div class="card-type">${escapeHtml(type)}</div>
-    </div>
-
-    <div class="card-stats">
-      <div class="stat">
-        <strong>${power === null ? "—" : escapeHtml(power)}</strong>
-        <small>${type === "Boss" ? "BOSS" : "POWER"}</small>
-      </div>
-
-      <div class="stat">
-        <strong>${escapeHtml(level)}</strong>
-        <small>LEVEL</small>
-      </div>
-    </div>
-
-    <div class="card-ability">${escapeHtml(ability)}</div>
-    <div class="card-footer">BLAMMO TCG</div>
-  `;
-
-  return card;
-}
-
-function renderGallery() {
-  const gallery = document.getElementById("cardGallery");
-
-  const bodyguards = cards.filter(c => c[1] !== null);
-  const tools = cards.filter(c => c[1] === null);
-
-  const bodySection = document.createElement("section");
-  bodySection.innerHTML = '<h3 class="section-title">BODYGUARDS</h3>';
-
-  const bodyGrid = document.createElement("div");
-  bodyGrid.className = "card-grid";
-
-  bodyguards.forEach(c => {
-    bodyGrid.appendChild(
-      makeGalleryCard(c[0], c[1], c[2], c[3])
-    );
-  });
-
-  bodySection.appendChild(bodyGrid);
-
-  const toolSection = document.createElement("section");
-  toolSection.innerHTML = '<h3 class="section-title">TOOLS</h3>';
-
-  const toolGrid = document.createElement("div");
-  toolGrid.className = "card-grid";
-
-  tools.forEach(c => {
-    toolGrid.appendChild(
-      makeGalleryCard(c[0], c[1], c[2], c[3], "Tool")
-    );
-  });
-
-  toolSection.appendChild(toolGrid);
-
-  const bossSection = document.createElement("section");
-  bossSection.innerHTML = '<h3 class="section-title">BOSSES</h3>';
-
-  const bossGrid = document.createElement("div");
-  bossGrid.className = "card-grid";
-
-  bosses.forEach(b => {
-    bossGrid.appendChild(
-      makeGalleryCard(
-        b[0],
-        null,
-        b[1],
-        "Starts with 6 Boss HP.",
-        "Boss"
-      )
-    );
-  });
-
-  bossSection.appendChild(bossGrid);
-
-  gallery.replaceChildren(bodySection, toolSection, bossSection);
-}
-
-renderGallery();
-</script>
-
-</body>
-</html>
