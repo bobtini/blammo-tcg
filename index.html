@@ -38,7 +38,7 @@ p{color:#d8e4da;line-height:1.5}
 .field{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:16px;margin-top:16px;position:relative;z-index:2;align-items:start}
 .battlefield{position:relative;padding:8px 10px 12px;border:1px solid #a8c5a14a;border-radius:13px;background:linear-gradient(135deg,#1d6048aa,#0c3329cc);box-shadow:inset 0 0 24px #061b1555}
 .boss-backdrop{width:240px;max-width:90%;min-height:0;margin:0 auto -6px;position:relative;z-index:1;opacity:1}
-.game-card{position:relative;min-width:0;min-height:285px;height:auto;padding:12px;border:4px solid #c69b4c;border-radius:14px;display:flex;flex-direction:column;justify-content:flex-start;gap:9px;background:linear-gradient(145deg,#f8edcf,#dfc99b 62%,#c9ae78);color:#241d12;box-shadow:0 7px 14px #0008,inset 0 0 0 2px #fff9,inset 0 0 16px #77511d38;text-align:center;overflow:visible}
+.game-card{position:relative;min-width:0;width:100%;min-height:285px;height:auto;align-self:start;padding:12px;border:4px solid #c69b4c;border-radius:14px;display:flex;flex-direction:column;justify-content:flex-start;gap:9px;background:linear-gradient(145deg,#f8edcf,#dfc99b 62%,#c9ae78);color:#241d12;box-shadow:0 7px 14px #0008,inset 0 0 0 2px #fff9,inset 0 0 16px #77511d38;text-align:center;overflow:visible}
 .game-card:before{content:"";position:absolute;inset:5px;border:1px solid #9a7138;border-radius:8px;pointer-events:none}
 .game-card.tool{border-color:#e1b83e;background:linear-gradient(145deg,#fff1ad,#e7c86d 65%,#b99035)}
 .game-card.boss{border-color:#b78ad9;background:linear-gradient(145deg,#e8d8f6,#b99acb 65%,#806092);min-height:160px}
@@ -49,11 +49,11 @@ p{color:#d8e4da;line-height:1.5}
 .stat{flex:1;background:linear-gradient(180deg,#493a26,#211b14);border:1px solid #d3b16d;border-radius:8px;padding:7px;color:#fff1cf;box-shadow:inset 0 1px #fff3}
 .stat strong{display:block;font:bold 22px Arial,sans-serif;color:#ffe18a}
 .stat small{font:900 9px Arial,sans-serif;color:#ead9b5;letter-spacing:1px}
-.card-ability{font:600 13px/1.42 Arial,sans-serif;background:#fff9e9;border:1px solid #b69a68;border-radius:8px;padding:10px 9px;color:#302719;flex:1 0 auto;min-height:66px;display:block;text-align:left;overflow:visible;white-space:normal;overflow-wrap:anywhere;word-break:normal;margin-top:0}
+.card-ability{font:600 13px/1.5 Arial,sans-serif;background:#fff9e9;border:1px solid #b69a68;border-radius:8px;padding:11px 10px;color:#302719;flex:0 0 auto;min-width:0;width:100%;min-height:66px;height:auto;max-height:none;display:block;position:relative;z-index:1;text-align:left;overflow:visible;white-space:pre-wrap;overflow-wrap:anywhere;word-break:normal;margin-top:0;line-clamp:unset;-webkit-line-clamp:unset;-webkit-box-orient:initial}
 .card-footer{font:900 9px/1.3 Arial,sans-serif;letter-spacing:1px;color:#70572f;margin-top:0;text-transform:uppercase}
 .boss-backdrop .card-ability{min-height:34px;text-align:center}
 .hand-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:17px;align-items:start}
-.hand-grid .game-card{min-height:310px}
+.hand-grid .game-card{min-height:310px;height:auto}
 .card-actions{display:grid;gap:7px;margin-top:10px}
 .card-actions button{width:100%;padding:10px 7px;font:900 11px Arial,sans-serif;white-space:normal;line-height:1.25}
 .secondary{background:linear-gradient(180deg,#607b70,#344e44);border-color:#a9c5b4;color:white;box-shadow:0 3px 0 #1b3029,0 5px 10px #0005}
@@ -70,9 +70,10 @@ p{color:#d8e4da;line-height:1.5}
 .card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:17px;align-items:start}
 .gallery .game-card{min-height:300px}
 .gallery .game-card .card-ability{font-size:13px}
-@media(min-width:1000px){#gameArea{display:none}.field{grid-template-columns:repeat(3,minmax(0,1fr))}.hand-grid{grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}}
-@media(max-width:700px){body{padding:10px}.panel{padding:20px 16px}.game-panel{padding:13px}.field{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.game-card{min-height:290px;padding:9px;border-width:3px}.hand-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.hand-grid .game-card{min-height:300px}.card-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.gallery .game-card{min-height:300px}.card-name{font-size:15px}.card-ability{font-size:12px;padding:8px;line-height:1.4}.stat strong{font-size:19px}.boss-backdrop{width:210px}.hp{font-size:17px}}
+@media(min-width:1000px){.field{grid-template-columns:repeat(3,minmax(0,1fr))}.hand-grid{grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}}
+@media(max-width:700px){body{padding:10px}.panel{padding:20px 16px}.game-panel{padding:13px}.field{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.game-card{min-height:0;padding:9px;border-width:3px}.hand-grid{grid-template-columns:minmax(0,1fr);gap:12px}.hand-grid .game-card{min-height:0;height:auto}.card-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.gallery .game-card{min-height:0}.card-name{font-size:15px}.card-ability{font-size:13px;padding:10px;line-height:1.5}.stat strong{font-size:19px}.boss-backdrop{width:210px}.hp{font-size:17px}}
 @media(max-width:390px){.field,.hand-grid,.card-grid{grid-template-columns:minmax(0,1fr)}.game-card,.hand-grid .game-card,.gallery .game-card{min-height:0}.card-ability{font-size:13px}.action-row button{min-width:100%}}
+
 </style>
 </head>
 
@@ -140,7 +141,7 @@ const cards = [
 ["Water Golem",175,4,"On death: destroy the Bodyguard that killed it."],
 ["Dragone",200,3,"On death: give one of your Bodyguards +50 Power for 1 turn."],
 ["Pedro",130,1,"No special ability."],
-["Fire Golem",200,3,"On death: roll; if even, Void the weakest enemy Bodyguard."],
+["Fire Golem",200,4,"On death: roll; if even, Void the weakest enemy Bodyguard."],
 ["Black Hole",null,2,"Void one of your Bodyguards and summon a card of the same Level."],
 ["Dirt Golem",310,5,"Once per turn: roll; on a 1, Void the weakest enemy Bodyguard."],
 ["Electric Golem",230,3,"On death: opponent's next roll gets -1."],
@@ -454,33 +455,23 @@ async function playCard(cardId) {
   const me = myPlayer();
   const card = (me?.hand || []).find(c => c.id === cardId);
   if (!card) return;
-
   const extra = { cardId };
-
   if (card.name === "Big Sacrifice") {
     if (!me.void.length) return statusMessage("Your Void is empty.");
-
     const options = me.void.map((c, i) => `${i + 1}. ${c.name} (Level ${c.l})`).join("\n");
     const answer = prompt("Choose a Bodyguard from your Void to revive:\n" + options + "\nEnter its number:");
     const index = Number(answer) - 1;
-
     if (!Number.isInteger(index) || index < 0 || index >= me.void.length) return;
-
     extra.voidCardId = me.void[index].id;
   }
-
   if (card.name === "Black Hole") {
     if (!me.field.length) return statusMessage("You need a Bodyguard on your field to sacrifice.");
-
     const options = me.field.map((c, i) => `${i + 1}. ${c.name} (Level ${c.l})`).join("\n");
     const answer = prompt("Choose a Bodyguard to send to the Void:\n" + options + "\nEnter its number:");
     const index = Number(answer) - 1;
-
     if (!Number.isInteger(index) || index < 0 || index >= me.field.length) return;
-
     extra.sacrificeId = me.field[index].id;
   }
-
   performAction("play_card", extra);
 }
 
@@ -508,8 +499,9 @@ function makeGameCard(card, options = {}) {
   if (options.boss) element.classList.add("boss", "boss-backdrop");
   if (options.selected) element.classList.add("selected");
 
-  const type = card.t || "Bodyguard";
-  const power = card.p ?? "—";
+  const type = card.t || card.type || "Bodyguard";
+  const power = card.p ?? card.power ?? "—";
+  const abilityText = card.a ?? card.ability ?? card.effect ?? card.description ?? "No special ability.";
 
   const frozen = card.frozen > 0
     ? `<div class="card-footer">FROZEN</div>`
@@ -518,7 +510,6 @@ function makeGameCard(card, options = {}) {
   const used = card.used
     ? `<div class="card-footer">ALREADY USED</div>`
     : "";
-
   const abilityUsed = card.abilityUsedTurn
     ? `<div class="card-footer">ABILITY USED THIS TURN</div>`
     : "";
@@ -540,13 +531,13 @@ function makeGameCard(card, options = {}) {
       </div>
 
       <div class="stat">
-        <strong>${escapeHtml(card.l)}</strong>
+        <strong>${escapeHtml(card.l ?? card.level ?? "—")}</strong>
         <small>LEVEL</small>
       </div>
     </div>
 
     <div class="card-ability">
-      ${escapeHtml(card.a || "No special ability.")}
+      ${escapeHtml(abilityText)}
     </div>
 
     ${turns}
@@ -626,14 +617,7 @@ function renderGame() {
 
   const enemyBattlefield = document.createElement("div");
   enemyBattlefield.className = "battlefield";
-
-  const enemyBossCard = makeGameCard({
-    name: enemy.boss.name,
-    p: enemy.boss.level,
-    l: enemy.boss.level,
-    a: `BOSS • ${enemy.boss.hp} HP`
-  }, { boss: true });
-
+  const enemyBossCard = makeGameCard({ name: enemy.boss.name, p: enemy.boss.level, l: enemy.boss.level, a: `BOSS • ${enemy.boss.hp} HP` }, { boss: true });
   enemyBattlefield.appendChild(enemyBossCard);
 
   const enemyField = document.createElement("div");
@@ -722,14 +706,7 @@ function renderGame() {
 
   const myBattlefield = document.createElement("div");
   myBattlefield.className = "battlefield";
-
-  const myBossCard = makeGameCard({
-    name: me.boss.name,
-    p: me.boss.level,
-    l: me.boss.level,
-    a: `BOSS • ${me.boss.hp} HP`
-  }, { boss: true });
-
+  const myBossCard = makeGameCard({ name: me.boss.name, p: me.boss.level, l: me.boss.level, a: `BOSS • ${me.boss.hp} HP` }, { boss: true });
   myBattlefield.appendChild(myBossCard);
 
   const myField = document.createElement("div");
@@ -830,7 +807,6 @@ function renderGame() {
       (card.name === "Big Sacrifice" && (!me.void || me.void.length === 0 || me.field.length >= 3)) ||
       (card.name === "Black Hole" && me.field.length === 0) ||
       busy;
-
     playButton.onclick = () => playCard(card.id);
 
     actions.appendChild(playButton);
