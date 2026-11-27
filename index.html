@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,441 +11,188 @@
 :root {
   --bg: #080b20;
   --panel: rgba(18, 22, 53, .88);
+  --panel2: rgba(25, 30, 72, .92);
+  --line: #4541a8;
   --purple: #9b5cff;
+  --purple2: #6d4aff;
   --blue: #36cfff;
   --cyan: #72edff;
   --text: #f3f2ff;
   --muted: #b7bbdf;
   --glow: rgba(107, 80, 255, .32);
 }
-
 * { box-sizing: border-box; }
 html { min-height: 100%; background: var(--bg); }
-
 body {
-  margin: 0;
-  min-height: 100vh;
-  padding: 18px;
-  color: var(--text);
-  font-family: Inter, Arial, sans-serif;
+  margin: 0; min-height: 100vh; padding: 18px;
+  color: var(--text); font-family: Inter, Arial, sans-serif;
   background:
-    radial-gradient(ellipse at 12% 0%, rgba(111,58,255,.28), transparent 38%),
-    radial-gradient(ellipse at 90% 15%, rgba(0,174,255,.18), transparent 34%),
-    linear-gradient(145deg,#080b20 0%,#101034 48%,#080d25 100%);
+    radial-gradient(ellipse at 12% 0%, rgba(111, 58, 255, .28), transparent 38%),
+    radial-gradient(ellipse at 90% 15%, rgba(0, 174, 255, .18), transparent 34%),
+    linear-gradient(145deg, #080b20 0%, #101034 48%, #080d25 100%);
   background-attachment: fixed;
 }
-
 button, input { font: inherit; }
-
 button {
-  border: 1px solid rgba(135,116,255,.75);
-  border-radius: 9px;
-  padding: 11px 15px;
-  color: white;
-  font-weight: 800;
-  cursor: pointer;
-  background: linear-gradient(110deg,#7045e8,#286bdc 85%);
-  box-shadow: 0 0 15px rgba(102,79,255,.22), inset 0 1px rgba(255,255,255,.16);
+  border: 1px solid rgba(135, 116, 255, .75); border-radius: 9px;
+  padding: 11px 15px; color: white; font-weight: 800; cursor: pointer;
+  background: linear-gradient(110deg, #7045e8, #286bdc 85%);
+  box-shadow: 0 0 15px rgba(102, 79, 255, .22), inset 0 1px rgba(255,255,255,.16);
   transition: transform .15s ease, filter .15s ease, box-shadow .15s ease;
 }
-
-button:hover:not(:disabled) {
-  transform: translateY(-1px);
-  filter: brightness(1.13);
-  box-shadow: 0 0 20px rgba(70,190,255,.28);
-}
-
-button:disabled {
-  opacity: .4;
-  cursor: not-allowed;
-  box-shadow: none;
-}
-
+button:hover:not(:disabled) { transform: translateY(-1px); filter: brightness(1.13); box-shadow: 0 0 20px rgba(70, 190, 255, .28); }
+button:disabled { opacity: .4; cursor: not-allowed; box-shadow: none; }
 input {
-  width: 100%;
-  padding: 13px;
-  margin-top: 10px;
-  border: 1px solid #5554b4;
-  border-radius: 9px;
-  background: #0b102b;
-  color: white;
-  text-align: center;
-  text-transform: uppercase;
-  outline: none;
-  box-shadow: inset 0 0 12px #050817;
+  width: 100%; padding: 13px; margin-top: 10px; border: 1px solid #5554b4;
+  border-radius: 9px; background: #0b102b; color: white; text-align: center;
+  text-transform: uppercase; outline: none; box-shadow: inset 0 0 12px #050817;
 }
-
-input:focus {
-  border-color: var(--blue);
-  box-shadow: 0 0 0 3px rgba(54,207,255,.14);
-}
-
+input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(54,207,255,.14); }
 .panel {
-  max-width: 500px;
-  margin: 20px auto;
-  padding: 25px;
-  border-radius: 18px;
-  text-align: center;
-  background: linear-gradient(145deg,rgba(28,30,78,.96),rgba(13,19,51,.96));
-  border: 1px solid #5145b8;
-  box-shadow: 0 14px 45px #0008, 0 0 25px var(--glow);
+  max-width: 500px; margin: 20px auto; padding: 25px; border-radius: 18px;
+  text-align: center; background: linear-gradient(145deg, rgba(28,30,78,.96), rgba(13,19,51,.96));
+  border: 1px solid #5145b8; box-shadow: 0 14px 45px #0008, 0 0 25px var(--glow);
 }
-
-h1 {
-  margin: 0;
-  font-size: clamp(38px,7vw,56px);
-  font-weight: 1000;
-  letter-spacing: 5px;
-  color: #fff;
-  text-shadow: 0 0 9px var(--purple),0 0 25px #5865ff,0 0 40px #238bff;
-}
-
-h2, .gallery h2 {
-  color: var(--cyan);
-  text-shadow: 0 0 12px rgba(54,207,255,.28);
-}
-
+h1 { margin: 0; font-size: clamp(38px, 7vw, 56px); font-weight: 1000; letter-spacing: 5px;
+  color: #fff; text-shadow: 0 0 9px var(--purple), 0 0 25px #5865ff, 0 0 40px #238bff; }
+h2, .gallery h2 { color: var(--cyan); text-shadow: 0 0 12px rgba(54,207,255,.28); }
 p { color: var(--muted); }
-
-#status {
-  margin-top: 18px;
-  padding: 12px;
-  background: #0a102b;
-  border: 1px solid #343a82;
-  border-radius: 8px;
-  overflow-wrap: anywhere;
-  font-size: 14px;
-}
-
-#roomCodeDisplay {
-  color: var(--cyan);
-  font-size: 30px;
-  font-weight: 900;
-  letter-spacing: 5px;
-  margin-top: 12px;
-  text-shadow: 0 0 14px #249bff;
-}
-
-#gameArea {
-  max-width: 1180px;
-  margin: 25px auto;
-  display: none;
-}
-
+#status { margin-top: 18px; padding: 12px; background: #0a102b; border: 1px solid #343a82; border-radius: 8px; overflow-wrap: anywhere; font-size: 14px; }
+#roomCodeDisplay { color: var(--cyan); font-size: 30px; font-weight: 900; letter-spacing: 5px; margin-top: 12px; text-shadow: 0 0 14px #249bff; }
+#gameArea { max-width: 1180px; margin: 25px auto; display: none; }
 .game-panel {
-  min-width: 0;
-  background: linear-gradient(145deg,rgba(23,27,72,.96),rgba(12,18,49,.96));
-  border: 1px solid #4644a4;
-  border-radius: 14px;
-  padding: 17px;
-  margin-bottom: 15px;
-  box-shadow: 0 8px 25px #0006,inset 0 1px rgba(255,255,255,.035);
+  min-width: 0; background: linear-gradient(145deg, rgba(23,27,72,.96), rgba(12,18,49,.96));
+  border: 1px solid #4644a4; border-radius: 14px; padding: 17px; margin-bottom: 15px;
+  box-shadow: 0 8px 25px #0006, inset 0 1px rgba(255,255,255,.035);
 }
-
-.player-heading {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.hp {
-  color: #ff83c9;
-  font-weight: 900;
-  font-size: 18px;
-}
-
-.field {
-  display: grid;
-  grid-template-columns: repeat(auto-fit,minmax(145px,1fr));
-  gap: 10px;
-  margin-top: 12px;
-  align-items: start;
-}
-
-/* CARD DESIGN */
-
+.player-heading { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+.hp { color: #ff83c9; font-weight: 900; font-size: 18px; }
+.field { display: grid; grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)); gap: 10px; margin-top: 12px; align-items: start; }
 .game-card {
-  min-width: 0;
-  min-height: 0;
-  height: auto;
-  padding: 9px;
-  gap: 5px;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  text-align: center;
-  border: 1.5px solid #6560db;
-  border-radius: 11px;
-  background: linear-gradient(155deg,rgba(54,48,126,.98),rgba(14,32,79,.98) 72%,rgba(11,47,83,.98));
-  box-shadow: 0 5px 15px #0007,0 0 11px rgba(91,90,255,.13),inset 0 1px rgba(255,255,255,.12);
+  min-width: 0; min-height: 0; height: auto; padding: 9px; gap: 5px;
+  display: flex; flex-direction: column; justify-content: flex-start; text-align: center;
+  border: 1.5px solid #6560db; border-radius: 11px;
+  background: linear-gradient(155deg, rgba(54,48,126,.98), rgba(14,32,79,.98) 72%, rgba(11,47,83,.98));
+  box-shadow: 0 5px 15px #0007, 0 0 11px rgba(91,90,255,.13), inset 0 1px rgba(255,255,255,.12);
   overflow: visible;
 }
-
-.game-card.tool {
-  border-color: #31c9ed;
-  background: linear-gradient(145deg,#174f87,#18245f 78%);
-  box-shadow: 0 0 13px rgba(42,200,255,.17);
-}
-
-.game-card.boss {
-  border-color: #bd73ff;
-  background: linear-gradient(145deg,#632e9e,#231c65 75%);
-  box-shadow: 0 0 16px rgba(164,87,255,.22);
-}
-
-.game-card.selected {
-  border-color: #70efff;
-  box-shadow: 0 0 0 2px rgba(76,221,255,.28),0 0 20px rgba(54,207,255,.42);
-}
-
-.card-name {
-  min-height: 0;
-  font-size: clamp(12px,1.15vw,15px);
-  line-height: 1.2;
-  font-weight: 900;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow-wrap: anywhere;
-}
-
-.card-type {
-  font-size: 9px;
-  text-transform: uppercase;
-  letter-spacing: 1.1px;
-  color: #c8d6ff;
-  margin: 3px 0;
-}
-
-.card-stats {
-  display: flex;
-  justify-content: space-around;
-  gap: 5px;
-  margin: 4px 0;
-}
-
-.stat {
-  min-width: 0;
-  flex: 1 1 0;
-  padding: 5px 4px;
-  border: 1px solid rgba(105,135,255,.28);
-  border-radius: 7px;
-  background: rgba(5,10,35,.62);
-}
-
-.stat strong {
-  display: block;
-  font-size: 17px;
-  color: #78eaff;
-  text-shadow: 0 0 9px rgba(54,207,255,.35);
-}
-
-.stat small {
-  font-size: 8px;
-  color: #c3c9f1;
-}
-
-/* ABILITY TEXT ALWAYS EXPANDS TO FIT */
-
+.game-card.tool { border-color: #31c9ed; background: linear-gradient(145deg, #174f87, #18245f 78%); box-shadow: 0 0 13px rgba(42,200,255,.17); }
+.game-card.boss { border-color: #bd73ff; background: linear-gradient(145deg, #632e9e, #231c65 75%); box-shadow: 0 0 16px rgba(164,87,255,.22); }
+.game-card.selected { border-color: #70efff; box-shadow: 0 0 0 2px rgba(76,221,255,.28), 0 0 20px rgba(54,207,255,.42); }
+.card-name { min-height: 0; font-size: clamp(12px, 1.15vw, 15px); line-height: 1.2; font-weight: 900; display: flex; align-items: center; justify-content: center; overflow-wrap: anywhere; }
+.card-type { font-size: 9px; text-transform: uppercase; letter-spacing: 1.1px; color: #c8d6ff; margin: 3px 0; }
+.card-stats { display: flex; justify-content: space-around; gap: 5px; margin: 4px 0; }
+.stat { min-width: 0; flex: 1 1 0; padding: 5px 4px; border: 1px solid rgba(105,135,255,.28); border-radius: 7px; background: rgba(5,10,35,.62); }
+.stat strong { display: block; font-size: 17px; color: #78eaff; text-shadow: 0 0 9px rgba(54,207,255,.35); }
+.stat small { font-size: 8px; color: #c3c9f1; }
 .card-ability {
-  display: block;
-  flex: 0 0 auto;
-  width: 100%;
-  min-width: 0;
-  min-height: 0;
-  height: auto;
-  max-height: none;
-  padding: 7px;
-  margin-top: 3px;
-  border: 1px solid rgba(107,125,225,.28);
-  border-radius: 7px;
-  background: rgba(5,10,34,.68);
-  color: #e4e9ff;
-  font-size: 10.5px;
-  line-height: 1.35;
-  text-align: left;
-  white-space: normal;
-  overflow: visible;
-  overflow-wrap: anywhere;
-  word-break: normal;
+  display: block; flex: 0 0 auto; width: 100%; min-width: 0; min-height: 0; height: auto; max-height: none;
+  padding: 7px; margin-top: 3px; border: 1px solid rgba(107,125,225,.28); border-radius: 7px;
+  background: rgba(5,10,34,.68); color: #e4e9ff; font-size: 10.5px; line-height: 1.35;
+  text-align: left; white-space: normal; overflow: visible; overflow-wrap: anywhere; word-break: normal;
 }
-
-.card-footer {
-  font-size: 8px;
-  color: #aeb8e8;
-  margin-top: 3px;
-  letter-spacing: .7px;
-}
-
-.section-title {
-  margin: 20px 0 11px;
-  color: #9fefff;
-  border-bottom: 1px solid #464b9d;
-  padding-bottom: 8px;
-}
-
-.hand-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit,minmax(145px,1fr));
-  gap: 9px;
-  align-items: start;
-}
-
-.hand-grid .game-card,
-.gallery .game-card {
-  min-height: 0;
-  height: auto;
-}
-
-.card-actions {
-  display: grid;
-  gap: 5px;
-  margin-top: 6px;
-}
-
-.card-actions button {
-  width: 100%;
-  padding: 7px 5px;
-  font-size: 10px;
-  white-space: normal;
-}
-
-.secondary {
-  background: linear-gradient(110deg,#414b91,#245d9b);
-  border-color: #627bd5;
-  color: white;
-}
-
-.danger {
-  background: linear-gradient(110deg,#a83275,#742c9c);
-  color: white;
-}
-
-.action-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 14px;
-}
-
-.action-row button {
-  flex: 1;
-  min-width: 130px;
-}
-
-.dice {
-  font-size: 46px;
-  color: var(--cyan);
-  font-weight: 900;
-  text-align: center;
-  margin: 10px;
-  text-shadow: 0 0 18px #3e8eff;
-}
-
-.message {
-  background: #0b1232;
-  border: 1px solid #343c8d;
-  border-left: 4px solid var(--blue);
-  padding: 12px;
-  border-radius: 7px;
-  margin: 13px 0;
-  overflow-wrap: anywhere;
-}
-
+.card-footer { font-size: 8px; color: #aeb8e8; margin-top: 3px; letter-spacing: .7px; }
+.section-title { margin: 20px 0 11px; color: #9fefff; border-bottom: 1px solid #464b9d; padding-bottom: 8px; }
+.hand-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)); gap: 9px; align-items: start; }
+.hand-grid .game-card, .gallery .game-card { min-height: 0; height: auto; }
+.card-actions { display: grid; gap: 5px; margin-top: 6px; }
+.card-actions button { width: 100%; padding: 7px 5px; font-size: 10px; white-space: normal; }
+.secondary { background: linear-gradient(110deg, #414b91, #245d9b); border-color: #627bd5; color: white; }
+.danger { background: linear-gradient(110deg, #a83275, #742c9c); color: white; }
+.action-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+.action-row button { flex: 1; min-width: 130px; }
+.dice { font-size: 46px; color: var(--cyan); font-weight: 900; text-align: center; margin: 10px; text-shadow: 0 0 18px #3e8eff; }
+.message { background: #0b1232; border: 1px solid #343c8d; border-left: 4px solid var(--blue); padding: 12px; border-radius: 7px; margin: 13px 0; overflow-wrap: anywhere; }
 .muted { color: #aeb9df; }
-
-#bossChoices {
-  display: grid;
-  grid-template-columns: repeat(auto-fit,minmax(140px,1fr));
-  gap: 10px;
-}
-
+#bossChoices { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
 #bossChoices button { min-height: 75px; }
-
-.gallery {
-  max-width: 1180px;
-  margin: 35px auto;
-}
-
+.gallery { max-width: 1180px; margin: 35px auto; }
 .gallery h2 { text-align: center; }
-
-.card-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill,minmax(145px,1fr));
-  gap: 10px;
-  align-items: start;
-}
-
-.battlefield {
-  position: relative;
-  padding-top: 4px;
-}
-
-.boss-backdrop {
-  width: 205px;
-  max-width: 90%;
-  min-height: 0;
-  margin: 0 auto -20px;
-  position: relative;
-  z-index: 1;
-  opacity: .98;
-}
-
-.field {
-  position: relative;
-  z-index: 2;
-}
-
+.card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(145px, 1fr)); gap: 10px; align-items: start; }
+.battlefield { position: relative; padding-top: 4px; }
+.boss-backdrop { width: 205px; max-width: 90%; min-height: 0; margin: 0 auto -20px; position: relative; z-index: 1; opacity: .98; }
+.field { position: relative; z-index: 2; }
 .boss-backdrop .card-ability { min-height: 0; }
-
-@media (min-width: 900px) {
-  .field { grid-template-columns: repeat(3,minmax(0,1fr)); }
-  .hand-grid { grid-template-columns: repeat(auto-fit,minmax(145px,1fr)); }
-}
-
+@media (min-width: 900px) { .field { grid-template-columns: repeat(3, minmax(0, 1fr)); } .hand-grid { grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)); } }
 @media (max-width: 650px) {
   body { padding: 9px; }
   .panel { padding: 18px 14px; }
   .game-panel { padding: 11px; }
-
-  .field,
-  .hand-grid {
-    grid-template-columns: repeat(2,minmax(0,1fr));
-    gap: 8px;
-  }
-
-  .game-card {
-    padding: 7px;
-    border-width: 1.5px;
-  }
-
+  .field, .hand-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .game-card { padding: 7px; border-width: 1.5px; }
   .card-name { font-size: 12px; }
-
-  .card-ability {
-    font-size: 10px;
-    line-height: 1.34;
-    padding: 6px 5px;
-  }
-
-  .boss-backdrop {
-    width: 175px;
-    margin-bottom: -16px;
-  }
-
-  .card-grid {
-    grid-template-columns: repeat(2,minmax(0,1fr));
-    gap: 8px;
-  }
+  .card-ability { font-size: 10px; line-height: 1.34; padding: 6px 5px; }
+  .boss-backdrop { width: 175px; margin-bottom: -16px; }
+  .card-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
 }
+@media (max-width: 350px) { .field, .hand-grid, .card-grid { grid-template-columns: minmax(0, 1fr); } }
 
-@media (max-width: 350px) {
-  .field,
-  .hand-grid,
-  .card-grid {
-    grid-template-columns: minmax(0,1fr);
+/* SINGLE-SCREEN BATTLE BOARD */
+html, body { min-height: 100%; }
+body { padding: 10px; }
+#gameArea { width: min(1500px, 100%); max-width: none; margin: 8px auto 0; }
+.game-board {
+  height: calc(100dvh - 20px);
+  min-height: 540px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr) minmax(0, 1.15fr);
+  gap: 9px;
+  overflow: hidden;
+}
+.game-board > .game-panel {
+  min-width: 0; min-height: 0; margin: 0; padding: 10px;
+  overflow: hidden; border-radius: 12px;
+}
+.game-board > .board-header { grid-column: 1 / -1; }
+.game-board > .enemy-panel { grid-column: 1; grid-row: 2; }
+.game-board > .turn-panel { grid-column: 2; grid-row: 2; }
+.game-board > .my-field-panel { grid-column: 1; grid-row: 3; }
+.game-board > .hand-panel { grid-column: 2; grid-row: 3; }
+.game-board > .board-extra { display: none; }
+.game-board > .game-panel:not(.board-header):not(.enemy-panel):not(.turn-panel):not(.my-field-panel):not(.hand-panel):not(.board-extra) { grid-column: 1 / -1; }
+.game-board .section-title { margin: 8px 0 6px; padding-bottom: 5px; }
+.game-board .field { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin-top: 6px; }
+.game-board .hand-grid { grid-template-columns: repeat(auto-fit, minmax(105px, 1fr)); gap: 6px; }
+.game-board .game-card { padding: 6px; gap: 3px; border-radius: 8px; }
+.game-board .card-name { font-size: 11px; }
+.game-board .card-type, .game-board .card-footer { font-size: 7px; }
+.game-board .card-stats { margin: 2px 0; gap: 3px; }
+.game-board .stat { padding: 3px 2px; }
+.game-board .stat strong { font-size: 13px; }
+.game-board .stat small { font-size: 7px; }
+.game-board .card-ability { padding: 4px; margin-top: 2px; font-size: 9px; line-height: 1.2; }
+.game-board .card-actions { gap: 3px; margin-top: 3px; }
+.game-board .card-actions button { padding: 5px 3px; font-size: 9px; }
+.game-board .boss-backdrop { width: 145px; margin-bottom: -12px; }
+.game-board .dice { font-size: 36px; margin: 5px; }
+.game-board .action-row { gap: 6px; margin-top: 8px; }
+.game-board .action-row button { min-width: 90px; padding: 8px; }
+.game-board .message { margin: 7px 0; padding: 7px; font-size: 12px; }
+.game-board .muted, .game-board p { font-size: 11px; margin: 5px 0; }
+body:has(.game-board) { overflow: hidden; }
+body:has(.game-board) > .panel, body:has(.game-board) > .gallery { display: none; }
+@media (max-width: 760px) {
+  body { padding: 6px; }
+  #gameArea { margin: 0 auto; }
+  .game-board {
+    height: calc(100dvh - 12px); min-height: 0;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr) minmax(0, 1.1fr);
+    gap: 5px;
   }
+  .game-board > .game-panel { padding: 6px; }
+  .game-board h2 { font-size: 14px; margin: 3px 0; }
+  .game-board .player-heading { gap: 4px; }
+  .game-board .hp { font-size: 12px; }
+  .game-board .field { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; }
+  .game-board .hand-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; }
+  .game-board .card-ability { font-size: 8px; padding: 3px; }
+  .game-board .card-name { font-size: 10px; }
+  .game-board .boss-backdrop { width: 110px; margin-bottom: -8px; }
+  .game-board .dice { font-size: 26px; }
+  .game-board .action-row { flex-direction: column; }
+  .game-board .action-row button { width: 100%; }
 }
 </style>
 </head>
@@ -558,208 +306,141 @@ function escapeHtml(value) {
 }
 
 function myPlayer() {
-  if (!gameView) return null;
   return gameView.players[gameView.yourSeat - 1];
 }
 
 function enemyPlayer() {
-  if (!gameView) return null;
   return gameView.players[2 - gameView.yourSeat];
 }
 
 function isMyTurn() {
   return gameView &&
-    gameView.current === gameView.yourSeat - 1 &&
-    !gameView.gameOver;
-}
-
-function setButtonsDisabled(disabled) {
-  document.querySelectorAll("#gameArea button").forEach(button => {
-    button.disabled = disabled || button.dataset.locked === "true";
-  });
+    !gameView.gameOver &&
+    gameView.currentTurn === gameView.yourSeat;
 }
 
 // =======================================
-// CONNECT
+// CONNECT AND ROOM MANAGEMENT
 // =======================================
 
 async function connect() {
-  try {
-    statusMessage("Connecting...");
+  statusMessage("Connecting...");
 
-    const { data, error } = await db.auth.signInAnonymously();
+  const { data, error } = await db.auth.signInAnonymously();
 
-    if (error) throw error;
-
-    user = data.user;
-
-    document.getElementById("connectButton").disabled = true;
-    document.getElementById("createButton").disabled = false;
-    document.getElementById("joinButton").disabled = false;
-
-    statusMessage("Connected! Create a room or join your friend's room.");
-  } catch (error) {
-    statusMessage("Connection error: " + error.message);
+  if (error) {
+    statusMessage(error.message);
+    return;
   }
-}
 
-// =======================================
-// CREATE ROOM
-// =======================================
+  user = data.user;
+
+  document.getElementById("connectButton").disabled = true;
+  document.getElementById("createButton").disabled = false;
+  document.getElementById("joinButton").disabled = false;
+
+  statusMessage("Connected! Create a room or join a room.");
+}
 
 async function createRoom() {
-  if (!user) return statusMessage("Connect first!");
+  if (!user) return statusMessage("Connect first.");
 
-  try {
-    statusMessage("Creating room...");
+  statusMessage("Creating room...");
 
-    const { data, error } = await db.rpc("create_room");
-    if (error) throw error;
+  const { data, error } = await db.rpc("create_room");
 
-    const result = Array.isArray(data) ? data[0] : data;
-
-    if (!result || !result.room_id || !result.room_code) {
-      throw new Error("Unexpected room response.");
-    }
-
-    roomCode = result.room_code;
-
-    document.getElementById("roomCodeDisplay").textContent = roomCode;
-
-    statusMessage("Room created! Give your friend this code: " + roomCode);
-
-    await startGameSession();
-  } catch (error) {
-    statusMessage("Room error: " + error.message);
+  if (error) {
+    statusMessage(error.message);
+    return;
   }
+
+  roomCode = data;
+  document.getElementById("roomCodeDisplay").textContent = roomCode;
+
+  await enterRoom(roomCode);
 }
 
-// =======================================
-// JOIN ROOM
-// =======================================
-
 async function joinRoom() {
-  if (!user) return statusMessage("Connect first!");
+  if (!user) return statusMessage("Connect first.");
 
   const code = document.getElementById("roomCode").value.trim().toUpperCase();
 
   if (!code) return statusMessage("Enter a room code.");
 
-  try {
-    statusMessage("Joining room...");
+  statusMessage("Joining room...");
 
-    const { data, error } = await db.rpc("join_room", {
-      p_code: code
-    });
-
-    if (error) throw error;
-
-    const result = Array.isArray(data) ? data[0] : data;
-
-    if (!result || !result.room_id) {
-      throw new Error("Unexpected join response.");
-    }
-
-    roomCode = code;
-
-    document.getElementById("roomCodeDisplay").textContent = roomCode;
-
-    statusMessage("Successfully joined room " + roomCode + "!");
-
-    await startGameSession();
-  } catch (error) {
-    statusMessage("Join error: " + error.message);
-  }
-}
-
-// =======================================
-// EDGE FUNCTION CONNECTION
-// =======================================
-
-async function gameAction(action, extra = {}) {
-  if (!roomCode) throw new Error("You are not in a room.");
-
-  const { data, error } = await db.functions.invoke("blammo-tcg", {
-    body: {
-      action,
-      roomCode,
-      ...extra
-    }
+  const { data, error } = await db.rpc("join_room", {
+    p_code: code
   });
 
   if (error) {
-    let message = error.message || "Game request failed.";
-
-    try {
-      if (error.context && typeof error.context.json === "function") {
-        const details = await error.context.json();
-        if (details.error) message = details.error;
-      }
-    } catch (_) {}
-
-    throw new Error(message);
+    statusMessage(error.message);
+    return;
   }
 
-  if (data && data.error) {
-    throw new Error(data.error);
-  }
+  roomCode = code;
+  document.getElementById("roomCodeDisplay").textContent = roomCode;
 
-  return data;
+  await enterRoom(roomCode);
 }
 
-// =======================================
-// START GAME SESSION
-// =======================================
-
-async function startGameSession() {
+async function enterRoom(code) {
   document.getElementById("gameArea").style.display = "block";
+  document.querySelector(".panel").style.display = "none";
 
   await refreshGame();
 
   if (pollTimer) clearInterval(pollTimer);
 
-  pollTimer = setInterval(async () => {
-    if (!busy && roomCode) {
-      try {
-        await refreshGame();
-      } catch (error) {
-        console.error("Refresh error:", error);
-      }
-    }
-  }, 2500);
+  pollTimer = setInterval(refreshGame, 2500);
 }
+
+// =======================================
+// GAME STATE
+// =======================================
 
 async function refreshGame() {
-  const result = await gameAction("get_state");
+  if (!roomCode) return;
 
-  gameView = result.view;
+  const { data, error } = await db.functions.invoke("blammo-tcg", {
+    body: {
+      action: "get_state",
+      roomCode
+    }
+  });
 
-  if (gameView) {
-    renderGame();
+  if (error) {
+    statusMessage(error.message);
+    return;
   }
+
+  gameView = data;
+  renderGame();
 }
 
-// =======================================
-// BOSS SELECTION
-// =======================================
-
-async function chooseBoss(index) {
+async function performAction(action, extra = {}) {
   if (busy) return;
 
-  try {
-    busy = true;
-    statusMessage("Choosing Boss...");
+  busy = true;
+  renderGame();
 
-    await gameAction("choose_boss", {
-      bossIndex: index
+  try {
+    const { data, error } = await db.functions.invoke("blammo-tcg", {
+      body: {
+        action,
+        roomCode,
+        ...extra
+      }
     });
 
-    await refreshGame();
-    statusMessage("Boss selected.");
+    if (error) throw error;
+
+    gameView = data;
   } catch (error) {
-    statusMessage(error.message);
+    statusMessage(error.message || "Action failed.");
   } finally {
     busy = false;
+    if (gameView) renderGame();
   }
 }
 
@@ -767,130 +448,75 @@ async function chooseBoss(index) {
 // GAME ACTIONS
 // =======================================
 
-async function performAction(action, extra = {}) {
-  if (busy) return;
-
-  try {
-    busy = true;
-    setButtonsDisabled(true);
-
-    const result = await gameAction(action, extra);
-
-    if (result.view) {
-      gameView = result.view;
-      selectedAttackerId = null;
-      renderGame();
-    } else {
-      await refreshGame();
-    }
-
-    statusMessage("Move completed.");
-  } catch (error) {
-    statusMessage(error.message);
-
-    try {
-      await refreshGame();
-    } catch (_) {}
-  } finally {
-    busy = false;
-    setButtonsDisabled(false);
-    renderGame();
-  }
+async function chooseBoss(name) {
+  await performAction("choose_boss", { bossName: name });
 }
 
-function rollDice() {
-  performAction("roll");
+async function rollDice() {
+  await performAction("roll");
 }
 
-function endTurn() {
-  performAction("end_turn");
+async function endTurn() {
+  selectedAttackerId = null;
+  await performAction("end_turn");
 }
 
-function playCard(cardId) {
-  performAction("play_card", { cardId });
-}
-
-function attackBodyguard(attackerId, targetId) {
-  performAction("attack", {
+async function attackBodyguard(attackerId, targetId) {
+  selectedAttackerId = null;
+  await performAction("attack", {
     attackerId,
     targetId
   });
 }
 
-function attackBoss(attackerId) {
-  performAction("attack", {
-    attackerId
+async function attackBoss(attackerId) {
+  selectedAttackerId = null;
+  await performAction("attack", {
+    attackerId,
+    targetBoss: true
   });
+}
+
+function selectAttacker(id) {
+  selectedAttackerId = selectedAttackerId === id ? null : id;
+  renderGame();
 }
 
 async function playCard(cardId) {
   const me = myPlayer();
-  const card = (me?.hand || []).find(c => c.id === cardId);
+  const card = me.hand.find(c => c.id === cardId);
 
   if (!card) return;
 
-  const extra = { cardId };
-
   if (card.name === "Big Sacrifice") {
-    if (!me.void.length) {
-      return statusMessage("Your Void is empty.");
-    }
+    const choice = prompt("Enter the name of the card in your Void you want to play:");
+    if (!choice) return;
 
-    const options = me.void
-      .map((c, i) => `${i + 1}. ${c.name} (Level ${c.l})`)
-      .join("\n");
+    await performAction("play_card", {
+      cardId,
+      voidCardName: choice
+    });
 
-    const answer = prompt(
-      "Choose a Bodyguard from your Void to revive:\n" +
-      options +
-      "\nEnter its number:"
-    );
-
-    const index = Number(answer) - 1;
-
-    if (!Number.isInteger(index) || index < 0 || index >= me.void.length) {
-      return;
-    }
-
-    extra.voidCardId = me.void[index].id;
+    return;
   }
 
   if (card.name === "Black Hole") {
-    if (!me.field.length) {
-      return statusMessage("You need a Bodyguard on your field to sacrifice.");
-    }
+    const choice = prompt("Enter the name of the Bodyguard you want to Void:");
+    if (!choice) return;
 
-    const options = me.field
-      .map((c, i) => `${i + 1}. ${c.name} (Level ${c.l})`)
-      .join("\n");
+    await performAction("play_card", {
+      cardId,
+      targetCardName: choice
+    });
 
-    const answer = prompt(
-      "Choose a Bodyguard to send to the Void:\n" +
-      options +
-      "\nEnter its number:"
-    );
-
-    const index = Number(answer) - 1;
-
-    if (!Number.isInteger(index) || index < 0 || index >= me.field.length) {
-      return;
-    }
-
-    extra.sacrificeId = me.field[index].id;
+    return;
   }
 
-  performAction("play_card", extra);
+  await performAction("play_card", { cardId });
 }
 
-function useAbility(cardId) {
-  performAction("ability", { cardId });
-}
-
-function selectAttacker(cardId) {
-  selectedAttackerId =
-    selectedAttackerId === cardId ? null : cardId;
-
-  renderGame();
+async function useAbility(cardId) {
+  await performAction("ability", { cardId });
 }
 
 // =======================================
@@ -903,37 +529,35 @@ function makeGameCard(card, options = {}) {
   element.className = "game-card";
 
   if (card.t === "Tool") element.classList.add("tool");
-  if (options.boss) element.classList.add("boss", "boss-backdrop");
+  if (options.boss) element.classList.add("boss");
   if (options.selected) element.classList.add("selected");
 
-  const type = card.t || "Bodyguard";
-  const power = card.p ?? "—";
+  const turns = card.turnsLeft
+    ? `<div class="muted">Frozen for ${escapeHtml(card.turnsLeft)} turns</div>`
+    : "";
 
-  const frozen = card.frozen > 0
-    ? `<div class="card-footer">FROZEN</div>`
+  const frozen = card.frozen
+    ? `<div class="muted">FROZEN</div>`
     : "";
 
   const used = card.used
-    ? `<div class="card-footer">ALREADY USED</div>`
+    ? `<div class="muted">USED</div>`
     : "";
 
   const abilityUsed = card.abilityUsedTurn
-    ? `<div class="card-footer">ABILITY USED THIS TURN</div>`
-    : "";
-
-  const turns = card.turnsLeft !== undefined
-    ? `<div class="card-footer">${escapeHtml(card.turnsLeft)} TURNS LEFT</div>`
+    ? `<div class="muted">ABILITY USED</div>`
     : "";
 
   element.innerHTML = `
-    <div>
-      <div class="card-name">${escapeHtml(card.name)}</div>
-      <div class="card-type">${escapeHtml(type)}</div>
+    <div class="card-name">${escapeHtml(card.name)}</div>
+
+    <div class="card-type">
+      ${escapeHtml(card.t || (options.boss ? "Boss" : "Bodyguard"))}
     </div>
 
     <div class="card-stats">
       <div class="stat">
-        <strong>${escapeHtml(power)}</strong>
+        <strong>${escapeHtml(card.p ?? "—")}</strong>
         <small>POWER</small>
       </div>
 
@@ -978,9 +602,12 @@ function renderGame() {
 
   area.innerHTML = "";
 
+  const board = document.createElement("div");
+  board.className = "game-board";
+
   // GAME HEADER
   const header = document.createElement("div");
-  header.className = "game-panel";
+  header.className = "game-panel board-header";
 
   header.innerHTML = `
     <h2 style="text-align:center">BLAMMO BATTLE</h2>
@@ -1005,11 +632,11 @@ function renderGame() {
     </div>
   `;
 
-  area.appendChild(header);
+  board.appendChild(header);
 
   // ENEMY
   const enemyPanel = document.createElement("div");
-  enemyPanel.className = "game-panel";
+  enemyPanel.className = "game-panel enemy-panel";
 
   enemyPanel.innerHTML = `
     <div class="player-heading">
@@ -1024,14 +651,7 @@ function renderGame() {
 
   const enemyBattlefield = document.createElement("div");
   enemyBattlefield.className = "battlefield";
-
-  const enemyBossCard = makeGameCard({
-    name: enemy.boss.name,
-    p: enemy.boss.level,
-    l: enemy.boss.level,
-    a: `BOSS • ${enemy.boss.hp} HP`
-  }, { boss: true });
-
+  const enemyBossCard = makeGameCard({ name: enemy.boss.name, p: enemy.boss.level, l: enemy.boss.level, a: `BOSS • ${enemy.boss.hp} HP` }, { boss: true });
   enemyBattlefield.appendChild(enemyBossCard);
 
   const enemyField = document.createElement("div");
@@ -1060,11 +680,11 @@ function renderGame() {
 
   enemyBattlefield.appendChild(enemyField);
   enemyPanel.appendChild(enemyBattlefield);
-  area.appendChild(enemyPanel);
+  board.appendChild(enemyPanel);
 
   // TURN PANEL
   const turnPanel = document.createElement("div");
-  turnPanel.className = "game-panel";
+  turnPanel.className = "game-panel turn-panel";
 
   turnPanel.innerHTML = `
     <h2 style="text-align:center">YOUR TURN STATUS</h2>
@@ -1094,7 +714,7 @@ function renderGame() {
     </div>
   `;
 
-  area.appendChild(turnPanel);
+  board.appendChild(turnPanel);
 
   document.getElementById("rollButton").onclick = rollDice;
   document.getElementById("endTurnButton").onclick = endTurn;
@@ -1107,7 +727,7 @@ function renderGame() {
 
   // YOUR FIELD
   const myFieldPanel = document.createElement("div");
-  myFieldPanel.className = "game-panel";
+  myFieldPanel.className = "game-panel my-field-panel";
 
   myFieldPanel.innerHTML = `
     <div class="player-heading">
@@ -1120,14 +740,7 @@ function renderGame() {
 
   const myBattlefield = document.createElement("div");
   myBattlefield.className = "battlefield";
-
-  const myBossCard = makeGameCard({
-    name: me.boss.name,
-    p: me.boss.level,
-    l: me.boss.level,
-    a: `BOSS • ${me.boss.hp} HP`
-  }, { boss: true });
-
+  const myBossCard = makeGameCard({ name: me.boss.name, p: me.boss.level, l: me.boss.level, a: `BOSS • ${me.boss.hp} HP` }, { boss: true });
   myBattlefield.appendChild(myBossCard);
 
   const myField = document.createElement("div");
@@ -1144,7 +757,6 @@ function renderGame() {
       actions.className = "card-actions";
 
       const selectButton = document.createElement("button");
-
       selectButton.textContent = selected
         ? "Cancel selection"
         : "Select attacker";
@@ -1164,25 +776,15 @@ function renderGame() {
 
       if (["Dirt Golem", "Frankenstein", "Time Machine"].includes(card.name)) {
         const abilityButton = document.createElement("button");
-
         abilityButton.textContent = "USE ABILITY";
         abilityButton.className = "secondary";
-
-        abilityButton.disabled =
-          !myTurn ||
-          !gameView.rolled ||
-          card.abilityUsedTurn ||
-          card.frozen > 0 ||
-          busy;
-
+        abilityButton.disabled = !myTurn || !gameView.rolled || card.abilityUsedTurn || card.frozen > 0 || busy;
         abilityButton.onclick = () => useAbility(card.id);
-
         actions.appendChild(abilityButton);
       }
 
       if (enemy.field.length === 0) {
         const bossButton = document.createElement("button");
-
         bossButton.textContent = "Attack Boss";
 
         bossButton.disabled =
@@ -1206,11 +808,11 @@ function renderGame() {
 
   myBattlefield.appendChild(myField);
   myFieldPanel.appendChild(myBattlefield);
-  area.appendChild(myFieldPanel);
+  board.appendChild(myFieldPanel);
 
   // YOUR HAND
   const handPanel = document.createElement("div");
-  handPanel.className = "game-panel";
+  handPanel.className = "game-panel hand-panel";
 
   handPanel.innerHTML = `
     <h2>YOUR HAND</h2>
@@ -1225,15 +827,11 @@ function renderGame() {
   (me.hand || []).forEach(card => {
     const cardElement = makeGameCard(card);
     const actions = document.createElement("div");
-
     actions.className = "card-actions";
 
     const playButton = document.createElement("button");
 
-    playButton.textContent = card.t === "Tool"
-      ? "USE TOOL"
-      : "PLAY BODYGUARD";
-
+    playButton.textContent = card.t === "Tool" ? "USE TOOL" : "PLAY BODYGUARD";
     playButton.disabled =
       !myTurn ||
       !gameView.rolled ||
@@ -1243,7 +841,6 @@ function renderGame() {
       (card.name === "Big Sacrifice" && (!me.void || me.void.length === 0 || me.field.length >= 3)) ||
       (card.name === "Black Hole" && me.field.length === 0) ||
       busy;
-
     playButton.onclick = () => playCard(card.id);
 
     actions.appendChild(playButton);
@@ -1256,11 +853,11 @@ function renderGame() {
   }
 
   handPanel.appendChild(handGrid);
-  area.appendChild(handPanel);
+  board.appendChild(handPanel);
 
   // VOID AND DECK
   const extraPanel = document.createElement("div");
-  extraPanel.className = "game-panel";
+  extraPanel.className = "game-panel board-extra";
 
   extraPanel.innerHTML = `
     <h3>YOUR DECK</h3>
@@ -1268,26 +865,23 @@ function renderGame() {
 
     <h3>YOUR VOID</h3>
     <p>${me.void.length ? me.void.map(c => escapeHtml(c.name)).join(", ") : "Your Void is empty."}</p>
-
-    ${me.peekedCard
-      ? `<p class="message">Frankenstein saw: ${escapeHtml(me.peekedCard.name)} (Level ${escapeHtml(me.peekedCard.l)}, Power ${escapeHtml(me.peekedCard.p ?? "—")})</p>`
-      : ""}
+    ${me.peekedCard ? `<p class="message">Frankenstein saw: ${escapeHtml(me.peekedCard.name)} (Level ${escapeHtml(me.peekedCard.l)}, Power ${escapeHtml(me.peekedCard.p ?? "—")})</p>` : ""}
   `;
 
-  area.appendChild(extraPanel);
+  board.appendChild(extraPanel);
 
   if (gameView.gameOver) {
     const winnerPanel = document.createElement("div");
     winnerPanel.className = "game-panel";
-
     winnerPanel.innerHTML = `
       <h2 style="text-align:center">
         🏆 ${escapeHtml(gameView.winner)} WINS!
       </h2>
     `;
-
-    area.appendChild(winnerPanel);
+    board.appendChild(winnerPanel);
   }
+
+  area.appendChild(board);
 }
 
 // =======================================
@@ -1300,44 +894,26 @@ function renderBossSelection(area) {
 
   area.innerHTML = `
     <div class="game-panel">
-      <h2 style="text-align:center">CHOOSE YOUR BOSS</h2>
-
-      <p style="text-align:center">
-        Both players must select a Boss before the battle begins.
-      </p>
-
+      <h2>CHOOSE YOUR BOSS</h2>
+      <p>Pick your boss to begin the battle.</p>
       <div id="bossChoices"></div>
-
-      <div class="message" id="bossStatus">
-        ${
-          myChoice !== undefined
-            ? "You have selected your Boss. Waiting for the other player..."
-            : "Choose your Boss below."
-        }
-      </div>
+      <p class="muted">Waiting for both players to choose...</p>
     </div>
   `;
 
   const choices = document.getElementById("bossChoices");
 
-  bosses.forEach((boss, index) => {
+  bosses.forEach(boss => {
     const button = document.createElement("button");
 
     button.innerHTML = `
-      ${escapeHtml(boss[0])}
-      <br>
-      <small>Level ${escapeHtml(boss[1])} · 6 HP</small>
+      ${escapeHtml(boss[0])}<br>
+      Level ${escapeHtml(boss[1])}<br>
+      6 HP
     `;
 
-    if (myChoice !== undefined) {
-      button.disabled = true;
-
-      if (myChoice === index) {
-        button.textContent = boss[0] + " — SELECTED";
-      }
-    }
-
-    button.onclick = () => chooseBoss(index);
+    button.disabled = !!myChoice || busy;
+    button.onclick = () => chooseBoss(boss[0]);
 
     choices.appendChild(button);
   });
@@ -1347,98 +923,64 @@ function renderBossSelection(area) {
 // CARD GALLERY
 // =======================================
 
-function makeGalleryCard(name, power, level, ability, type = "Bodyguard") {
-  const card = document.createElement("div");
-
-  card.className = "game-card";
-
-  if (type === "Tool") card.classList.add("tool");
-  if (type === "Boss") card.classList.add("boss");
-
-  card.innerHTML = `
-    <div>
-      <div class="card-name">${escapeHtml(name)}</div>
-      <div class="card-type">${escapeHtml(type)}</div>
-    </div>
-
-    <div class="card-stats">
-      <div class="stat">
-        <strong>${power === null ? "—" : escapeHtml(power)}</strong>
-        <small>${type === "Boss" ? "BOSS" : "POWER"}</small>
-      </div>
-
-      <div class="stat">
-        <strong>${escapeHtml(level)}</strong>
-        <small>LEVEL</small>
-      </div>
-    </div>
-
-    <div class="card-ability">${escapeHtml(ability)}</div>
-    <div class="card-footer">BLAMMO TCG</div>
-  `;
-
-  return card;
-}
-
 function renderGallery() {
   const gallery = document.getElementById("cardGallery");
 
-  const bodyguards = cards.filter(c => c[1] !== null);
-  const tools = cards.filter(c => c[1] === null);
+  const bodySection = document.createElement("div");
+  bodySection.className = "card-grid";
 
-  const bodySection = document.createElement("section");
   bodySection.innerHTML = '<h3 class="section-title">BODYGUARDS</h3>';
 
-  const bodyGrid = document.createElement("div");
-  bodyGrid.className = "card-grid";
+  cards.filter(card => card[1] !== null).forEach(card => {
+    const element = makeGameCard({
+      name: card[0],
+      p: card[1],
+      l: card[2],
+      a: card[3],
+      t: "Bodyguard"
+    });
 
-  bodyguards.forEach(c => {
-    bodyGrid.appendChild(
-      makeGalleryCard(c[0], c[1], c[2], c[3])
-    );
+    bodySection.appendChild(element);
   });
 
-  bodySection.appendChild(bodyGrid);
+  const toolSection = document.createElement("div");
+  toolSection.className = "card-grid";
 
-  const toolSection = document.createElement("section");
   toolSection.innerHTML = '<h3 class="section-title">TOOLS</h3>';
 
-  const toolGrid = document.createElement("div");
-  toolGrid.className = "card-grid";
+  cards.filter(card => card[1] === null).forEach(card => {
+    const element = makeGameCard({
+      name: card[0],
+      p: card[1],
+      l: card[2],
+      a: card[3],
+      t: "Tool"
+    });
 
-  tools.forEach(c => {
-    toolGrid.appendChild(
-      makeGalleryCard(c[0], c[1], c[2], c[3], "Tool")
-    );
+    toolSection.appendChild(element);
   });
 
-  toolSection.appendChild(toolGrid);
+  const bossSection = document.createElement("div");
+  bossSection.className = "card-grid";
 
-  const bossSection = document.createElement("section");
   bossSection.innerHTML = '<h3 class="section-title">BOSSES</h3>';
 
-  const bossGrid = document.createElement("div");
-  bossGrid.className = "card-grid";
+  bosses.forEach(boss => {
+    const element = makeGameCard({
+      name: boss[0],
+      p: boss[1],
+      l: boss[1],
+      a: "Boss",
+      t: "Boss"
+    }, { boss: true });
 
-  bosses.forEach(b => {
-    bossGrid.appendChild(
-      makeGalleryCard(
-        b[0],
-        null,
-        b[1],
-        "Starts with 6 Boss HP.",
-        "Boss"
-      )
-    );
+    bossSection.appendChild(element);
   });
-
-  bossSection.appendChild(bossGrid);
 
   gallery.replaceChildren(bodySection, toolSection, bossSection);
 }
 
 renderGallery();
 </script>
-
 </body>
 </html>
