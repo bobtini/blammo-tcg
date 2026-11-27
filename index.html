@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -306,6 +305,10 @@ p { color: #cbd5e1; }
 
 .gallery .game-card { min-height: 225px; }
 
+.battlefield { position: relative; padding-top: 4px; }
+.boss-backdrop { width: 220px; max-width: 90%; min-height: 135px; margin: 0 auto -28px; position: relative; z-index: 1; opacity: .96; }
+.field { position: relative; z-index: 2; }
+.boss-backdrop .card-ability { min-height: 28px; }
 @media(max-width: 450px) {
   body { padding: 9px; }
   .game-panel { padding: 12px; }
@@ -394,8 +397,8 @@ const cards = [
 ["Lucky Dice",null,2,"Your next dice roll gets +2."],
 ["Frankenstein",145,2,"Once per turn: inspect the top card of your deck."],
 ["Krud",100,1,"No special ability."],
-["Glub",null,1,"On play: roll; Power becomes 30 × result."],
-["Time Machine",null,3,"Make your opponent roll again."],
+["Glub",null,1,"On play: roll; Power becomes 30 × the result."],
+["Time Machine",145,3,"Once per turn: force your opponent to reroll their next dice roll."],
 ["Doggo",350,6,"No special ability."]
 ];
 
@@ -689,6 +692,34 @@ function attackBoss(attackerId) {
   });
 }
 
+async function playCard(cardId) {
+  const me = myPlayer();
+  const card = (me?.hand || []).find(c => c.id === cardId);
+  if (!card) return;
+  const extra = { cardId };
+  if (card.name === "Big Sacrifice") {
+    if (!me.void.length) return statusMessage("Your Void is empty.");
+    const options = me.void.map((c, i) => `${i + 1}. ${c.name} (Level ${c.l})`).join("\n");
+    const answer = prompt("Choose a Bodyguard from your Void to revive:\n" + options + "\nEnter its number:");
+    const index = Number(answer) - 1;
+    if (!Number.isInteger(index) || index < 0 || index >= me.void.length) return;
+    extra.voidCardId = me.void[index].id;
+  }
+  if (card.name === "Black Hole") {
+    if (!me.field.length) return statusMessage("You need a Bodyguard on your field to sacrifice.");
+    const options = me.field.map((c, i) => `${i + 1}. ${c.name} (Level ${c.l})`).join("\n");
+    const answer = prompt("Choose a Bodyguard to send to the Void:\n" + options + "\nEnter its number:");
+    const index = Number(answer) - 1;
+    if (!Number.isInteger(index) || index < 0 || index >= me.field.length) return;
+    extra.sacrificeId = me.field[index].id;
+  }
+  performAction("play_card", extra);
+}
+
+function useAbility(cardId) {
+  performAction("ability", { cardId });
+}
+
 function selectAttacker(cardId) {
   selectedAttackerId =
     selectedAttackerId === cardId ? null : cardId;
@@ -706,7 +737,7 @@ function makeGameCard(card, options = {}) {
   element.className = "game-card";
 
   if (card.t === "Tool") element.classList.add("tool");
-
+  if (options.boss) element.classList.add("boss", "boss-backdrop");
   if (options.selected) element.classList.add("selected");
 
   const type = card.t || "Bodyguard";
@@ -718,6 +749,9 @@ function makeGameCard(card, options = {}) {
 
   const used = card.used
     ? `<div class="card-footer">ALREADY USED</div>`
+    : "";
+  const abilityUsed = card.abilityUsedTurn
+    ? `<div class="card-footer">ABILITY USED THIS TURN</div>`
     : "";
 
   const turns = card.turnsLeft !== undefined
@@ -749,6 +783,7 @@ function makeGameCard(card, options = {}) {
     ${turns}
     ${frozen}
     ${used}
+    ${abilityUsed}
 
     <div class="card-footer">BLAMMO TCG</div>
   `;
@@ -820,6 +855,11 @@ function renderGame() {
     <h3 class="section-title">OPPONENT'S BODYGUARDS</h3>
   `;
 
+  const enemyBattlefield = document.createElement("div");
+  enemyBattlefield.className = "battlefield";
+  const enemyBossCard = makeGameCard({ name: enemy.boss.name, p: enemy.boss.level, l: enemy.boss.level, a: `BOSS • ${enemy.boss.hp} HP` }, { boss: true });
+  enemyBattlefield.appendChild(enemyBossCard);
+
   const enemyField = document.createElement("div");
   enemyField.className = "field";
 
@@ -844,7 +884,8 @@ function renderGame() {
     });
   }
 
-  enemyPanel.appendChild(enemyField);
+  enemyBattlefield.appendChild(enemyField);
+  enemyPanel.appendChild(enemyBattlefield);
   area.appendChild(enemyPanel);
 
   // TURN PANEL
@@ -903,6 +944,11 @@ function renderGame() {
     <p class="muted">Your Bodyguards: ${me.field.length} / 3</p>
   `;
 
+  const myBattlefield = document.createElement("div");
+  myBattlefield.className = "battlefield";
+  const myBossCard = makeGameCard({ name: me.boss.name, p: me.boss.level, l: me.boss.level, a: `BOSS • ${me.boss.hp} HP` }, { boss: true });
+  myBattlefield.appendChild(myBossCard);
+
   const myField = document.createElement("div");
   myField.className = "field";
 
@@ -934,6 +980,15 @@ function renderGame() {
 
       actions.appendChild(selectButton);
 
+      if (["Dirt Golem", "Frankenstein", "Time Machine"].includes(card.name)) {
+        const abilityButton = document.createElement("button");
+        abilityButton.textContent = "USE ABILITY";
+        abilityButton.className = "secondary";
+        abilityButton.disabled = !myTurn || !gameView.rolled || card.abilityUsedTurn || card.frozen > 0 || busy;
+        abilityButton.onclick = () => useAbility(card.id);
+        actions.appendChild(abilityButton);
+      }
+
       if (enemy.field.length === 0) {
         const bossButton = document.createElement("button");
         bossButton.textContent = "Attack Boss";
@@ -957,7 +1012,8 @@ function renderGame() {
     });
   }
 
-  myFieldPanel.appendChild(myField);
+  myBattlefield.appendChild(myField);
+  myFieldPanel.appendChild(myBattlefield);
   area.appendChild(myFieldPanel);
 
   // YOUR HAND
@@ -967,8 +1023,7 @@ function renderGame() {
   handPanel.innerHTML = `
     <h2>YOUR HAND</h2>
     <p class="muted">
-      Playing a card uses one of your two plays.
-      Tools are displayed but not playable yet.
+      Playing a Bodyguard or Tool uses one of your two plays. Tools activate immediately.
     </p>
   `;
 
@@ -982,22 +1037,17 @@ function renderGame() {
 
     const playButton = document.createElement("button");
 
-    if (card.t === "Tool") {
-      playButton.textContent = "Tool coming soon";
-      playButton.disabled = true;
-    } else {
-      playButton.textContent = "PLAY BODYGUARD";
-
-      playButton.disabled =
-        !myTurn ||
-        !gameView.rolled ||
-        gameView.playsLeft <= 0 ||
-        me.field.length >= 3 ||
-        gameView.spentThisTurn + card.l > gameView.rollValue ||
-        busy;
-
-      playButton.onclick = () => playCard(card.id);
-    }
+    playButton.textContent = card.t === "Tool" ? "USE TOOL" : "PLAY BODYGUARD";
+    playButton.disabled =
+      !myTurn ||
+      !gameView.rolled ||
+      gameView.playsLeft <= 0 ||
+      (card.t !== "Tool" && me.field.length >= 3) ||
+      gameView.spentThisTurn + card.l > gameView.rollValue ||
+      (card.name === "Big Sacrifice" && (!me.void || me.void.length === 0 || me.field.length >= 3)) ||
+      (card.name === "Black Hole" && me.field.length === 0) ||
+      busy;
+    playButton.onclick = () => playCard(card.id);
 
     actions.appendChild(playButton);
     cardElement.appendChild(actions);
@@ -1021,6 +1071,7 @@ function renderGame() {
 
     <h3>YOUR VOID</h3>
     <p>${me.void.length ? me.void.map(c => escapeHtml(c.name)).join(", ") : "Your Void is empty."}</p>
+    ${me.peekedCard ? `<p class="message">Frankenstein saw: ${escapeHtml(me.peekedCard.name)} (Level ${escapeHtml(me.peekedCard.l)}, Power ${escapeHtml(me.peekedCard.p ?? "—")})</p>` : ""}
   `;
 
   area.appendChild(extraPanel);
