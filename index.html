@@ -107,9 +107,7 @@ p { color: #cbd5e1; }
   gap: 15px;
 }
 
-/* =================================
-   GAME SCREEN - NO PAGE SCROLLING
-================================= */
+/* GAME SCREEN */
 
 body.in-game {
   padding: 8px;
@@ -123,9 +121,7 @@ body.in-game > .gallery {
   display: none !important;
 }
 
-#gameArea {
-  display: none;
-}
+#gameArea { display: none; }
 
 #gameArea.game-screen {
   width: 100%;
@@ -159,9 +155,7 @@ body.in-game > .gallery {
   letter-spacing: 2px;
 }
 
-.topbar .turn-label {
-  color: #69e69b;
-}
+.topbar .turn-label { color: #69e69b; }
 
 /* PLAYER ZONES */
 
@@ -364,7 +358,7 @@ body.in-game > .gallery {
   color: white;
 }
 
-/* MIDDLE TURN CONTROLS */
+/* TURN CONTROLS */
 
 .turn-panel {
   background: #25364e;
@@ -412,6 +406,8 @@ body.in-game > .gallery {
   font-size: 10px;
 }
 
+/* HAND */
+
 .hand-panel {
   min-height: 0;
   overflow: hidden;
@@ -444,9 +440,7 @@ body.in-game > .gallery {
   gap: 12px;
 }
 
-.hand-grid .game-card {
-  height: 150px;
-}
+.hand-grid .game-card { height: 150px; }
 
 .hand-empty {
   grid-column: 1 / -1;
@@ -455,7 +449,7 @@ body.in-game > .gallery {
   font-size: 12px;
 }
 
-/* GAME MESSAGES */
+/* MESSAGES */
 
 .game-message {
   position: fixed;
@@ -519,12 +513,79 @@ body.in-game > .gallery {
   height: 170px;
 }
 
-.boss-choice button {
+.boss-choice button { width: 100%; }
+
+.boss-choice.selected-choice { border-color: var(--gold); }
+
+/* WAITING ROOM */
+
+#gameArea.game-screen.waiting-screen {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
   width: 100%;
+  height: calc(100dvh - 16px);
+  max-width: 1500px;
+  margin: 0 auto;
 }
 
-.boss-choice.selected-choice {
-  border-color: var(--gold);
+.waiting-panel {
+  width: min(520px, 95%);
+  background: #1d293b;
+  border: 2px solid #526078;
+  border-radius: 16px;
+  padding: 28px;
+  text-align: center;
+  box-shadow: 0 10px 35px #0008;
+}
+
+.waiting-panel h2 {
+  color: var(--gold);
+  font-size: 25px;
+  margin-top: 0;
+}
+
+.waiting-code {
+  background: #101827;
+  border: 1px solid var(--gold);
+  border-radius: 10px;
+  padding: 15px;
+  margin: 20px 0;
+}
+
+.waiting-code strong {
+  display: block;
+  color: var(--gold);
+  font-size: 34px;
+  letter-spacing: 6px;
+  margin-bottom: 12px;
+}
+
+.player-status {
+  background: #101827;
+  border-radius: 8px;
+  padding: 12px;
+  margin: 8px 0;
+  color: #cbd5e1;
+}
+
+.player-status.connected {
+  border: 1px solid #22c55e;
+  color: #69e69b;
+}
+
+.waiting-spinner {
+  width: 32px;
+  height: 32px;
+  border: 4px solid #526078;
+  border-top-color: var(--gold);
+  border-radius: 50%;
+  margin: 20px auto;
+  animation: waitingSpin 1s linear infinite;
+}
+
+@keyframes waitingSpin {
+  to { transform: rotate(360deg); }
 }
 
 /* RESPONSIVE */
@@ -535,21 +596,10 @@ body.in-game > .gallery {
     gap: 5px;
   }
 
-  .game-card {
-    height: 130px;
-  }
-
-  .game-card.boss {
-    height: 105px;
-  }
-
-  .hand-grid .game-card {
-    height: 132px;
-  }
-
-  .card-ability {
-    font-size: 7px;
-  }
+  .game-card { height: 130px; }
+  .game-card.boss { height: 105px; }
+  .hand-grid .game-card { height: 132px; }
+  .card-ability { font-size: 7px; }
 }
 
 @media (max-width: 650px) {
@@ -578,10 +628,7 @@ body.in-game > .gallery {
     height: 98px;
   }
 
-  .hand-grid .game-card {
-    height: 130px;
-  }
-
+  .hand-grid .game-card { height: 130px; }
   .card-name { font-size: 10px; }
   .card-ability { font-size: 7px; }
   .card-stats { gap: 2px; }
@@ -594,7 +641,6 @@ body.in-game > .gallery {
   }
 
   .dice-box { font-size: 20px; }
-
   .turn-stat { font-size: 8px; }
   .turn-stat strong { font-size: 11px; }
 
@@ -603,10 +649,7 @@ body.in-game > .gallery {
     justify-content: center;
   }
 
-  .turn-buttons button {
-    padding: 5px 10px;
-  }
-
+  .turn-buttons button { padding: 5px 10px; }
   .hand-panel { padding: 4px; }
   .hand-heading { font-size: 11px; }
   .card-actions button { font-size: 8px; padding: 4px 2px; }
@@ -616,8 +659,9 @@ body.in-game > .gallery {
   .boss-choice { padding: 5px; }
   .boss-choice .game-card { width: 100%; height: 135px; }
   .boss-choice button { font-size: 9px; padding: 7px 2px; }
-}
 
+  .waiting-panel { padding: 18px; }
+}
 </style>
 </head>
 
@@ -685,7 +729,7 @@ const cards = [
 ["Water Golem",175,4,"On death: destroy the Bodyguard that killed it."],
 ["Dragone",200,3,"On death: give one of your Bodyguards +50 Power for 1 turn."],
 ["Pedro",130,1,"No special ability."],
-["Fire Golem",200,4,"On death: roll; if even, Void the weakest enemy Bodyguard."],
+["Fire Golem",200,3,"On death: roll; if even, Void the weakest enemy Bodyguard."],
 ["Black Hole",null,2,"Void one of your Bodyguards and summon a card of the same Level."],
 ["Dirt Golem",310,5,"Once per turn: roll; on a 1, Void the weakest enemy Bodyguard."],
 ["Electric Golem",230,3,"On death: opponent's next roll gets -1."],
@@ -917,6 +961,7 @@ async function chooseBoss(index) {
     alert(error.message);
   } finally {
     busy = false;
+    renderGame();
   }
 }
 
@@ -1051,7 +1096,7 @@ function makeGameCard(card, options = {}) {
     <div class="card-stats">
       <div class="stat">
         <strong>${escapeHtml(power)}</strong>
-        <small>${options.boss ? "BOSS LEVEL" : "POWER"}</small>
+        <small>${options.boss ? "BOSS HP" : "POWER"}</small>
       </div>
       <div class="stat">
         <strong>${escapeHtml(card.l)}</strong>
@@ -1114,7 +1159,6 @@ function createPlayerZone(player, isMine) {
   const battlefield = document.createElement("div");
   battlefield.className = "battlefield";
 
-  // Boss is displayed behind the Bodyguards.
   const bossSlot = document.createElement("div");
   bossSlot.className = "boss-slot";
   bossSlot.appendChild(makeBossCard(player.boss));
@@ -1209,15 +1253,84 @@ function createPlayerZone(player, isMine) {
 }
 
 // =======================================
+// WAITING ROOM
+// =======================================
+
+function renderWaitingRoom(area) {
+  area.className = "game-screen waiting-screen";
+
+  const players = Array.isArray(gameView.players)
+    ? gameView.players
+    : [];
+
+  const playerOneConnected = Boolean(players[0]);
+  const playerTwoConnected = Boolean(players[1]);
+
+  const panel = document.createElement("div");
+  panel.className = "waiting-panel";
+
+  panel.innerHTML = `
+    <h1>BLAMMO</h1>
+    <h2>WAITING FOR PLAYER 2</h2>
+
+    <p>Your room is ready! Share this code with your friend.</p>
+
+    <div class="waiting-code">
+      <strong>${escapeHtml(roomCode || "------")}</strong>
+      <button id="copyRoomCode">COPY ROOM CODE</button>
+    </div>
+
+    <div class="player-status ${playerOneConnected ? "connected" : ""}">
+      ${playerOneConnected ? "✓" : "○"} PLAYER 1
+      ${playerOneConnected ? "CONNECTED" : "WAITING"}
+    </div>
+
+    <div class="player-status ${playerTwoConnected ? "connected" : ""}">
+      ${playerTwoConnected ? "✓" : "○"} PLAYER 2
+      ${playerTwoConnected ? "CONNECTED" : "WAITING"}
+    </div>
+
+    <div class="waiting-spinner"></div>
+
+    <p>Boss selection will begin automatically when both players are connected.</p>
+  `;
+
+  area.appendChild(panel);
+
+  panel.querySelector("#copyRoomCode").onclick = async () => {
+    try {
+      await navigator.clipboard.writeText(roomCode);
+      panel.querySelector("#copyRoomCode").textContent = "COPIED!";
+    } catch (error) {
+      alert("Your room code is: " + roomCode);
+    }
+  };
+}
+
+// =======================================
 // RENDER GAME
 // =======================================
 
 function renderGame() {
   const area = document.getElementById("gameArea");
+
   if (!gameView) return;
 
   area.innerHTML = "";
 
+  const players = Array.isArray(gameView.players)
+    ? gameView.players
+    : [];
+
+  const connectedPlayers = players.filter(player => Boolean(player)).length;
+
+  // WAIT FOR BOTH PLAYERS
+  if (connectedPlayers < 2) {
+    renderWaitingRoom(area);
+    return;
+  }
+
+  // BOSS SELECTION
   if (!gameView.started) {
     renderBossSelection(area);
     return;
@@ -1227,6 +1340,12 @@ function renderGame() {
 
   const me = myPlayer();
   const enemy = enemyPlayer();
+
+  if (!me || !enemy) {
+    renderWaitingRoom(area);
+    return;
+  }
+
   const myTurn = isMyTurn();
 
   // TOP BAR
@@ -1299,6 +1418,7 @@ function renderGame() {
 
   const handHeading = document.createElement("div");
   handHeading.className = "hand-heading";
+
   handHeading.innerHTML = `
     <span>YOUR HAND</span>
     <span>${(me.hand || []).length} / 3 CARDS</span>
@@ -1312,6 +1432,7 @@ function renderGame() {
   (me.hand || []).forEach(card => {
     const cardElement = makeGameCard(card);
     const actions = document.createElement("div");
+
     actions.className = "card-actions";
 
     const playButton = document.createElement("button");
@@ -1337,27 +1458,33 @@ function renderGame() {
 
   if (!me.hand || me.hand.length === 0) {
     const empty = document.createElement("div");
+
     empty.className = "hand-empty";
     empty.textContent = "Your hand is empty.";
+
     handGrid.appendChild(empty);
   }
 
   handPanel.appendChild(handGrid);
   area.appendChild(handPanel);
 
-  // MESSAGE
+  // GAME MESSAGE
   if (gameView.message) {
     const message = document.createElement("div");
+
     message.className = "game-message";
     message.textContent = gameView.message;
+
     area.appendChild(message);
   }
 
   // GAME OVER
   if (gameView.gameOver) {
     const message = document.createElement("div");
+
     message.className = "game-message";
     message.textContent = `🏆 ${gameView.winner} WINS!`;
+
     area.appendChild(message);
   }
 }
