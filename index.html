@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,29 +10,36 @@
 <style>
 * { box-sizing: border-box; }
 
+:root {
+  --gold: #ffcf40;
+  --bg: #101827;
+  --panel: #1d293b;
+  --muted: #aab8ca;
+}
+
 body {
   margin: 0;
   min-height: 100vh;
-  background: #101827;
+  background: var(--bg);
   color: white;
   font-family: Arial, sans-serif;
-  padding: 16px;
+  padding: 12px;
 }
 
 button, input { font: inherit; }
 
 button {
   border: 0;
-  border-radius: 8px;
-  padding: 12px 16px;
-  background: #ffcf40;
+  border-radius: 7px;
+  padding: 10px 14px;
+  background: var(--gold);
   color: #172033;
   font-weight: bold;
   cursor: pointer;
 }
 
 button:disabled {
-  opacity: .45;
+  opacity: .4;
   cursor: not-allowed;
 }
 
@@ -41,14 +49,14 @@ input {
   margin-top: 10px;
   border: 1px solid #526078;
   border-radius: 8px;
-  background: #101827;
+  background: var(--bg);
   color: white;
   text-align: center;
   text-transform: uppercase;
 }
 
 .panel {
-  background: #1d293b;
+  background: var(--panel);
   max-width: 480px;
   margin: 20px auto;
   padding: 24px;
@@ -59,77 +67,197 @@ input {
 
 h1 {
   font-size: 46px;
-  color: #ffcf40;
+  color: var(--gold);
   margin: 0;
 }
 
-h2 { color: #ffcf40; }
-
+h2 { color: var(--gold); }
 p { color: #cbd5e1; }
 
 #status {
   margin-top: 18px;
   padding: 12px;
-  background: #101827;
+  background: var(--bg);
   border-radius: 8px;
   overflow-wrap: anywhere;
   font-size: 14px;
 }
 
 #roomCodeDisplay {
-  color: #ffcf40;
+  color: var(--gold);
   font-size: 30px;
   font-weight: bold;
   letter-spacing: 5px;
   margin-top: 12px;
 }
 
-#gameArea {
+.gallery {
   max-width: 1100px;
-  margin: 25px auto;
+  margin: 35px auto;
+}
+
+.gallery h2 {
+  text-align: center;
+  color: var(--gold);
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+  gap: 15px;
+}
+
+/* =================================
+   GAME SCREEN - NO PAGE SCROLLING
+================================= */
+
+body.in-game {
+  padding: 8px;
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
+}
+
+body.in-game > .panel,
+body.in-game > .gallery {
+  display: none !important;
+}
+
+#gameArea {
   display: none;
 }
 
-.game-panel {
+#gameArea.game-screen {
+  width: 100%;
+  height: calc(100dvh - 16px);
+  max-width: 1500px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-rows: 34px minmax(0, 1fr) 65px minmax(0, 1fr) 190px;
+  gap: 7px;
+  overflow: hidden;
+}
+
+/* TOP BAR */
+
+.topbar {
   background: #1d293b;
-  border-radius: 14px;
-  padding: 18px;
-  margin-bottom: 16px;
-  box-shadow: 0 5px 18px #0005;
+  border: 1px solid #526078;
+  border-radius: 8px;
+  padding: 5px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-width: 0;
+  font-size: 13px;
+  font-weight: bold;
+}
+
+.topbar .brand {
+  color: var(--gold);
+  font-size: 17px;
+  letter-spacing: 2px;
+}
+
+.topbar .turn-label {
+  color: #69e69b;
+}
+
+/* PLAYER ZONES */
+
+.player-zone {
+  position: relative;
+  min-height: 0;
+  overflow: hidden;
+  background: linear-gradient(145deg, #1d293b, #142033);
+  border: 1px solid #526078;
+  border-radius: 12px;
+  padding: 7px 10px;
+  display: flex;
+  flex-direction: column;
 }
 
 .player-heading {
+  position: relative;
+  z-index: 4;
+  height: 25px;
+  min-height: 25px;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.player-heading h2 {
+  font-size: 14px;
+  margin: 0;
 }
 
 .hp {
   color: #ff7777;
   font-weight: bold;
-  font-size: 19px;
+  font-size: 13px;
+}
+
+/* BOSS AND BODYGUARDS */
+
+.battlefield {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.boss-slot {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1;
 }
 
 .field {
+  position: relative;
+  z-index: 2;
+  width: 100%;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(135px, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 135px));
+  justify-content: center;
+  align-items: end;
   gap: 12px;
-  margin-top: 14px;
+  margin-bottom: 2px;
 }
 
+.field-empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  color: var(--muted);
+  font-size: 12px;
+  padding: 12px;
+  background: #101827aa;
+  border-radius: 8px;
+  margin-bottom: 4px;
+}
+
+/* CARD DESIGN */
+
 .game-card {
-  min-height: 190px;
-  border: 3px solid #64748b;
-  border-radius: 12px;
-  padding: 10px;
+  width: 100%;
+  height: 148px;
+  min-width: 0;
+  border: 2px solid #64748b;
+  border-radius: 9px;
+  padding: 6px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   background: linear-gradient(145deg, #34445c, #172235);
-  box-shadow: 0 5px 12px #0007;
+  box-shadow: 0 4px 10px #0008;
   text-align: center;
+  overflow: hidden;
 }
 
 .game-card.tool {
@@ -138,102 +266,92 @@ p { color: #cbd5e1; }
 }
 
 .game-card.boss {
-  border-color: #c084fc;
-  background: linear-gradient(145deg, #51306e, #21142f);
+  width: 100px;
+  height: 119px;
+  border: 2px solid #c084fc;
+  background: linear-gradient(145deg, #65418b, #21142f);
+  box-shadow: 0 0 16px #c084fc55;
 }
 
 .game-card.selected {
-  border-color: #ffcf40;
+  border-color: var(--gold);
   box-shadow: 0 0 14px #ffcf4088;
 }
 
 .card-name {
-  font-size: 16px;
+  font-size: 12px;
   font-weight: 900;
-  min-height: 35px;
+  min-height: 25px;
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow-wrap: anywhere;
 }
 
 .card-type {
-  font-size: 10px;
+  font-size: 8px;
   text-transform: uppercase;
   letter-spacing: 1px;
   color: #cbd5e1;
-  margin: 5px 0;
+  margin: 2px 0;
 }
 
 .card-stats {
   display: flex;
   justify-content: space-around;
-  margin: 8px 0;
+  gap: 4px;
+  margin: 4px 0;
 }
 
 .stat {
   background: #101827bb;
-  border-radius: 7px;
-  padding: 6px;
-  min-width: 52px;
+  border-radius: 5px;
+  padding: 4px;
+  min-width: 0;
+  flex: 1;
 }
 
 .stat strong {
   display: block;
-  font-size: 19px;
-  color: #ffcf40;
+  font-size: 15px;
+  color: var(--gold);
 }
 
 .stat small {
-  font-size: 9px;
+  font-size: 7px;
   color: #cbd5e1;
 }
 
 .card-ability {
-  font-size: 11px;
-  line-height: 1.4;
+  font-size: 8px;
+  line-height: 1.25;
   background: #101827bb;
-  padding: 8px 6px;
-  border-radius: 7px;
-  flex-grow: 1;
+  padding: 5px 4px;
+  border-radius: 5px;
+  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-top: 5px;
+  overflow: hidden;
 }
 
 .card-footer {
-  font-size: 10px;
+  font-size: 7px;
   color: #cbd5e1;
-  margin-top: 7px;
-}
-
-.section-title {
-  margin: 22px 0 12px;
-  color: #ffcf40;
-  border-bottom: 1px solid #526078;
-  padding-bottom: 8px;
-}
-
-.hand-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
-  gap: 12px;
-}
-
-.hand-grid .game-card {
-  min-height: 205px;
+  margin-top: 3px;
 }
 
 .card-actions {
   display: grid;
-  gap: 6px;
-  margin-top: 8px;
+  gap: 3px;
+  margin-top: 4px;
 }
 
 .card-actions button {
   width: 100%;
-  padding: 9px 5px;
-  font-size: 12px;
+  padding: 5px 3px;
+  font-size: 9px;
+  border-radius: 5px;
 }
 
 .secondary {
@@ -246,75 +364,260 @@ p { color: #cbd5e1; }
   color: white;
 }
 
-.action-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 14px;
-}
+/* MIDDLE TURN CONTROLS */
 
-.action-row button {
-  flex: 1;
-  min-width: 130px;
-}
-
-.dice {
-  font-size: 48px;
-  color: #ffcf40;
-  font-weight: bold;
-  text-align: center;
-  margin: 10px;
-}
-
-.message {
-  background: #101827;
-  border-left: 4px solid #ffcf40;
-  padding: 13px;
-  border-radius: 7px;
-  margin: 14px 0;
-  overflow-wrap: anywhere;
-}
-
-.muted { color: #aab8ca; }
-
-#bossChoices {
+.turn-panel {
+  background: #25364e;
+  border: 1px solid #65758d;
+  border-radius: 10px;
+  padding: 5px 12px;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  grid-template-columns: 90px 1fr 1fr 1fr auto;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.dice-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: var(--gold);
+  font-size: 27px;
+  font-weight: 900;
+}
+
+.turn-stat {
+  text-align: center;
+  font-size: 10px;
+  color: var(--muted);
+}
+
+.turn-stat strong {
+  display: block;
+  color: white;
+  font-size: 15px;
+  margin-top: 3px;
+}
+
+.turn-buttons {
+  display: flex;
+  gap: 6px;
+}
+
+.turn-buttons button {
+  white-space: nowrap;
+  padding: 9px 12px;
+  font-size: 10px;
+}
+
+.hand-panel {
+  min-height: 0;
+  overflow: hidden;
+  background: #1d293b;
+  border: 1px solid #526078;
+  border-radius: 12px;
+  padding: 7px 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+.hand-heading {
+  height: 23px;
+  min-height: 23px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--gold);
+  font-weight: bold;
+  font-size: 13px;
+}
+
+.hand-grid {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 135px));
+  justify-content: center;
+  align-items: center;
   gap: 12px;
 }
 
-#bossChoices button {
-  min-height: 80px;
+.hand-grid .game-card {
+  height: 150px;
 }
 
-.gallery {
-  max-width: 1100px;
-  margin: 35px auto;
-}
-
-.gallery h2 {
+.hand-empty {
+  grid-column: 1 / -1;
+  color: var(--muted);
   text-align: center;
-  color: #ffcf40;
+  font-size: 12px;
 }
 
-.card-grid {
+/* GAME MESSAGES */
+
+.game-message {
+  position: fixed;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  max-width: 90%;
+  background: #101827;
+  border: 1px solid var(--gold);
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 11px;
+  text-align: center;
+  box-shadow: 0 4px 15px #0009;
+  pointer-events: none;
+}
+
+/* BOSS SELECTION */
+
+.boss-selection {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+}
+
+.boss-selection-panel {
+  width: min(850px, 95%);
+  background: #1d293b;
+  border: 1px solid #526078;
+  border-radius: 16px;
+  padding: 24px;
+  text-align: center;
+}
+
+.boss-selection-panel h2 {
+  color: var(--gold);
+  margin-top: 0;
+}
+
+.boss-choices {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
-  gap: 15px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  margin-top: 20px;
 }
 
-.gallery .game-card { min-height: 225px; }
-
-.battlefield { position: relative; padding-top: 4px; }
-.boss-backdrop { width: 220px; max-width: 90%; min-height: 135px; margin: 0 auto -28px; position: relative; z-index: 1; opacity: .96; }
-.field { position: relative; z-index: 2; }
-.boss-backdrop .card-ability { min-height: 28px; }
-@media(max-width: 450px) {
-  body { padding: 9px; }
-  .game-panel { padding: 12px; }
-  .field { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .hand-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.boss-choice {
+  background: #26364d;
+  border: 2px solid #64748b;
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
 }
+
+.boss-choice .game-card {
+  width: 135px;
+  height: 170px;
+}
+
+.boss-choice button {
+  width: 100%;
+}
+
+.boss-choice.selected-choice {
+  border-color: var(--gold);
+}
+
+/* RESPONSIVE */
+
+@media (max-height: 760px) {
+  #gameArea.game-screen {
+    grid-template-rows: 30px minmax(0, 1fr) 57px minmax(0, 1fr) 165px;
+    gap: 5px;
+  }
+
+  .game-card {
+    height: 130px;
+  }
+
+  .game-card.boss {
+    height: 105px;
+  }
+
+  .hand-grid .game-card {
+    height: 132px;
+  }
+
+  .card-ability {
+    font-size: 7px;
+  }
+}
+
+@media (max-width: 650px) {
+  body.in-game { padding: 4px; }
+
+  #gameArea.game-screen {
+    height: calc(100dvh - 8px);
+    grid-template-rows: 28px minmax(0, 1fr) 58px minmax(0, 1fr) 165px;
+    gap: 4px;
+  }
+
+  .player-zone { padding: 4px; }
+
+  .field, .hand-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 5px;
+  }
+
+  .game-card {
+    height: 125px;
+    padding: 4px;
+  }
+
+  .game-card.boss {
+    width: 78px;
+    height: 98px;
+  }
+
+  .hand-grid .game-card {
+    height: 130px;
+  }
+
+  .card-name { font-size: 10px; }
+  .card-ability { font-size: 7px; }
+  .card-stats { gap: 2px; }
+  .stat strong { font-size: 12px; }
+
+  .turn-panel {
+    grid-template-columns: 48px 1fr 1fr 1fr;
+    gap: 3px;
+    padding: 3px;
+  }
+
+  .dice-box { font-size: 20px; }
+
+  .turn-stat { font-size: 8px; }
+  .turn-stat strong { font-size: 11px; }
+
+  .turn-buttons {
+    grid-column: 1 / -1;
+    justify-content: center;
+  }
+
+  .turn-buttons button {
+    padding: 5px 10px;
+  }
+
+  .hand-panel { padding: 4px; }
+  .hand-heading { font-size: 11px; }
+  .card-actions button { font-size: 8px; padding: 4px 2px; }
+
+  .boss-selection-panel { padding: 10px; }
+  .boss-choices { gap: 5px; }
+  .boss-choice { padding: 5px; }
+  .boss-choice .game-card { width: 100%; height: 135px; }
+  .boss-choice button { font-size: 9px; padding: 7px 2px; }
+}
+
 </style>
 </head>
 
@@ -397,7 +700,7 @@ const cards = [
 ["Lucky Dice",null,2,"Your next dice roll gets +2."],
 ["Frankenstein",145,2,"Once per turn: inspect the top card of your deck."],
 ["Krud",100,1,"No special ability."],
-["Glub",null,1,"On play: roll; Power becomes 30 × the result."],
+["Glub",null,1,"On play: Power becomes 30 × the result."],
 ["Time Machine",145,3,"Once per turn: force your opponent to reroll their next dice roll."],
 ["Doggo",350,6,"No special ability."]
 ];
@@ -413,7 +716,8 @@ const bosses = [
 // =======================================
 
 function statusMessage(message) {
-  document.getElementById("status").textContent = message;
+  const status = document.getElementById("status");
+  if (status) status.textContent = message;
 }
 
 function escapeHtml(value) {
@@ -440,12 +744,6 @@ function isMyTurn() {
   return gameView &&
     gameView.current === gameView.yourSeat - 1 &&
     !gameView.gameOver;
-}
-
-function setButtonsDisabled(disabled) {
-  document.querySelectorAll("#gameArea button").forEach(button => {
-    button.disabled = disabled || button.dataset.locked === "true";
-  });
 }
 
 // =======================================
@@ -492,7 +790,6 @@ async function createRoom() {
     }
 
     roomCode = result.room_code;
-
     document.getElementById("roomCodeDisplay").textContent = roomCode;
 
     statusMessage("Room created! Give your friend this code: " + roomCode);
@@ -530,7 +827,6 @@ async function joinRoom() {
     }
 
     roomCode = code;
-
     document.getElementById("roomCodeDisplay").textContent = roomCode;
 
     statusMessage("Successfully joined room " + roomCode + "!");
@@ -569,9 +865,7 @@ async function gameAction(action, extra = {}) {
     throw new Error(message);
   }
 
-  if (data && data.error) {
-    throw new Error(data.error);
-  }
+  if (data && data.error) throw new Error(data.error);
 
   return data;
 }
@@ -581,7 +875,10 @@ async function gameAction(action, extra = {}) {
 // =======================================
 
 async function startGameSession() {
-  document.getElementById("gameArea").style.display = "block";
+  document.body.classList.add("in-game");
+
+  const area = document.getElementById("gameArea");
+  area.style.display = "grid";
 
   await refreshGame();
 
@@ -600,12 +897,9 @@ async function startGameSession() {
 
 async function refreshGame() {
   const result = await gameAction("get_state");
-
   gameView = result.view;
 
-  if (gameView) {
-    renderGame();
-  }
+  if (gameView) renderGame();
 }
 
 // =======================================
@@ -617,16 +911,10 @@ async function chooseBoss(index) {
 
   try {
     busy = true;
-    statusMessage("Choosing Boss...");
-
-    await gameAction("choose_boss", {
-      bossIndex: index
-    });
-
+    await gameAction("choose_boss", { bossIndex: index });
     await refreshGame();
-    statusMessage("Boss selected.");
   } catch (error) {
-    statusMessage(error.message);
+    alert(error.message);
   } finally {
     busy = false;
   }
@@ -641,28 +929,24 @@ async function performAction(action, extra = {}) {
 
   try {
     busy = true;
-    setButtonsDisabled(true);
+    renderGame();
 
     const result = await gameAction(action, extra);
 
     if (result.view) {
       gameView = result.view;
       selectedAttackerId = null;
-      renderGame();
     } else {
       await refreshGame();
     }
-
-    statusMessage("Move completed.");
   } catch (error) {
-    statusMessage(error.message);
+    alert(error.message);
 
     try {
       await refreshGame();
     } catch (_) {}
   } finally {
     busy = false;
-    setButtonsDisabled(false);
     renderGame();
   }
 }
@@ -675,44 +959,61 @@ function endTurn() {
   performAction("end_turn");
 }
 
-function playCard(cardId) {
-  performAction("play_card", { cardId });
-}
-
 function attackBodyguard(attackerId, targetId) {
-  performAction("attack", {
-    attackerId,
-    targetId
-  });
+  performAction("attack", { attackerId, targetId });
 }
 
 function attackBoss(attackerId) {
-  performAction("attack", {
-    attackerId
-  });
+  performAction("attack", { attackerId });
 }
 
 async function playCard(cardId) {
   const me = myPlayer();
   const card = (me?.hand || []).find(c => c.id === cardId);
   if (!card) return;
+
   const extra = { cardId };
+
   if (card.name === "Big Sacrifice") {
-    if (!me.void.length) return statusMessage("Your Void is empty.");
-    const options = me.void.map((c, i) => `${i + 1}. ${c.name} (Level ${c.l})`).join("\n");
-    const answer = prompt("Choose a Bodyguard from your Void to revive:\n" + options + "\nEnter its number:");
+    if (!me.void.length) return alert("Your Void is empty.");
+
+    const options = me.void
+      .map((c, i) => `${i + 1}. ${c.name} (Level ${c.l})`)
+      .join("\n");
+
+    const answer = prompt(
+      "Choose a Bodyguard from your Void to revive:\n" +
+      options +
+      "\nEnter its number:"
+    );
+
     const index = Number(answer) - 1;
+
     if (!Number.isInteger(index) || index < 0 || index >= me.void.length) return;
+
     extra.voidCardId = me.void[index].id;
   }
+
   if (card.name === "Black Hole") {
-    if (!me.field.length) return statusMessage("You need a Bodyguard on your field to sacrifice.");
-    const options = me.field.map((c, i) => `${i + 1}. ${c.name} (Level ${c.l})`).join("\n");
-    const answer = prompt("Choose a Bodyguard to send to the Void:\n" + options + "\nEnter its number:");
+    if (!me.field.length) return alert("You need a Bodyguard on your field to sacrifice.");
+
+    const options = me.field
+      .map((c, i) => `${i + 1}. ${c.name} (Level ${c.l})`)
+      .join("\n");
+
+    const answer = prompt(
+      "Choose a Bodyguard to send to the Void:\n" +
+      options +
+      "\nEnter its number:"
+    );
+
     const index = Number(answer) - 1;
+
     if (!Number.isInteger(index) || index < 0 || index >= me.field.length) return;
+
     extra.sacrificeId = me.field[index].id;
   }
+
   performAction("play_card", extra);
 }
 
@@ -721,9 +1022,7 @@ function useAbility(cardId) {
 }
 
 function selectAttacker(cardId) {
-  selectedAttackerId =
-    selectedAttackerId === cardId ? null : cardId;
-
+  selectedAttackerId = selectedAttackerId === cardId ? null : cardId;
   renderGame();
 }
 
@@ -737,26 +1036,11 @@ function makeGameCard(card, options = {}) {
   element.className = "game-card";
 
   if (card.t === "Tool") element.classList.add("tool");
-  if (options.boss) element.classList.add("boss", "boss-backdrop");
+  if (options.boss) element.classList.add("boss");
   if (options.selected) element.classList.add("selected");
 
-  const type = card.t || "Bodyguard";
+  const type = options.boss ? "BOSS" : (card.t || "BODYGUARD");
   const power = card.p ?? "—";
-
-  const frozen = card.frozen > 0
-    ? `<div class="card-footer">FROZEN</div>`
-    : "";
-
-  const used = card.used
-    ? `<div class="card-footer">ALREADY USED</div>`
-    : "";
-  const abilityUsed = card.abilityUsedTurn
-    ? `<div class="card-footer">ABILITY USED THIS TURN</div>`
-    : "";
-
-  const turns = card.turnsLeft !== undefined
-    ? `<div class="card-footer">${escapeHtml(card.turnsLeft)} TURNS LEFT</div>`
-    : "";
 
   element.innerHTML = `
     <div>
@@ -767,9 +1051,8 @@ function makeGameCard(card, options = {}) {
     <div class="card-stats">
       <div class="stat">
         <strong>${escapeHtml(power)}</strong>
-        <small>POWER</small>
+        <small>${options.boss ? "BOSS LEVEL" : "POWER"}</small>
       </div>
-
       <div class="stat">
         <strong>${escapeHtml(card.l)}</strong>
         <small>LEVEL</small>
@@ -780,15 +1063,149 @@ function makeGameCard(card, options = {}) {
       ${escapeHtml(card.a || "No special ability.")}
     </div>
 
-    ${turns}
-    ${frozen}
-    ${used}
-    ${abilityUsed}
+    ${card.turnsLeft !== undefined
+      ? `<div class="card-footer">${escapeHtml(card.turnsLeft)} TURNS LEFT</div>`
+      : ""}
 
-    <div class="card-footer">BLAMMO TCG</div>
+    ${card.frozen > 0 ? `<div class="card-footer">❄ FROZEN</div>` : ""}
+    ${card.used ? `<div class="card-footer">ALREADY USED</div>` : ""}
+    ${card.abilityUsedTurn ? `<div class="card-footer">ABILITY USED</div>` : ""}
   `;
 
   return element;
+}
+
+// =======================================
+// BOSS CARD
+// =======================================
+
+function makeBossCard(boss) {
+  const card = makeGameCard({
+    name: boss.name,
+    p: boss.hp,
+    l: boss.level,
+    a: `BOSS • ${boss.hp} HP REMAINING`
+  }, { boss: true });
+
+  card.classList.add("boss");
+  return card;
+}
+
+// =======================================
+// CREATE PLAYER ZONE
+// =======================================
+
+function createPlayerZone(player, isMine) {
+  const zone = document.createElement("section");
+  zone.className = "player-zone";
+
+  const heading = document.createElement("div");
+  heading.className = "player-heading";
+
+  heading.innerHTML = `
+    <h2>${isMine ? "YOUR FIELD" : "OPPONENT'S FIELD"}</h2>
+    <div class="hp">
+      ${escapeHtml(player.boss.name)} · ${escapeHtml(player.boss.hp)} HP
+    </div>
+  `;
+
+  zone.appendChild(heading);
+
+  const battlefield = document.createElement("div");
+  battlefield.className = "battlefield";
+
+  // Boss is displayed behind the Bodyguards.
+  const bossSlot = document.createElement("div");
+  bossSlot.className = "boss-slot";
+  bossSlot.appendChild(makeBossCard(player.boss));
+  battlefield.appendChild(bossSlot);
+
+  const field = document.createElement("div");
+  field.className = "field";
+
+  if (!player.field || player.field.length === 0) {
+    const empty = document.createElement("div");
+    empty.className = "field-empty";
+    empty.textContent = isMine
+      ? "Your Bodyguards will appear here."
+      : "No enemy Bodyguards.";
+    field.appendChild(empty);
+  } else {
+    player.field.forEach(card => {
+      const selected = isMine && selectedAttackerId === card.id;
+      const cardElement = makeGameCard(card, { selected });
+
+      const actions = document.createElement("div");
+      actions.className = "card-actions";
+
+      if (isMine) {
+        const selectButton = document.createElement("button");
+
+        selectButton.textContent = selected ? "CANCEL" : "SELECT";
+        selectButton.className = "secondary";
+
+        selectButton.disabled =
+          !isMyTurn() ||
+          !gameView.rolled ||
+          card.used ||
+          card.frozen > 0 ||
+          busy;
+
+        selectButton.onclick = () => selectAttacker(card.id);
+        actions.appendChild(selectButton);
+
+        if (["Dirt Golem", "Frankenstein", "Time Machine"].includes(card.name)) {
+          const abilityButton = document.createElement("button");
+
+          abilityButton.textContent = "ABILITY";
+          abilityButton.className = "secondary";
+
+          abilityButton.disabled =
+            !isMyTurn() ||
+            !gameView.rolled ||
+            card.abilityUsedTurn ||
+            card.frozen > 0 ||
+            busy;
+
+          abilityButton.onclick = () => useAbility(card.id);
+          actions.appendChild(abilityButton);
+        }
+
+        if (enemyPlayer().field.length === 0) {
+          const bossButton = document.createElement("button");
+
+          bossButton.textContent = "ATTACK BOSS";
+          bossButton.disabled =
+            !isMyTurn() ||
+            !gameView.rolled ||
+            card.used ||
+            card.frozen > 0 ||
+            gameView.round <= 1 ||
+            gameView.bossDamageThisTurn >= 1 ||
+            busy;
+
+          bossButton.onclick = () => attackBoss(card.id);
+          actions.appendChild(bossButton);
+        }
+      } else if (isMyTurn() && selectedAttackerId) {
+        const attackButton = document.createElement("button");
+
+        attackButton.textContent = "ATTACK HERE";
+        attackButton.onclick = () => attackBodyguard(selectedAttackerId, card.id);
+        attackButton.disabled = busy;
+
+        actions.appendChild(attackButton);
+      }
+
+      cardElement.appendChild(actions);
+      field.appendChild(cardElement);
+    });
+  }
+
+  battlefield.appendChild(field);
+  zone.appendChild(battlefield);
+
+  return zone;
 }
 
 // =======================================
@@ -797,125 +1214,67 @@ function makeGameCard(card, options = {}) {
 
 function renderGame() {
   const area = document.getElementById("gameArea");
-
   if (!gameView) return;
+
+  area.innerHTML = "";
 
   if (!gameView.started) {
     renderBossSelection(area);
     return;
   }
 
+  area.className = "game-screen";
+
   const me = myPlayer();
   const enemy = enemyPlayer();
   const myTurn = isMyTurn();
 
-  area.innerHTML = "";
+  // TOP BAR
+  const topbar = document.createElement("div");
+  topbar.className = "topbar";
 
-  // GAME HEADER
-  const header = document.createElement("div");
-  header.className = "game-panel";
-
-  header.innerHTML = `
-    <h2 style="text-align:center">BLAMMO BATTLE</h2>
-
-    <div class="player-heading">
-      <strong>ROOM: ${escapeHtml(roomCode)}</strong>
-      <strong>ROUND ${escapeHtml(gameView.round)}</strong>
-    </div>
-
-    <div class="message">
-      ${escapeHtml(gameView.message || "Game in progress.")}
-    </div>
-
-    <div style="text-align:center">
-      ${
-        gameView.gameOver
-          ? `<h2>GAME OVER — ${escapeHtml(gameView.winner)} WINS!</h2>`
-          : myTurn
-            ? `<h2 style="color:#69e69b">YOUR TURN</h2>`
-            : `<h2 style="color:#fca5a5">OPPONENT'S TURN</h2>`
-      }
-    </div>
+  topbar.innerHTML = `
+    <span class="brand">BLAMMO</span>
+    <span>ROOM ${escapeHtml(roomCode)}</span>
+    <span>ROUND ${escapeHtml(gameView.round)}</span>
+    <span class="turn-label">
+      ${gameView.gameOver
+        ? "GAME OVER"
+        : myTurn ? "YOUR TURN" : "OPPONENT'S TURN"}
+    </span>
   `;
 
-  area.appendChild(header);
+  area.appendChild(topbar);
 
-  // ENEMY
-  const enemyPanel = document.createElement("div");
-  enemyPanel.className = "game-panel";
+  // OPPONENT'S FIELD
+  area.appendChild(createPlayerZone(enemy, false));
 
-  enemyPanel.innerHTML = `
-    <div class="player-heading">
-      <h2>OPPONENT</h2>
-      <div class="hp">${escapeHtml(enemy.boss.name)}: ${escapeHtml(enemy.boss.hp)} HP</div>
-    </div>
-
-    <div class="muted">Opponent's deck: ${escapeHtml(enemy.deckCount)} cards</div>
-
-    <h3 class="section-title">OPPONENT'S BODYGUARDS</h3>
-  `;
-
-  const enemyBattlefield = document.createElement("div");
-  enemyBattlefield.className = "battlefield";
-  const enemyBossCard = makeGameCard({ name: enemy.boss.name, p: enemy.boss.level, l: enemy.boss.level, a: `BOSS • ${enemy.boss.hp} HP` }, { boss: true });
-  enemyBattlefield.appendChild(enemyBossCard);
-
-  const enemyField = document.createElement("div");
-  enemyField.className = "field";
-
-  if (enemy.field.length === 0) {
-    enemyField.innerHTML = '<p class="muted">No Bodyguards on the field.</p>';
-  } else {
-    enemy.field.forEach(card => {
-      const cardElement = makeGameCard(card);
-
-      if (myTurn && selectedAttackerId) {
-        const attackButton = document.createElement("button");
-        attackButton.textContent = "Attack this Bodyguard";
-
-        attackButton.onclick = () => {
-          attackBodyguard(selectedAttackerId, card.id);
-        };
-
-        cardElement.appendChild(attackButton);
-      }
-
-      enemyField.appendChild(cardElement);
-    });
-  }
-
-  enemyBattlefield.appendChild(enemyField);
-  enemyPanel.appendChild(enemyBattlefield);
-  area.appendChild(enemyPanel);
-
-  // TURN PANEL
+  // TURN CONTROLS
   const turnPanel = document.createElement("div");
-  turnPanel.className = "game-panel";
+  turnPanel.className = "turn-panel";
 
   turnPanel.innerHTML = `
-    <h2 style="text-align:center">YOUR TURN STATUS</h2>
-
-    <div class="dice">
-      ${gameView.rolled ? "🎲 " + escapeHtml(gameView.rollValue) : "🎲 ?"}
+    <div class="dice-box">
+      🎲 ${gameView.rolled ? escapeHtml(gameView.rollValue) : "?"}
     </div>
 
-    <p style="text-align:center">
-      Level used: ${escapeHtml(gameView.spentThisTurn)}
-      /
-      ${escapeHtml(gameView.rollValue)}
-    </p>
+    <div class="turn-stat">
+      LEVEL USED
+      <strong>${escapeHtml(gameView.spentThisTurn)} / ${escapeHtml(gameView.rollValue)}</strong>
+    </div>
 
-    <p style="text-align:center">
-      Cards remaining this turn: ${escapeHtml(gameView.playsLeft)}
-      / 2
-    </p>
+    <div class="turn-stat">
+      PLAYS LEFT
+      <strong>${escapeHtml(gameView.playsLeft)} / 2</strong>
+    </div>
 
-    <p style="text-align:center">
-      Boss damage this turn: ${escapeHtml(gameView.bossDamageThisTurn)} / 1
-    </p>
+    <div class="turn-stat">
+      BOSS DAMAGE
+      <strong>${escapeHtml(gameView.bossDamageThisTurn)} / 1</strong>
+    </div>
 
-    <div class="action-row">
-      <button id="rollButton">ROLL DICE</button>
+    <div class="turn-buttons">
+      <button id="rollButton">ROLL</button>
       <button id="endTurnButton" class="secondary">END TURN</button>
     </div>
   `;
@@ -932,100 +1291,20 @@ function renderGame() {
     !myTurn || !gameView.rolled || busy;
 
   // YOUR FIELD
-  const myFieldPanel = document.createElement("div");
-  myFieldPanel.className = "game-panel";
-
-  myFieldPanel.innerHTML = `
-    <div class="player-heading">
-      <h2>YOUR FIELD</h2>
-      <div class="hp">${escapeHtml(me.boss.name)}: ${escapeHtml(me.boss.hp)} HP</div>
-    </div>
-
-    <p class="muted">Your Bodyguards: ${me.field.length} / 3</p>
-  `;
-
-  const myBattlefield = document.createElement("div");
-  myBattlefield.className = "battlefield";
-  const myBossCard = makeGameCard({ name: me.boss.name, p: me.boss.level, l: me.boss.level, a: `BOSS • ${me.boss.hp} HP` }, { boss: true });
-  myBattlefield.appendChild(myBossCard);
-
-  const myField = document.createElement("div");
-  myField.className = "field";
-
-  if (me.field.length === 0) {
-    myField.innerHTML = '<p class="muted">You have no Bodyguards on the field.</p>';
-  } else {
-    me.field.forEach(card => {
-      const selected = selectedAttackerId === card.id;
-      const cardElement = makeGameCard(card, { selected });
-
-      const actions = document.createElement("div");
-      actions.className = "card-actions";
-
-      const selectButton = document.createElement("button");
-      selectButton.textContent = selected
-        ? "Cancel selection"
-        : "Select attacker";
-
-      selectButton.className = "secondary";
-
-      selectButton.disabled =
-        !myTurn ||
-        !gameView.rolled ||
-        card.used ||
-        card.frozen > 0 ||
-        busy;
-
-      selectButton.onclick = () => selectAttacker(card.id);
-
-      actions.appendChild(selectButton);
-
-      if (["Dirt Golem", "Frankenstein", "Time Machine"].includes(card.name)) {
-        const abilityButton = document.createElement("button");
-        abilityButton.textContent = "USE ABILITY";
-        abilityButton.className = "secondary";
-        abilityButton.disabled = !myTurn || !gameView.rolled || card.abilityUsedTurn || card.frozen > 0 || busy;
-        abilityButton.onclick = () => useAbility(card.id);
-        actions.appendChild(abilityButton);
-      }
-
-      if (enemy.field.length === 0) {
-        const bossButton = document.createElement("button");
-        bossButton.textContent = "Attack Boss";
-
-        bossButton.disabled =
-          !myTurn ||
-          !gameView.rolled ||
-          card.used ||
-          card.frozen > 0 ||
-          gameView.round <= 1 ||
-          gameView.bossDamageThisTurn >= 1 ||
-          busy;
-
-        bossButton.onclick = () => attackBoss(card.id);
-
-        actions.appendChild(bossButton);
-      }
-
-      cardElement.appendChild(actions);
-      myField.appendChild(cardElement);
-    });
-  }
-
-  myBattlefield.appendChild(myField);
-  myFieldPanel.appendChild(myBattlefield);
-  area.appendChild(myFieldPanel);
+  area.appendChild(createPlayerZone(me, true));
 
   // YOUR HAND
-  const handPanel = document.createElement("div");
-  handPanel.className = "game-panel";
+  const handPanel = document.createElement("section");
+  handPanel.className = "hand-panel";
 
-  handPanel.innerHTML = `
-    <h2>YOUR HAND</h2>
-    <p class="muted">
-      Playing a Bodyguard or Tool uses one of your two plays. Tools activate immediately.
-    </p>
+  const handHeading = document.createElement("div");
+  handHeading.className = "hand-heading";
+  handHeading.innerHTML = `
+    <span>YOUR HAND</span>
+    <span>${(me.hand || []).length} / 3 CARDS</span>
   `;
+
+  handPanel.appendChild(handHeading);
 
   const handGrid = document.createElement("div");
   handGrid.className = "hand-grid";
@@ -1036,17 +1315,19 @@ function renderGame() {
     actions.className = "card-actions";
 
     const playButton = document.createElement("button");
+    playButton.textContent = card.t === "Tool" ? "USE TOOL" : "PLAY";
 
-    playButton.textContent = card.t === "Tool" ? "USE TOOL" : "PLAY BODYGUARD";
     playButton.disabled =
       !myTurn ||
       !gameView.rolled ||
       gameView.playsLeft <= 0 ||
       (card.t !== "Tool" && me.field.length >= 3) ||
       gameView.spentThisTurn + card.l > gameView.rollValue ||
-      (card.name === "Big Sacrifice" && (!me.void || me.void.length === 0 || me.field.length >= 3)) ||
+      (card.name === "Big Sacrifice" &&
+        (!me.void || me.void.length === 0 || me.field.length >= 3)) ||
       (card.name === "Black Hole" && me.field.length === 0) ||
       busy;
+
     playButton.onclick = () => playCard(card.id);
 
     actions.appendChild(playButton);
@@ -1055,36 +1336,29 @@ function renderGame() {
   });
 
   if (!me.hand || me.hand.length === 0) {
-    handGrid.innerHTML = '<p class="muted">Your hand is empty.</p>';
+    const empty = document.createElement("div");
+    empty.className = "hand-empty";
+    empty.textContent = "Your hand is empty.";
+    handGrid.appendChild(empty);
   }
 
   handPanel.appendChild(handGrid);
   area.appendChild(handPanel);
 
-  // VOID AND DECK
-  const extraPanel = document.createElement("div");
-  extraPanel.className = "game-panel";
+  // MESSAGE
+  if (gameView.message) {
+    const message = document.createElement("div");
+    message.className = "game-message";
+    message.textContent = gameView.message;
+    area.appendChild(message);
+  }
 
-  extraPanel.innerHTML = `
-    <h3>YOUR DECK</h3>
-    <p>${escapeHtml(me.deckCount)} cards remaining</p>
-
-    <h3>YOUR VOID</h3>
-    <p>${me.void.length ? me.void.map(c => escapeHtml(c.name)).join(", ") : "Your Void is empty."}</p>
-    ${me.peekedCard ? `<p class="message">Frankenstein saw: ${escapeHtml(me.peekedCard.name)} (Level ${escapeHtml(me.peekedCard.l)}, Power ${escapeHtml(me.peekedCard.p ?? "—")})</p>` : ""}
-  `;
-
-  area.appendChild(extraPanel);
-
+  // GAME OVER
   if (gameView.gameOver) {
-    const winnerPanel = document.createElement("div");
-    winnerPanel.className = "game-panel";
-    winnerPanel.innerHTML = `
-      <h2 style="text-align:center">
-        🏆 ${escapeHtml(gameView.winner)} WINS!
-      </h2>
-    `;
-    area.appendChild(winnerPanel);
+    const message = document.createElement("div");
+    message.className = "game-message";
+    message.textContent = `🏆 ${gameView.winner} WINS!`;
+    area.appendChild(message);
   }
 }
 
@@ -1093,50 +1367,54 @@ function renderGame() {
 // =======================================
 
 function renderBossSelection(area) {
+  area.className = "game-screen boss-selection";
+
   const chosen = gameView.choices || {};
   const myChoice = chosen[String(gameView.yourSeat)];
 
-  area.innerHTML = `
-    <div class="game-panel">
-      <h2 style="text-align:center">CHOOSE YOUR BOSS</h2>
-      <p style="text-align:center">
-        Both players must select a Boss before the battle begins.
-      </p>
+  const panel = document.createElement("div");
+  panel.className = "boss-selection-panel";
 
-      <div id="bossChoices"></div>
-
-      <div class="message" id="bossStatus">
-        ${
-          myChoice !== undefined
-            ? "You have selected your Boss. Waiting for the other player..."
-            : "Choose your Boss below."
-        }
-      </div>
+  panel.innerHTML = `
+    <h2>CHOOSE YOUR BOSS</h2>
+    <p>Choose your Boss before the battle begins.</p>
+    <div class="boss-choices" id="bossChoices"></div>
+    <div class="message" id="bossStatus">
+      ${myChoice !== undefined
+        ? "You have selected your Boss. Waiting for the other player..."
+        : "Choose your Boss below."}
     </div>
   `;
 
-  const choices = document.getElementById("bossChoices");
+  area.appendChild(panel);
+
+  const choices = panel.querySelector("#bossChoices");
 
   bosses.forEach((boss, index) => {
+    const choice = document.createElement("div");
+    choice.className = "boss-choice";
+
+    if (myChoice === index) choice.classList.add("selected-choice");
+
+    const bossCard = makeGameCard({
+      name: boss[0],
+      p: boss[1],
+      l: boss[1],
+      a: "Starts with 6 Boss HP."
+    }, { boss: true });
+
+    choice.appendChild(bossCard);
+
     const button = document.createElement("button");
 
-    button.innerHTML = `
-      ${escapeHtml(boss[0])}
-      <br>
-      <small>Level ${escapeHtml(boss[1])} · 6 HP</small>
-    `;
+    button.textContent =
+      myChoice === index ? "SELECTED" : "CHOOSE BOSS";
 
-    if (myChoice !== undefined) {
-      button.disabled = true;
-
-      if (myChoice === index) {
-        button.textContent = boss[0] + " — SELECTED";
-      }
-    }
-
+    button.disabled = myChoice !== undefined || busy;
     button.onclick = () => chooseBoss(index);
 
-    choices.appendChild(button);
+    choice.appendChild(button);
+    choices.appendChild(choice);
   });
 }
 
@@ -1146,7 +1424,6 @@ function renderBossSelection(area) {
 
 function makeGalleryCard(name, power, level, ability, type = "Bodyguard") {
   const card = document.createElement("div");
-
   card.className = "game-card";
 
   if (type === "Tool") card.classList.add("tool");
@@ -1163,7 +1440,6 @@ function makeGalleryCard(name, power, level, ability, type = "Bodyguard") {
         <strong>${power === null ? "—" : escapeHtml(power)}</strong>
         <small>${type === "Boss" ? "BOSS" : "POWER"}</small>
       </div>
-
       <div class="stat">
         <strong>${escapeHtml(level)}</strong>
         <small>LEVEL</small>
@@ -1190,9 +1466,7 @@ function renderGallery() {
   bodyGrid.className = "card-grid";
 
   bodyguards.forEach(c => {
-    bodyGrid.appendChild(
-      makeGalleryCard(c[0], c[1], c[2], c[3])
-    );
+    bodyGrid.appendChild(makeGalleryCard(c[0], c[1], c[2], c[3]));
   });
 
   bodySection.appendChild(bodyGrid);
@@ -1204,9 +1478,7 @@ function renderGallery() {
   toolGrid.className = "card-grid";
 
   tools.forEach(c => {
-    toolGrid.appendChild(
-      makeGalleryCard(c[0], c[1], c[2], c[3], "Tool")
-    );
+    toolGrid.appendChild(makeGalleryCard(c[0], c[1], c[2], c[3], "Tool"));
   });
 
   toolSection.appendChild(toolGrid);
@@ -1219,13 +1491,7 @@ function renderGallery() {
 
   bosses.forEach(b => {
     bossGrid.appendChild(
-      makeGalleryCard(
-        b[0],
-        null,
-        b[1],
-        "Starts with 6 Boss HP.",
-        "Boss"
-      )
+      makeGalleryCard(b[0], null, b[1], "Starts with 6 Boss HP.", "Boss")
     );
   });
 
