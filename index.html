@@ -170,8 +170,9 @@ body { padding: 10px; }
 .game-board .action-row button { min-width: 90px; padding: 8px; }
 .game-board .message { margin: 7px 0; padding: 7px; font-size: 12px; }
 .game-board .muted, .game-board p { font-size: 11px; margin: 5px 0; }
-body:has(.game-board) { overflow: hidden; }
-body:has(.game-board) > .panel, body:has(.game-board) > .gallery { display: none; }
+body.in-room { overflow: hidden; }
+body.in-room > .panel, body.in-room > .gallery { display: none !important; }
+body.in-room #gameArea { display: block !important; }
 @media (max-width: 760px) {
   body { padding: 6px; }
   #gameArea { margin: 0 auto; }
@@ -306,141 +307,228 @@ function escapeHtml(value) {
 }
 
 function myPlayer() {
+  if (!gameView) return null;
   return gameView.players[gameView.yourSeat - 1];
 }
 
 function enemyPlayer() {
+  if (!gameView) return null;
   return gameView.players[2 - gameView.yourSeat];
 }
 
 function isMyTurn() {
   return gameView &&
-    !gameView.gameOver &&
-    gameView.currentTurn === gameView.yourSeat;
+    gameView.current === gameView.yourSeat - 1 &&
+    !gameView.gameOver;
+}
+
+function setButtonsDisabled(disabled) {
+  document.querySelectorAll("#gameArea button").forEach(button => {
+    button.disabled = disabled || button.dataset.locked === "true";
+  });
 }
 
 // =======================================
-// CONNECT AND ROOM MANAGEMENT
+// CONNECT
 // =======================================
 
 async function connect() {
-  statusMessage("Connecting...");
+  try {
+    statusMessage("Connecting...");
 
-  const { data, error } = await db.auth.signInAnonymously();
+    const { data, error } = await db.auth.signInAnonymously();
 
-  if (error) {
-    statusMessage(error.message);
-    return;
+    if (error) throw error;
+
+    user = data.user;
+
+    document.getElementById("connectButton").disabled = true;
+    document.getElementById("createButton").disabled = false;
+    document.getElementById("joinButton").disabled = false;
+
+    statusMessage("Connected! Create a room or join your friend's room.");
+  } catch (error) {
+    statusMessage("Connection error: " + error.message);
   }
-
-  user = data.user;
-
-  document.getElementById("connectButton").disabled = true;
-  document.getElementById("createButton").disabled = false;
-  document.getElementById("joinButton").disabled = false;
-
-  statusMessage("Connected! Create a room or join a room.");
 }
+
+// =======================================
+// CREATE ROOM
+// =======================================
 
 async function createRoom() {
-  if (!user) return statusMessage("Connect first.");
+  if (!user) return statusMessage("Connect first!");
 
-  statusMessage("Creating room...");
+  try {
+    statusMessage("Creating room...");
 
-  const { data, error } = await db.rpc("create_room");
+    const { data, error } = await db.rpc("create_room");
+    if (error) throw error;
 
-  if (error) {
-    statusMessage(error.message);
-    return;
+    const result = Array.isArray(data) ? data[0] : data;
+
+    if (!result || !result.room_id || !result.room_code) {
+      throw new Error("Unexpected room response.");
+    }
+
+    roomCode = result.room_code;
+
+    document.getElementById("roomCodeDisplay").textContent = roomCode;
+
+    statusMessage("Room created! Give your friend this code: " + roomCode);
+
+    await startGameSession();
+  } catch (error) {
+    statusMessage("Room error: " + error.message);
   }
-
-  roomCode = data;
-  document.getElementById("roomCodeDisplay").textContent = roomCode;
-
-  await enterRoom(roomCode);
 }
 
+// =======================================
+// JOIN ROOM
+// =======================================
+
 async function joinRoom() {
-  if (!user) return statusMessage("Connect first.");
+  if (!user) return statusMessage("Connect first!");
 
   const code = document.getElementById("roomCode").value.trim().toUpperCase();
 
   if (!code) return statusMessage("Enter a room code.");
 
-  statusMessage("Joining room...");
-
-  const { data, error } = await db.rpc("join_room", {
-    p_code: code
-  });
-
-  if (error) {
-    statusMessage(error.message);
-    return;
-  }
-
-  roomCode = code;
-  document.getElementById("roomCodeDisplay").textContent = roomCode;
-
-  await enterRoom(roomCode);
-}
-
-async function enterRoom(code) {
-  document.getElementById("gameArea").style.display = "block";
-  document.querySelector(".panel").style.display = "none";
-
-  await refreshGame();
-
-  if (pollTimer) clearInterval(pollTimer);
-
-  pollTimer = setInterval(refreshGame, 2500);
-}
-
-// =======================================
-// GAME STATE
-// =======================================
-
-async function refreshGame() {
-  if (!roomCode) return;
-
-  const { data, error } = await db.functions.invoke("blammo-tcg", {
-    body: {
-      action: "get_state",
-      roomCode
-    }
-  });
-
-  if (error) {
-    statusMessage(error.message);
-    return;
-  }
-
-  gameView = data;
-  renderGame();
-}
-
-async function performAction(action, extra = {}) {
-  if (busy) return;
-
-  busy = true;
-  renderGame();
-
   try {
-    const { data, error } = await db.functions.invoke("blammo-tcg", {
-      body: {
-        action,
-        roomCode,
-        ...extra
-      }
+    statusMessage("Joining room...");
+
+    const { data, error } = await db.rpc("join_room", {
+      p_code: code
     });
 
     if (error) throw error;
 
-    gameView = data;
+    const result = Array.isArray(data) ? data[0] : data;
+
+    if (!result || !result.room_id) {
+      throw new Error("Unexpected join response.");
+    }
+
+    roomCode = code;
+
+    document.getElementById("roomCodeDisplay").textContent = roomCode;
+
+    statusMessage("Successfully joined room " + roomCode + "!");
+
+    await startGameSession();
   } catch (error) {
-    statusMessage(error.message || "Action failed.");
+    statusMessage("Join error: " + error.message);
+  }
+}
+
+// =======================================
+// EDGE FUNCTION CONNECTION
+// =======================================
+
+async function gameAction(action, extra = {}) {
+  if (!roomCode) throw new Error("You are not in a room.");
+
+  const { data, error } = await db.functions.invoke("blammo-tcg", {
+    body: {
+      action,
+      roomCode,
+      ...extra
+    }
+  });
+
+  if (error) {
+    let message = error.message || "Game request failed.";
+
+    try {
+      if (error.context && typeof error.context.json === "function") {
+        const details = await error.context.json();
+        if (details.error) message = details.error;
+      }
+    } catch (_) {}
+
+    throw new Error(message);
+  }
+
+  if (data && data.error) {
+    throw new Error(data.error);
+  }
+
+  return data;
+}
+
+// =======================================
+// START GAME SESSION
+// =======================================
+
+async function startGameSession() {
+  document.body.classList.add("in-room");
+  const area = document.getElementById("gameArea");
+  area.style.display = "block";
+  area.innerHTML = '<div class="game-panel"><h2>LOADING YOUR GAME...</h2><p>Connecting to the room and loading the board.</p></div>';
+
+  try {
+    await refreshGame();
+  } catch (error) {
+    showGameLoadError(error);
+  }
+
+  if (pollTimer) clearInterval(pollTimer);
+
+  pollTimer = setInterval(async () => {
+    if (!busy && roomCode) {
+      try {
+        await refreshGame();
+      } catch (error) {
+        console.error("Refresh error:", error);
+        showGameLoadError(error);
+      }
+    }
+  }, 2500);
+}
+
+function showGameLoadError(error) {
+  const area = document.getElementById("gameArea");
+  if (!area.querySelector(".game-board") && !area.querySelector("#bossChoices")) {
+    area.innerHTML = `<div class="game-panel"><h2>COULDN'T LOAD THE GAME</h2><p>${escapeHtml(error?.message || "The game state was empty.")}</p><p>Room: ${escapeHtml(roomCode || "not set")}</p><button onclick="refreshGame().catch(showGameLoadError)">TRY AGAIN</button></div>`;
+  }
+}
+
+async function refreshGame() {
+  const result = await gameAction("get_state");
+
+  // The Edge Function's existing response is { view: ... }.
+  // The fallbacks make the board resilient if the function returns the view directly.
+  gameView = result?.view || result?.gameView || result?.state ||
+    (result && Array.isArray(result.players) ? result : null);
+
+  if (!gameView) {
+    throw new Error("The room was found, but the game function did not return a game view. Check the get_state response in the Supabase Edge Function.");
+  }
+
+  renderGame();
+}
+
+// =======================================
+// BOSS SELECTION
+// =======================================
+
+async function chooseBoss(index) {
+  if (busy) return;
+
+  try {
+    busy = true;
+    statusMessage("Choosing Boss...");
+
+    await gameAction("choose_boss", {
+      bossIndex: index
+    });
+
+    await refreshGame();
+    statusMessage("Boss selected.");
+  } catch (error) {
+    statusMessage(error.message);
   } finally {
     busy = false;
-    if (gameView) renderGame();
   }
 }
 
@@ -448,75 +536,95 @@ async function performAction(action, extra = {}) {
 // GAME ACTIONS
 // =======================================
 
-async function chooseBoss(name) {
-  await performAction("choose_boss", { bossName: name });
+async function performAction(action, extra = {}) {
+  if (busy) return;
+
+  try {
+    busy = true;
+    setButtonsDisabled(true);
+
+    const result = await gameAction(action, extra);
+
+    if (result.view) {
+      gameView = result.view;
+      selectedAttackerId = null;
+      renderGame();
+    } else {
+      await refreshGame();
+    }
+
+    statusMessage("Move completed.");
+  } catch (error) {
+    statusMessage(error.message);
+
+    try {
+      await refreshGame();
+    } catch (_) {}
+  } finally {
+    busy = false;
+    setButtonsDisabled(false);
+    renderGame();
+  }
 }
 
-async function rollDice() {
-  await performAction("roll");
+function rollDice() {
+  performAction("roll");
 }
 
-async function endTurn() {
-  selectedAttackerId = null;
-  await performAction("end_turn");
+function endTurn() {
+  performAction("end_turn");
 }
 
-async function attackBodyguard(attackerId, targetId) {
-  selectedAttackerId = null;
-  await performAction("attack", {
+function playCard(cardId) {
+  performAction("play_card", { cardId });
+}
+
+function attackBodyguard(attackerId, targetId) {
+  performAction("attack", {
     attackerId,
     targetId
   });
 }
 
-async function attackBoss(attackerId) {
-  selectedAttackerId = null;
-  await performAction("attack", {
-    attackerId,
-    targetBoss: true
+function attackBoss(attackerId) {
+  performAction("attack", {
+    attackerId
   });
-}
-
-function selectAttacker(id) {
-  selectedAttackerId = selectedAttackerId === id ? null : id;
-  renderGame();
 }
 
 async function playCard(cardId) {
   const me = myPlayer();
-  const card = me.hand.find(c => c.id === cardId);
-
+  const card = (me?.hand || []).find(c => c.id === cardId);
   if (!card) return;
-
+  const extra = { cardId };
   if (card.name === "Big Sacrifice") {
-    const choice = prompt("Enter the name of the card in your Void you want to play:");
-    if (!choice) return;
-
-    await performAction("play_card", {
-      cardId,
-      voidCardName: choice
-    });
-
-    return;
+    if (!me.void.length) return statusMessage("Your Void is empty.");
+    const options = me.void.map((c, i) => `${i + 1}. ${c.name} (Level ${c.l})`).join("\n");
+    const answer = prompt("Choose a Bodyguard from your Void to revive:\n" + options + "\nEnter its number:");
+    const index = Number(answer) - 1;
+    if (!Number.isInteger(index) || index < 0 || index >= me.void.length) return;
+    extra.voidCardId = me.void[index].id;
   }
-
   if (card.name === "Black Hole") {
-    const choice = prompt("Enter the name of the Bodyguard you want to Void:");
-    if (!choice) return;
-
-    await performAction("play_card", {
-      cardId,
-      targetCardName: choice
-    });
-
-    return;
+    if (!me.field.length) return statusMessage("You need a Bodyguard on your field to sacrifice.");
+    const options = me.field.map((c, i) => `${i + 1}. ${c.name} (Level ${c.l})`).join("\n");
+    const answer = prompt("Choose a Bodyguard to send to the Void:\n" + options + "\nEnter its number:");
+    const index = Number(answer) - 1;
+    if (!Number.isInteger(index) || index < 0 || index >= me.field.length) return;
+    extra.sacrificeId = me.field[index].id;
   }
-
-  await performAction("play_card", { cardId });
+  performAction("play_card", extra);
 }
 
-async function useAbility(cardId) {
-  await performAction("ability", { cardId });
+function useAbility(cardId) {
+  performAction("ability", { cardId });
+}
+
+function selectAttacker(cardId) {
+  selectedAttackerId =
+    selectedAttackerId === cardId ? null : cardId;
+
+  renderGame();
 }
 
 // =======================================
@@ -529,35 +637,36 @@ function makeGameCard(card, options = {}) {
   element.className = "game-card";
 
   if (card.t === "Tool") element.classList.add("tool");
-  if (options.boss) element.classList.add("boss");
+  if (options.boss) element.classList.add("boss", "boss-backdrop");
   if (options.selected) element.classList.add("selected");
 
-  const turns = card.turnsLeft
-    ? `<div class="muted">Frozen for ${escapeHtml(card.turnsLeft)} turns</div>`
-    : "";
+  const type = card.t || "Bodyguard";
+  const power = card.p ?? "—";
 
-  const frozen = card.frozen
-    ? `<div class="muted">FROZEN</div>`
+  const frozen = card.frozen > 0
+    ? `<div class="card-footer">FROZEN</div>`
     : "";
 
   const used = card.used
-    ? `<div class="muted">USED</div>`
+    ? `<div class="card-footer">ALREADY USED</div>`
+    : "";
+  const abilityUsed = card.abilityUsedTurn
+    ? `<div class="card-footer">ABILITY USED THIS TURN</div>`
     : "";
 
-  const abilityUsed = card.abilityUsedTurn
-    ? `<div class="muted">ABILITY USED</div>`
+  const turns = card.turnsLeft !== undefined
+    ? `<div class="card-footer">${escapeHtml(card.turnsLeft)} TURNS LEFT</div>`
     : "";
 
   element.innerHTML = `
-    <div class="card-name">${escapeHtml(card.name)}</div>
-
-    <div class="card-type">
-      ${escapeHtml(card.t || (options.boss ? "Boss" : "Bodyguard"))}
+    <div>
+      <div class="card-name">${escapeHtml(card.name)}</div>
+      <div class="card-type">${escapeHtml(type)}</div>
     </div>
 
     <div class="card-stats">
       <div class="stat">
-        <strong>${escapeHtml(card.p ?? "—")}</strong>
+        <strong>${escapeHtml(power)}</strong>
         <small>POWER</small>
       </div>
 
@@ -601,7 +710,6 @@ function renderGame() {
   const myTurn = isMyTurn();
 
   area.innerHTML = "";
-
   const board = document.createElement("div");
   board.className = "game-board";
 
@@ -894,26 +1002,43 @@ function renderBossSelection(area) {
 
   area.innerHTML = `
     <div class="game-panel">
-      <h2>CHOOSE YOUR BOSS</h2>
-      <p>Pick your boss to begin the battle.</p>
+      <h2 style="text-align:center">CHOOSE YOUR BOSS</h2>
+      <p style="text-align:center">
+        Both players must select a Boss before the battle begins.
+      </p>
+
       <div id="bossChoices"></div>
-      <p class="muted">Waiting for both players to choose...</p>
+
+      <div class="message" id="bossStatus">
+        ${
+          myChoice !== undefined
+            ? "You have selected your Boss. Waiting for the other player..."
+            : "Choose your Boss below."
+        }
+      </div>
     </div>
   `;
 
   const choices = document.getElementById("bossChoices");
 
-  bosses.forEach(boss => {
+  bosses.forEach((boss, index) => {
     const button = document.createElement("button");
 
     button.innerHTML = `
-      ${escapeHtml(boss[0])}<br>
-      Level ${escapeHtml(boss[1])}<br>
-      6 HP
+      ${escapeHtml(boss[0])}
+      <br>
+      <small>Level ${escapeHtml(boss[1])} · 6 HP</small>
     `;
 
-    button.disabled = !!myChoice || busy;
-    button.onclick = () => chooseBoss(boss[0]);
+    if (myChoice !== undefined) {
+      button.disabled = true;
+
+      if (myChoice === index) {
+        button.textContent = boss[0] + " — SELECTED";
+      }
+    }
+
+    button.onclick = () => chooseBoss(index);
 
     choices.appendChild(button);
   });
@@ -923,64 +1048,98 @@ function renderBossSelection(area) {
 // CARD GALLERY
 // =======================================
 
+function makeGalleryCard(name, power, level, ability, type = "Bodyguard") {
+  const card = document.createElement("div");
+
+  card.className = "game-card";
+
+  if (type === "Tool") card.classList.add("tool");
+  if (type === "Boss") card.classList.add("boss");
+
+  card.innerHTML = `
+    <div>
+      <div class="card-name">${escapeHtml(name)}</div>
+      <div class="card-type">${escapeHtml(type)}</div>
+    </div>
+
+    <div class="card-stats">
+      <div class="stat">
+        <strong>${power === null ? "—" : escapeHtml(power)}</strong>
+        <small>${type === "Boss" ? "BOSS" : "POWER"}</small>
+      </div>
+
+      <div class="stat">
+        <strong>${escapeHtml(level)}</strong>
+        <small>LEVEL</small>
+      </div>
+    </div>
+
+    <div class="card-ability">${escapeHtml(ability)}</div>
+    <div class="card-footer">BLAMMO TCG</div>
+  `;
+
+  return card;
+}
+
 function renderGallery() {
   const gallery = document.getElementById("cardGallery");
 
-  const bodySection = document.createElement("div");
-  bodySection.className = "card-grid";
+  const bodyguards = cards.filter(c => c[1] !== null);
+  const tools = cards.filter(c => c[1] === null);
 
+  const bodySection = document.createElement("section");
   bodySection.innerHTML = '<h3 class="section-title">BODYGUARDS</h3>';
 
-  cards.filter(card => card[1] !== null).forEach(card => {
-    const element = makeGameCard({
-      name: card[0],
-      p: card[1],
-      l: card[2],
-      a: card[3],
-      t: "Bodyguard"
-    });
+  const bodyGrid = document.createElement("div");
+  bodyGrid.className = "card-grid";
 
-    bodySection.appendChild(element);
+  bodyguards.forEach(c => {
+    bodyGrid.appendChild(
+      makeGalleryCard(c[0], c[1], c[2], c[3])
+    );
   });
 
-  const toolSection = document.createElement("div");
-  toolSection.className = "card-grid";
+  bodySection.appendChild(bodyGrid);
 
+  const toolSection = document.createElement("section");
   toolSection.innerHTML = '<h3 class="section-title">TOOLS</h3>';
 
-  cards.filter(card => card[1] === null).forEach(card => {
-    const element = makeGameCard({
-      name: card[0],
-      p: card[1],
-      l: card[2],
-      a: card[3],
-      t: "Tool"
-    });
+  const toolGrid = document.createElement("div");
+  toolGrid.className = "card-grid";
 
-    toolSection.appendChild(element);
+  tools.forEach(c => {
+    toolGrid.appendChild(
+      makeGalleryCard(c[0], c[1], c[2], c[3], "Tool")
+    );
   });
 
-  const bossSection = document.createElement("div");
-  bossSection.className = "card-grid";
+  toolSection.appendChild(toolGrid);
 
+  const bossSection = document.createElement("section");
   bossSection.innerHTML = '<h3 class="section-title">BOSSES</h3>';
 
-  bosses.forEach(boss => {
-    const element = makeGameCard({
-      name: boss[0],
-      p: boss[1],
-      l: boss[1],
-      a: "Boss",
-      t: "Boss"
-    }, { boss: true });
+  const bossGrid = document.createElement("div");
+  bossGrid.className = "card-grid";
 
-    bossSection.appendChild(element);
+  bosses.forEach(b => {
+    bossGrid.appendChild(
+      makeGalleryCard(
+        b[0],
+        null,
+        b[1],
+        "Starts with 6 Boss HP.",
+        "Boss"
+      )
+    );
   });
+
+  bossSection.appendChild(bossGrid);
 
   gallery.replaceChildren(bodySection, toolSection, bossSection);
 }
 
 renderGallery();
 </script>
+
 </body>
 </html>
