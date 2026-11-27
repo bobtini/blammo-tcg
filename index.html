@@ -426,3 +426,476 @@ function escapeHtml(value) {
     "'": "&#39;"
   })[char]);
 }
+// =======================================
+// RENDER GAME
+// =======================================
+
+function renderGame() {
+  const area = document.getElementById("gameArea");
+
+  if (!gameView) return;
+
+  if (!gameView.started) {
+    renderBossSelection(area);
+    return;
+  }
+
+  const me = myPlayer();
+  const enemy = enemyPlayer();
+  const myTurn = isMyTurn();
+
+  area.innerHTML = "";
+
+  // GAME HEADER
+  const header = document.createElement("div");
+  header.className = "game-panel";
+
+  header.innerHTML = `
+    <h2 style="text-align:center">BLAMMO BATTLE</h2>
+
+    <div class="player-heading">
+      <strong>ROOM: ${escapeHtml(roomCode)}</strong>
+      <strong>ROUND ${escapeHtml(gameView.round)}</strong>
+    </div>
+
+    <div class="message">
+      ${escapeHtml(gameView.message || "Game in progress.")}
+    </div>
+
+    <div style="text-align:center">
+      ${
+        gameView.gameOver
+          ? `<h2>GAME OVER — ${escapeHtml(gameView.winner)} WINS!</h2>`
+          : myTurn
+            ? `<h2 style="color:#69e69b">YOUR TURN</h2>`
+            : `<h2 style="color:#fca5a5">OPPONENT'S TURN</h2>`
+      }
+    </div>
+  `;
+
+  area.appendChild(header);
+
+  // ENEMY
+  const enemyPanel = document.createElement("div");
+  enemyPanel.className = "game-panel";
+
+  enemyPanel.innerHTML = `
+    <div class="player-heading">
+      <h2>OPPONENT</h2>
+      <div class="hp">${escapeHtml(enemy.boss.name)}: ${escapeHtml(enemy.boss.hp)} HP</div>
+    </div>
+
+    <div class="muted">Opponent's deck: ${escapeHtml(enemy.deckCount)} cards</div>
+
+    <h3 class="section-title">OPPONENT'S BODYGUARDS</h3>
+  `;
+
+  const enemyBattlefield = document.createElement("div");
+  enemyBattlefield.className = "battlefield";
+
+  const enemyBossCard = makeGameCard({
+    name: enemy.boss.name,
+    p: enemy.boss.level,
+    l: enemy.boss.level,
+    a: `BOSS • ${enemy.boss.hp} HP`
+  }, { boss: true });
+
+  enemyBattlefield.appendChild(enemyBossCard);
+
+  const enemyField = document.createElement("div");
+  enemyField.className = "field";
+
+  if (enemy.field.length === 0) {
+    enemyField.innerHTML = '<p class="muted">No Bodyguards on the field.</p>';
+  } else {
+    enemy.field.forEach(card => {
+      const cardElement = makeGameCard(card);
+
+      if (myTurn && selectedAttackerId) {
+        const attackButton = document.createElement("button");
+        attackButton.textContent = "Attack this Bodyguard";
+
+        attackButton.onclick = () => {
+          attackBodyguard(selectedAttackerId, card.id);
+        };
+
+        cardElement.appendChild(attackButton);
+      }
+
+      enemyField.appendChild(cardElement);
+    });
+  }
+
+  enemyBattlefield.appendChild(enemyField);
+  enemyPanel.appendChild(enemyBattlefield);
+  area.appendChild(enemyPanel);
+
+  // TURN PANEL
+  const turnPanel = document.createElement("div");
+  turnPanel.className = "game-panel";
+
+  turnPanel.innerHTML = `
+    <h2 style="text-align:center">YOUR TURN STATUS</h2>
+
+    <div class="dice">
+      ${gameView.rolled ? "🎲 " + escapeHtml(gameView.rollValue) : "🎲 ?"}
+    </div>
+
+    <p style="text-align:center">
+      Level used: ${escapeHtml(gameView.spentThisTurn)}
+      /
+      ${escapeHtml(gameView.rollValue)}
+    </p>
+
+    <p style="text-align:center">
+      Cards remaining this turn: ${escapeHtml(gameView.playsLeft)}
+      / 2
+    </p>
+
+    <p style="text-align:center">
+      Boss damage this turn: ${escapeHtml(gameView.bossDamageThisTurn)} / 1
+    </p>
+
+    <div class="action-row">
+      <button id="rollButton">ROLL DICE</button>
+      <button id="endTurnButton" class="secondary">END TURN</button>
+    </div>
+  `;
+
+  area.appendChild(turnPanel);
+
+  document.getElementById("rollButton").onclick = rollDice;
+  document.getElementById("endTurnButton").onclick = endTurn;
+
+  document.getElementById("rollButton").disabled =
+    !myTurn || gameView.rolled || busy;
+
+  document.getElementById("endTurnButton").disabled =
+    !myTurn || !gameView.rolled || busy;
+
+  // YOUR FIELD
+  const myFieldPanel = document.createElement("div");
+  myFieldPanel.className = "game-panel";
+
+  myFieldPanel.innerHTML = `
+    <div class="player-heading">
+      <h2>YOUR FIELD</h2>
+      <div class="hp">${escapeHtml(me.boss.name)}: ${escapeHtml(me.boss.hp)} HP</div>
+    </div>
+
+    <p class="muted">Your Bodyguards: ${me.field.length} / 3</p>
+  `;
+
+  const myBattlefield = document.createElement("div");
+  myBattlefield.className = "battlefield";
+
+  const myBossCard = makeGameCard({
+    name: me.boss.name,
+    p: me.boss.level,
+    l: me.boss.level,
+    a: `BOSS • ${me.boss.hp} HP`
+  }, { boss: true });
+
+  myBattlefield.appendChild(myBossCard);
+
+  const myField = document.createElement("div");
+  myField.className = "field";
+
+  if (me.field.length === 0) {
+    myField.innerHTML = '<p class="muted">You have no Bodyguards on the field.</p>';
+  } else {
+    me.field.forEach(card => {
+      const selected = selectedAttackerId === card.id;
+      const cardElement = makeGameCard(card, { selected });
+
+      const actions = document.createElement("div");
+      actions.className = "card-actions";
+
+      const selectButton = document.createElement("button");
+      selectButton.textContent = selected
+        ? "Cancel selection"
+        : "Select attacker";
+
+      selectButton.className = "secondary";
+
+      selectButton.disabled =
+        !myTurn ||
+        !gameView.rolled ||
+        card.used ||
+        card.frozen > 0 ||
+        busy;
+
+      selectButton.onclick = () => selectAttacker(card.id);
+
+      actions.appendChild(selectButton);
+
+      if (["Dirt Golem", "Frankenstein", "Time Machine"].includes(card.name)) {
+        const abilityButton = document.createElement("button");
+        abilityButton.textContent = "USE ABILITY";
+        abilityButton.className = "secondary";
+
+        abilityButton.disabled =
+          !myTurn ||
+          !gameView.rolled ||
+          card.abilityUsedTurn ||
+          card.frozen > 0 ||
+          busy;
+
+        abilityButton.onclick = () => useAbility(card.id);
+        actions.appendChild(abilityButton);
+      }
+
+      if (enemy.field.length === 0) {
+        const bossButton = document.createElement("button");
+        bossButton.textContent = "Attack Boss";
+
+        bossButton.disabled =
+          !myTurn ||
+          !gameView.rolled ||
+          card.used ||
+          card.frozen > 0 ||
+          gameView.round <= 1 ||
+          gameView.bossDamageThisTurn >= 1 ||
+          busy;
+
+        bossButton.onclick = () => attackBoss(card.id);
+
+        actions.appendChild(bossButton);
+      }
+
+      cardElement.appendChild(actions);
+      myField.appendChild(cardElement);
+    });
+  }
+
+  myBattlefield.appendChild(myField);
+  myFieldPanel.appendChild(myBattlefield);
+  area.appendChild(myFieldPanel);
+
+  // YOUR HAND
+  const handPanel = document.createElement("div");
+  handPanel.className = "game-panel";
+
+  handPanel.innerHTML = `
+    <h2>YOUR HAND</h2>
+    <p class="muted">
+      Playing a Bodyguard or Tool uses one of your two plays. Tools activate immediately.
+    </p>
+  `;
+
+  const handGrid = document.createElement("div");
+  handGrid.className = "hand-grid";
+
+  (me.hand || []).forEach(card => {
+    const cardElement = makeGameCard(card);
+    const actions = document.createElement("div");
+    actions.className = "card-actions";
+
+    const playButton = document.createElement("button");
+
+    playButton.textContent = card.t === "Tool" ? "USE TOOL" : "PLAY BODYGUARD";
+
+    playButton.disabled =
+      !myTurn ||
+      !gameView.rolled ||
+      gameView.playsLeft <= 0 ||
+      (card.t !== "Tool" && me.field.length >= 3) ||
+      gameView.spentThisTurn + card.l > gameView.rollValue ||
+      (card.name === "Big Sacrifice" && (!me.void || me.void.length === 0 || me.field.length >= 3)) ||
+      (card.name === "Black Hole" && me.field.length === 0) ||
+      busy;
+
+    playButton.onclick = () => playCard(card.id);
+
+    actions.appendChild(playButton);
+    cardElement.appendChild(actions);
+    handGrid.appendChild(cardElement);
+  });
+
+  if (!me.hand || me.hand.length === 0) {
+    handGrid.innerHTML = '<p class="muted">Your hand is empty.</p>';
+  }
+
+  handPanel.appendChild(handGrid);
+  area.appendChild(handPanel);
+
+  // VOID AND DECK
+  const extraPanel = document.createElement("div");
+  extraPanel.className = "game-panel";
+
+  extraPanel.innerHTML = `
+    <h3>YOUR DECK</h3>
+    <p>${escapeHtml(me.deckCount)} cards remaining</p>
+
+    <h3>YOUR VOID</h3>
+    <p>${me.void.length ? me.void.map(c => escapeHtml(c.name)).join(", ") : "Your Void is empty."}</p>
+    ${me.peekedCard ? `<p class="message">Frankenstein saw: ${escapeHtml(me.peekedCard.name)} (Level ${escapeHtml(me.peekedCard.l)}, Power ${escapeHtml(me.peekedCard.p ?? "—")})</p>` : ""}
+  `;
+
+  area.appendChild(extraPanel);
+
+  if (gameView.gameOver) {
+    const winnerPanel = document.createElement("div");
+    winnerPanel.className = "game-panel";
+
+    winnerPanel.innerHTML = `
+      <h2 style="text-align:center">
+        🏆 ${escapeHtml(gameView.winner)} WINS!
+      </h2>
+    `;
+
+    area.appendChild(winnerPanel);
+  }
+}
+
+// =======================================
+// BOSS SELECTION SCREEN
+// =======================================
+
+function renderBossSelection(area) {
+  const chosen = gameView.choices || {};
+  const myChoice = chosen[String(gameView.yourSeat)];
+
+  area.innerHTML = `
+    <div class="game-panel">
+      <h2 style="text-align:center">CHOOSE YOUR BOSS</h2>
+      <p style="text-align:center">
+        Both players must select a Boss before the battle begins.
+      </p>
+
+      <div id="bossChoices"></div>
+
+      <div class="message" id="bossStatus">
+        ${
+          myChoice !== undefined
+            ? "You have selected your Boss. Waiting for the other player..."
+            : "Choose your Boss below."
+        }
+      </div>
+    </div>
+  `;
+
+  const choices = document.getElementById("bossChoices");
+
+  bosses.forEach((boss, index) => {
+    const button = document.createElement("button");
+
+    button.innerHTML = `
+      ${escapeHtml(boss[0])}
+      <br>
+      <small>Level ${escapeHtml(boss[1])} · 6 HP</small>
+    `;
+
+    if (myChoice !== undefined) {
+      button.disabled = true;
+
+      if (myChoice === index) {
+        button.textContent = boss[0] + " — SELECTED";
+      }
+    }
+
+    button.onclick = () => chooseBoss(index);
+
+    choices.appendChild(button);
+  });
+}
+
+// =======================================
+// CARD GALLERY
+// =======================================
+
+function makeGalleryCard(name, power, level, ability, type = "Bodyguard") {
+  const card = document.createElement("div");
+
+  card.className = "game-card";
+
+  if (type === "Tool") card.classList.add("tool");
+  if (type === "Boss") card.classList.add("boss");
+
+  card.innerHTML = `
+    <div>
+      <div class="card-name">${escapeHtml(name)}</div>
+      <div class="card-type">${escapeHtml(type)}</div>
+    </div>
+
+    <div class="card-stats">
+      <div class="stat">
+        <strong>${power === null ? "—" : escapeHtml(power)}</strong>
+        <small>${type === "Boss" ? "BOSS" : "POWER"}</small>
+      </div>
+
+      <div class="stat">
+        <strong>${escapeHtml(level)}</strong>
+        <small>LEVEL</small>
+      </div>
+    </div>
+
+    <div class="card-ability">${escapeHtml(ability)}</div>
+    <div class="card-footer">BLAMMO TCG</div>
+  `;
+
+  return card;
+}
+
+function renderGallery() {
+  const gallery = document.getElementById("cardGallery");
+
+  const bodyguards = cards.filter(c => c[1] !== null);
+  const tools = cards.filter(c => c[1] === null);
+
+  const bodySection = document.createElement("section");
+  bodySection.innerHTML = '<h3 class="section-title">BODYGUARDS</h3>';
+
+  const bodyGrid = document.createElement("div");
+  bodyGrid.className = "card-grid";
+
+  bodyguards.forEach(c => {
+    bodyGrid.appendChild(
+      makeGalleryCard(c[0], c[1], c[2], c[3])
+    );
+  });
+
+  bodySection.appendChild(bodyGrid);
+
+  const toolSection = document.createElement("section");
+  toolSection.innerHTML = '<h3 class="section-title">TOOLS</h3>';
+
+  const toolGrid = document.createElement("div");
+  toolGrid.className = "card-grid";
+
+  tools.forEach(c => {
+    toolGrid.appendChild(
+      makeGalleryCard(c[0], c[1], c[2], c[3], "Tool")
+    );
+  });
+
+  toolSection.appendChild(toolGrid);
+
+  const bossSection = document.createElement("section");
+  bossSection.innerHTML = '<h3 class="section-title">BOSSES</h3>';
+
+  const bossGrid = document.createElement("div");
+  bossGrid.className = "card-grid";
+
+  bosses.forEach(b => {
+    bossGrid.appendChild(
+      makeGalleryCard(
+        b[0],
+        null,
+        b[1],
+        "Starts with 6 Boss HP.",
+        "Boss"
+      )
+    );
+  });
+
+  bossSection.appendChild(bossGrid);
+
+  gallery.replaceChildren(bodySection, toolSection, bossSection);
+}
+
+renderGallery();
+</script>
+
+</body>
+</html>
