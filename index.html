@@ -2,1139 +2,77 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>BLAMMO TCG</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-* {
-  box-sizing: border-box;
-}
-
 :root {
-  --gold: #ffd34e;
-  --gold-dark: #d99d19;
-  --bg: #0b1220;
-  --panel: #182438;
-  --panel-light: #23344e;
-  --border: #40536f;
-  --muted: #aebbd0;
-  --green: #63e6a1;
-  --red: #ff7777;
-}
-
-body {
-  margin: 0;
-  min-height: 100vh;
-  padding: 14px;
-  background:
-    radial-gradient(ellipse at top, #263b5b 0%, #111c30 48%, #080e19 100%);
-  color: white;
-  font-family: Arial, sans-serif;
-}
-
-button, input {
-  font: inherit;
-}
-
-button {
-  border: 1px solid #ffe18a;
-  border-radius: 9px;
-  padding: 10px 15px;
-  background: linear-gradient(180deg, #ffe078, #eab72d);
-  color: #172033;
-  font-weight: 900;
-  cursor: pointer;
-  transition: filter .15s, transform .15s;
-}
-
-button:hover:not(:disabled) {
-  filter: brightness(1.1);
-  transform: translateY(-1px);
-}
-
-button:disabled {
-  opacity: .38;
-  cursor: not-allowed;
-  transform: none;
-}
-
-input {
-  width: 100%;
-  padding: 13px;
-  margin-top: 10px;
-  border: 1px solid var(--border);
-  border-radius: 9px;
-  background: #0d1728;
-  color: white;
-  text-align: center;
-  text-transform: uppercase;
-}
-
-.panel {
-  background: linear-gradient(145deg, #1d2c43, #142033);
-  max-width: 480px;
-  margin: 25px auto;
-  padding: 28px;
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  text-align: center;
-  box-shadow: 0 15px 45px #0008;
-}
-
-h1 {
-  font-size: 48px;
-  color: var(--gold);
-  margin: 0;
-  letter-spacing: 3px;
-  text-shadow: 0 4px 15px #ffcf4044;
-}
-
-h2 {
-  color: var(--gold);
-}
-
-p {
-  color: #cbd5e1;
-  line-height: 1.5;
-}
-
-#status {
-  margin-top: 18px;
-  padding: 12px;
-  background: #0d1728;
-  border: 1px solid #344761;
-  border-radius: 9px;
-  overflow-wrap: anywhere;
-  font-size: 14px;
-}
-
-#roomCodeDisplay {
-  color: var(--gold);
-  font-size: 30px;
-  font-weight: bold;
-  letter-spacing: 5px;
-  margin-top: 12px;
-}
-
-.gallery {
-  max-width: 1200px;
-  margin: 35px auto;
-}
-
-.gallery h2 {
-  text-align: center;
-  color: var(--gold);
-}
-
-.section-title {
-  color: var(--gold);
-  margin-top: 30px;
-}
-
-.card-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
-  gap: 16px;
-}
-
-/* =====================================
-   GAME SCREEN
-   ===================================== */
-
-body.in-game {
-  padding: 5px;
-  height: 100dvh;
-  min-height: 0;
-  overflow: hidden;
-  overscroll-behavior: none;
-}
-
-body.in-game > .panel,
-body.in-game > .gallery {
-  display: none !important;
-}
-
-#gameArea {
-  display: none;
-}
-
-#gameArea.game-screen {
-  width: 100%;
-  height: calc(100dvh - 10px);
-  max-width: 1600px;
-  margin: 0 auto;
-  display: grid;
-  grid-template-rows:
-    36px
-    minmax(0, 1fr)
-    72px
-    minmax(0, 1fr)
-    minmax(150px, 23vh);
-  gap: 7px;
-  overflow: hidden;
-}
-
-/* TOP BAR */
-
-.topbar {
-  background: linear-gradient(90deg, #1d2c43, #263b59);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 4px 14px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  min-width: 0;
-  gap: 10px;
-  font-size: 12px;
-  font-weight: bold;
-  white-space: nowrap;
-  box-shadow: 0 3px 10px #0004;
-}
-
-.topbar .brand {
-  color: var(--gold);
-  font-size: 19px;
-  letter-spacing: 2px;
-}
-
-.topbar .turn-label {
-  color: var(--green);
-}
-
-/* PLAYER ZONES */
-
-.player-zone {
-  position: relative;
-  min-height: 0;
-  min-width: 0;
-  overflow: hidden;
-  background: linear-gradient(145deg, #1c2b42, #111e31);
-  border: 1px solid #50627e;
-  border-radius: 13px;
-  padding: 7px 10px;
-  display: flex;
-  flex-direction: column;
-  box-shadow: inset 0 1px 0 #ffffff0b, 0 4px 12px #0004;
-}
-
-.player-heading {
-  position: relative;
-  z-index: 4;
-  height: 26px;
-  min-height: 26px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  font-size: 13px;
-}
-
-.player-heading h2 {
-  font-size: 14px;
-  margin: 0;
-  letter-spacing: .5px;
-}
-
-.hp {
-  color: var(--red);
-  font-weight: bold;
-  font-size: 13px;
-  text-align: right;
-}
-
-/* BATTLEFIELD */
-
-.battlefield {
-  position: relative;
-  flex: 1;
-  min-height: 0;
-  min-width: 0;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-}
-
-.boss-slot {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1;
-  pointer-events: none;
-}
-
-.field {
-  position: relative;
-  z-index: 2;
-  width: 100%;
-  min-width: 0;
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 155px));
-  justify-content: center;
-  align-items: end;
-  gap: clamp(7px, 1.3vw, 15px);
-  margin-bottom: 3px;
-}
-
-/* CARD WRAPPERS */
-
-.field-card-wrap,
-.hand-card-wrap {
-  width: 100%;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 5px;
-  position: relative;
-  z-index: 3;
-}
-
-.field-empty {
-  grid-column: 1 / -1;
-  text-align: center;
-  color: var(--muted);
-  font-size: 13px;
-  padding: 10px;
-  background: #0d1728dd;
-  border: 1px dashed #536782;
-  border-radius: 9px;
-  align-self: center;
-}
-
-/* CARD DESIGN */
-
-.game-card {
-  width: 100%;
-  height: clamp(115px, 19vh, 170px);
-  min-width: 0;
-  border: 2px solid #7186a4;
-  border-radius: 11px;
-  padding: 7px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  gap: 4px;
-  background: linear-gradient(145deg, #3b506e, #1b2a40);
-  box-shadow: 0 5px 13px #0008;
-  text-align: center;
-  overflow: hidden;
-}
-
-.game-card.tool {
-  border-color: #eab308;
-  background: linear-gradient(145deg, #70561d, #33270d);
-}
-
-.game-card.boss {
-  width: clamp(80px, 9vw, 112px);
-  height: clamp(100px, 15vh, 135px);
-  border: 2px solid #c084fc;
-  background: linear-gradient(145deg, #70479a, #261538);
-  box-shadow: 0 0 18px #c084fc66;
-}
-
-.game-card.selected {
-  border-color: var(--gold);
-  box-shadow: 0 0 17px #ffcf40aa;
-}
-
-.card-name {
-  font-size: clamp(11px, 1.1vw, 15px);
-  font-weight: 900;
-  min-height: 23px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow-wrap: anywhere;
-  line-height: 1.1;
-}
-
-.card-type {
-  font-size: 8px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  color: #d5dfed;
-  margin: 2px 0;
-}
-
-.card-stats {
-  display: flex;
-  justify-content: space-around;
-  gap: 4px;
-  margin: 3px 0;
-}
-
-.stat {
-  background: #0b1424cc;
-  border: 1px solid #ffffff12;
-  border-radius: 6px;
-  padding: 4px;
-  min-width: 0;
-  flex: 1;
-}
-
-.stat strong {
-  display: block;
-  font-size: clamp(13px, 1.4vw, 18px);
-  color: var(--gold);
-}
-
-.stat small {
-  font-size: 7px;
-  color: #cbd5e1;
-  letter-spacing: .4px;
-}
-
-.card-ability {
-  font-size: clamp(8px, .8vw, 11px);
-  line-height: 1.3;
-  color: #f1f5f9;
-  background: #0b1424cc;
-  border: 1px solid #ffffff12;
-  padding: 5px;
-  border-radius: 6px;
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
-  overflow-wrap: anywhere;
-  scrollbar-width: thin;
-  scrollbar-color: #7186a4 #0b1424;
-}
-
-.card-footer {
-  font-size: 7px;
-  color: #dbe5f3;
-  margin-top: 2px;
-}
-
-/* ACTION BUTTONS */
-
-.card-actions {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 4px;
-  width: 100%;
-}
-
-.card-actions button {
-  width: 100%;
-  min-width: 0;
-  min-height: 25px;
-  padding: 5px 3px;
-  font-size: clamp(8px, .75vw, 10px);
-  border-radius: 6px;
-  white-space: normal;
-  line-height: 1.15;
-}
-
-.secondary {
-  background: linear-gradient(180deg, #60738e, #3b4e68);
-  border-color: #8092aa;
-  color: white;
-}
-
-.danger {
-  background: #b94444;
-  color: white;
-}
-
-/* TURN CONTROLS */
-
-.turn-panel {
-  background: linear-gradient(135deg, #293d59, #1b2b42);
-  border: 1px solid #71829a;
-  border-radius: 11px;
-  padding: 7px 12px;
-  display: grid;
-  grid-template-columns: 75px 1fr 1fr 1fr auto;
-  align-items: center;
-  gap: 10px;
-  min-width: 0;
-  box-shadow: 0 4px 12px #0004;
-}
-
-.dice-box {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-  color: var(--gold);
-  font-size: 26px;
-  font-weight: 900;
-}
-
-.turn-stat {
-  text-align: center;
-  font-size: 10px;
-  color: var(--muted);
-  letter-spacing: .3px;
-}
-
-.turn-stat strong {
-  display: block;
-  color: white;
-  font-size: 15px;
-  margin-top: 4px;
-}
-
-.turn-buttons {
-  display: flex;
-  gap: 7px;
-}
-
-.turn-buttons button {
-  white-space: nowrap;
-  padding: 9px 13px;
-  font-size: 10px;
-}
-
-/* HAND */
-
-.hand-panel {
-  min-height: 0;
-  min-width: 0;
-  overflow: hidden;
-  background: linear-gradient(145deg, #1d2d44, #142136);
-  border: 1px solid #50627e;
-  border-radius: 13px;
-  padding: 7px 10px;
-  display: flex;
-  flex-direction: column;
-  box-shadow: 0 4px 12px #0004;
-}
-
-.hand-heading {
-  height: 24px;
-  min-height: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  color: var(--gold);
-  font-weight: bold;
-  font-size: 13px;
-}
-
-.hand-grid {
-  flex: 1;
-  min-height: 0;
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 155px));
-  justify-content: center;
-  align-items: center;
-  gap: clamp(7px, 1.3vw, 15px);
-}
-
-.hand-grid .game-card {
-  height: clamp(105px, 17vh, 150px);
-}
-
-.hand-empty {
-  color: var(--muted);
-  text-align: center;
-  font-size: 13px;
-  grid-column: 1 / -1;
-}
-
-/* MESSAGES */
-
-.game-message {
-  position: fixed;
-  bottom: 10px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 20;
-  max-width: 90%;
-  background: #101827;
-  border: 1px solid var(--gold);
-  border-radius: 9px;
-  padding: 9px 15px;
-  font-size: 12px;
-  text-align: center;
-  box-shadow: 0 4px 18px #000a;
-  pointer-events: none;
-}
-
-/* BOSS SELECTION */
-
-.boss-selection {
-  display: flex !important;
-  align-items: center;
-  justify-content: center;
-  overflow: auto !important;
-}
-
-.boss-selection-panel {
-  width: min(850px, 95%);
-  background: #1d293b;
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  padding: 24px;
-  text-align: center;
-  box-shadow: 0 12px 35px #0008;
-}
-
-.boss-selection-panel h2 {
-  color: var(--gold);
-  margin-top: 0;
-}
-
-.boss-choices {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
-  margin-top: 20px;
-}
-
-.boss-choice {
-  background: #26364d;
-  border: 2px solid #64748b;
-  border-radius: 13px;
-  padding: 13px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-}
-
-.boss-choice .game-card {
-  width: 125px;
-  height: 155px;
-}
-
-.boss-choice button {
-  width: 100%;
-}
-
-.boss-choice.selected-choice {
-  border-color: var(--gold);
-}
-
-/* WAITING ROOM */
-
-#gameArea.game-screen.waiting-screen {
-  display: flex !important;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: calc(100dvh - 10px);
-  max-width: 1500px;
-  margin: 0 auto;
-  overflow: auto;
-}
-
-.waiting-panel {
-  width: min(520px, 95%);
-  background: #1d293b;
-  border: 2px solid var(--border);
-  border-radius: 18px;
-  padding: 28px;
-  text-align: center;
-  box-shadow: 0 10px 35px #0008;
-}
-
-.waiting-panel h2 {
-  color: var(--gold);
-  font-size: 24px;
-  margin-top: 0;
-}
-
-.waiting-code {
-  background: #101827;
-  border: 1px solid var(--gold);
-  border-radius: 10px;
-  padding: 15px;
-  margin: 18px 0;
-}
-
-.waiting-code strong {
-  display: block;
-  color: var(--gold);
-  font-size: 32px;
-  letter-spacing: 6px;
-  margin-bottom: 12px;
-}
-
-.player-status {
-  background: #101827;
-  border-radius: 8px;
-  padding: 11px;
-  margin: 8px 0;
-  color: #cbd5e1;
-}
-
-.player-status.connected {
-  border: 1px solid #22c55e;
-  color: var(--green);
-}
-
-.waiting-spinner {
-  width: 30px;
-  height: 30px;
-  border: 4px solid #526078;
-  border-top-color: var(--gold);
-  border-radius: 50%;
-  margin: 18px auto;
-  animation: waitingSpin 1s linear infinite;
-}
-
-@keyframes waitingSpin {
-  to { transform: rotate(360deg); }
-}
-
-/* =====================================
-   TABLET AND MOBILE
-   ===================================== */
-
-@media (max-width: 850px) {
-  #gameArea.game-screen {
-    grid-template-rows:
-      32px
-      minmax(0, 1fr)
-      65px
-      minmax(0, 1fr)
-      minmax(135px, 22vh);
-    gap: 5px;
-  }
-
-  .field,
-  .hand-grid {
-    grid-template-columns: repeat(3, minmax(0, 125px));
-  }
-
-  .game-card {
-    height: clamp(95px, 16vh, 135px);
-  }
-
-  .hand-grid .game-card {
-    height: clamp(90px, 15vh, 125px);
-  }
-
-  .card-name {
-    font-size: 11px;
-  }
-
-  .card-ability {
-    font-size: 9px;
-  }
-
-  .turn-panel {
-    grid-template-columns: 55px 1fr 1fr 1fr auto;
-    gap: 5px;
-  }
-
-  .turn-buttons button {
-    padding: 7px 9px;
-  }
-}
-
-@media (max-width: 650px) {
-  body.in-game {
-    padding: 3px;
-    height: 100dvh;
-    overflow: hidden;
-  }
-
-  #gameArea.game-screen {
-    height: calc(100dvh - 6px);
-    grid-template-rows:
-      29px
-      minmax(0, 1fr)
-      60px
-      minmax(0, 1fr)
-      minmax(125px, 22vh);
-    gap: 4px;
-  }
-
-  .topbar {
-    padding: 2px 7px;
-    font-size: 9px;
-    border-radius: 7px;
-    gap: 4px;
-  }
-
-  .topbar .brand {
-    font-size: 13px;
-    letter-spacing: 1px;
-  }
-
-  .player-zone {
-    padding: 4px;
-    border-radius: 9px;
-  }
-
-  .player-heading {
-    height: 19px;
-    min-height: 19px;
-    font-size: 10px;
-  }
-
-  .player-heading h2 {
-    font-size: 10px;
-  }
-
-  .hp {
-    font-size: 10px;
-  }
-
-  .battlefield {
-    overflow: hidden;
-  }
-
-  .boss-slot {
-    top: 2px;
-  }
-
-  .game-card.boss {
-    width: 62px;
-    height: 76px;
-    padding: 4px;
-    border-width: 1px;
-    border-radius: 7px;
-  }
-
-  .field {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 5px;
-    padding: 0 2px;
-    margin-bottom: 2px;
-  }
-
-  .field-card-wrap,
-  .hand-card-wrap {
-    min-width: 0;
-    gap: 3px;
-  }
-
-  .game-card {
-    height: clamp(84px, 13vh, 112px);
-    padding: 4px;
-    border-width: 1px;
-    border-radius: 7px;
-    gap: 3px;
-  }
-
-  .card-name {
-    font-size: clamp(9px, 2.8vw, 12px);
-    min-height: 17px;
-    line-height: 1.05;
-  }
-
-  .card-type {
-    font-size: 6px;
-    letter-spacing: .5px;
-    margin: 1px 0;
-  }
-
-  .card-stats {
-    gap: 2px;
-    margin: 2px 0;
-  }
-
-  .stat {
-    padding: 3px 1px;
-    border-radius: 4px;
-  }
-
-  .stat strong {
-    font-size: 12px;
-  }
-
-  .stat small {
-    font-size: 6px;
-  }
-
-  .card-ability {
-    font-size: clamp(7px, 2vw, 9px);
-    line-height: 1.2;
-    padding: 3px;
-    border-radius: 4px;
-  }
-
-  .card-footer {
-    font-size: 6px;
-  }
-
-  .card-actions {
-    gap: 2px;
-  }
-
-  .card-actions button {
-    min-height: 22px;
-    padding: 4px 2px;
-    font-size: 7px;
-    line-height: 1;
-    border-radius: 5px;
-  }
-
-  .turn-panel {
-    grid-template-columns: 38px repeat(3, minmax(0, 1fr));
-    grid-template-rows: 1fr 1fr;
-    gap: 2px;
-    padding: 3px;
-    border-radius: 8px;
-  }
-
-  .dice-box {
-    grid-row: 1 / 3;
-    font-size: 18px;
-  }
-
-  .turn-stat {
-    font-size: 7px;
-  }
-
-  .turn-stat strong {
-    font-size: 10px;
-    margin-top: 1px;
-  }
-
-  .turn-buttons {
-    grid-column: 2 / 5;
-    justify-content: center;
-    gap: 5px;
-  }
-
-  .turn-buttons button {
-    padding: 4px 13px;
-    font-size: 8px;
-    border-radius: 5px;
-  }
-
-  .hand-panel {
-    padding: 4px;
-    border-radius: 9px;
-  }
-
-  .hand-heading {
-    height: 18px;
-    min-height: 18px;
-    font-size: 10px;
-  }
-
-  .hand-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 5px;
-    padding: 0 2px;
-  }
-
-  .hand-grid .game-card {
-    height: clamp(78px, 12vh, 102px);
-  }
-
-  .boss-selection {
-    padding: 5px;
-  }
-
-  .boss-selection-panel {
-    width: 100%;
-    padding: 12px 7px;
-    border-radius: 11px;
-  }
-
-  .boss-selection-panel h2 {
-    font-size: 18px;
-  }
-
-  .boss-selection-panel p {
-    font-size: 11px;
-  }
-
-  .boss-choices {
-    gap: 5px;
-    margin-top: 10px;
-  }
-
-  .boss-choice {
-    padding: 6px 3px;
-    gap: 6px;
-    border-radius: 8px;
-  }
-
-  .boss-choice .game-card {
-    width: 100%;
-    height: 110px;
-  }
-
-  .boss-choice button {
-    font-size: 8px;
-    padding: 6px 2px;
-  }
-
-  #gameArea.game-screen.waiting-screen {
-    height: calc(100dvh - 6px);
-    padding: 5px;
-  }
-
-  .waiting-panel {
-    width: 100%;
-    padding: 16px 10px;
-    border-radius: 12px;
-  }
-
-  .waiting-panel h1 {
-    font-size: 34px;
-  }
-
-  .waiting-panel h2 {
-    font-size: 19px;
-  }
-
-  .waiting-panel p {
-    font-size: 12px;
-  }
-
-  .waiting-code strong {
-    font-size: 26px;
-  }
-
-  .game-message {
-    bottom: 5px;
-    max-width: 94%;
-    font-size: 9px;
-    padding: 6px 9px;
-  }
-}
-
-/* SMALL PHONES */
-
-@media (max-width: 380px) {
-  .field,
-  .hand-grid {
-    gap: 3px;
-  }
-
-  .game-card {
-    padding: 3px;
-  }
-
-  .card-name {
-    font-size: 8px;
-  }
-
-  .card-ability {
-    font-size: 6px;
-  }
-
-  .card-actions button {
-    font-size: 6px;
-    padding: 3px 0;
-  }
-
-  .topbar {
-    font-size: 8px;
-  }
-
-  .topbar .brand {
-    font-size: 10px;
-  }
-}
-
-/* SHORT PHONE SCREENS */
-
-@media (max-height: 650px) and (max-width: 650px) {
-  #gameArea.game-screen {
-    grid-template-rows:
-      24px
-      minmax(0, 1fr)
-      48px
-      minmax(0, 1fr)
-      105px;
-    gap: 3px;
-  }
-
-  .game-card {
-    height: 76px;
-  }
-
-  .game-card.boss {
-    height: 60px;
-    width: 52px;
-  }
-
-  .hand-grid .game-card {
-    height: 68px;
-  }
-
-  .player-heading {
-    height: 15px;
-    min-height: 15px;
-  }
-
-  .card-actions button {
-    min-height: 17px;
-    font-size: 6px;
-  }
-
-  .turn-panel {
-    padding: 2px;
-  }
-}
-
-/* DESKTOP SHORT SCREENS */
-
-@media (max-height: 600px) and (min-width: 651px) {
-  #gameArea.game-screen {
-    grid-template-rows:
-      26px
-      minmax(0, 1fr)
-      50px
-      minmax(0, 1fr)
-      112px;
-    gap: 3px;
-  }
-
-  .player-zone {
-    padding: 3px 6px;
-  }
-
-  .player-heading {
-    height: 18px;
-    min-height: 18px;
-  }
-
-  .game-card {
-    height: clamp(75px, 18vh, 105px);
-  }
-
-  .game-card.boss {
-    height: 70px;
-    width: 60px;
-  }
-
-  .hand-grid .game-card {
-    height: 85px;
-  }
-
-  .card-ability {
-    font-size: 7px;
-  }
-
-  .card-name {
-    font-size: 9px;
-  }
-
-  .card-actions button {
-    padding: 3px 1px;
-    font-size: 7px;
-  }
-
-  .turn-panel {
-    padding: 3px;
-  }
-
-  .turn-buttons button {
-    padding: 4px 7px;
-    font-size: 8px;
-  }
-
-  .hand-heading {
-    height: 16px;
-    min-height: 16px;
-  }
-}
+  --ink:#17202a; --gold:#f3c969; --gold-deep:#a97827; --felt:#174b3b;
+  --felt-dark:#0c2e26; --cream:#f4ead3; --paper:#fff8e9; --muted:#d6dfd8;
+  --panel:#172c29; --line:rgba(243,201,105,.48); --red:#b94b4b;
+}
+*{box-sizing:border-box}
+html{min-height:100%;background:#101b1a}
+body{margin:0;min-height:100vh;padding:22px;color:#f8f2e4;font-family:Georgia,'Times New Roman',serif;background:radial-gradient(ellipse at 50% 0%,#285d49 0,#153c31 44%,#0b211d 100%);}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.13;background-image:repeating-linear-gradient(0deg,transparent 0 5px,rgba(255,255,255,.035) 6px),repeating-linear-gradient(90deg,transparent 0 7px,rgba(0,0,0,.04) 8px);z-index:0}
+body>*{position:relative;z-index:1}
+button,input{font:inherit}
+button{border:1px solid #ffe4a0;border-radius:9px;padding:11px 16px;background:linear-gradient(180deg,#ffe49a,#dcae4e);color:#2b2110;font-weight:900;letter-spacing:.03em;cursor:pointer;box-shadow:0 3px 0 #805b23,0 6px 12px #0005;transition:transform .12s,filter .12s}
+button:hover:not(:disabled){filter:brightness(1.08);transform:translateY(-1px)}
+button:active:not(:disabled){transform:translateY(2px);box-shadow:0 1px 0 #805b23}
+button:disabled{opacity:.42;cursor:not-allowed;box-shadow:none}
+button:focus-visible,input:focus-visible{outline:3px solid #fff1b8;outline-offset:3px}
+input{width:100%;padding:14px;margin-top:10px;border:1px solid #bba879;border-radius:9px;background:#10251f;color:#fff;text-align:center;text-transform:uppercase;letter-spacing:.18em}
+.panel{max-width:510px;margin:18px auto 28px;padding:28px;border:2px solid var(--gold-deep);border-radius:18px;text-align:center;background:linear-gradient(145deg,#243d35,#122721);box-shadow:0 14px 40px #0008,inset 0 0 0 4px #ffffff08}
+h1{font-family:Georgia,serif;font-size:clamp(42px,8vw,60px);letter-spacing:.12em;color:#ffe09a;text-shadow:0 3px 0 #805b23,0 7px 18px #0009;margin:0}
+h2{color:#ffe09a;letter-spacing:.07em;text-shadow:0 2px 6px #0008}
+p{color:#d8e4da;line-height:1.5}
+#status{margin-top:18px;padding:13px;background:#0d211c;border:1px solid #456b58;border-radius:9px;overflow-wrap:anywhere;font:14px/1.5 Arial,sans-serif;color:#e5eee7}
+#roomCodeDisplay{color:#ffe09a;font:900 32px Arial,sans-serif;letter-spacing:7px;margin-top:12px}
+#gameArea{max-width:1450px;margin:24px auto;display:none}
+.game-panel{background:linear-gradient(145deg,rgba(25,57,46,.97),rgba(12,37,30,.97));border:1px solid var(--line);border-radius:15px;padding:19px;margin-bottom:17px;box-shadow:0 8px 22px #0006,inset 0 1px #ffffff0d}
+.player-heading{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.hp{color:#ffaaa0;font:bold 20px Arial,sans-serif;text-shadow:0 2px 5px #0008}
+.section-title{margin:20px 0 12px;color:#ffe09a;border-bottom:1px solid var(--line);padding-bottom:9px;letter-spacing:.06em}
+.field{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:16px;margin-top:16px;position:relative;z-index:2;align-items:start}
+.battlefield{position:relative;padding:8px 10px 12px;border:1px solid #a8c5a14a;border-radius:13px;background:linear-gradient(135deg,#1d6048aa,#0c3329cc);box-shadow:inset 0 0 24px #061b1555}
+.boss-backdrop{width:240px;max-width:90%;min-height:0;margin:0 auto -6px;position:relative;z-index:1;opacity:1}
+.game-card{position:relative;min-width:0;min-height:285px;height:auto;padding:12px;border:4px solid #c69b4c;border-radius:14px;display:flex;flex-direction:column;justify-content:flex-start;gap:9px;background:linear-gradient(145deg,#f8edcf,#dfc99b 62%,#c9ae78);color:#241d12;box-shadow:0 7px 14px #0008,inset 0 0 0 2px #fff9,inset 0 0 16px #77511d38;text-align:center;overflow:visible}
+.game-card:before{content:"";position:absolute;inset:5px;border:1px solid #9a7138;border-radius:8px;pointer-events:none}
+.game-card.tool{border-color:#e1b83e;background:linear-gradient(145deg,#fff1ad,#e7c86d 65%,#b99035)}
+.game-card.boss{border-color:#b78ad9;background:linear-gradient(145deg,#e8d8f6,#b99acb 65%,#806092);min-height:160px}
+.game-card.selected{border-color:#fff16b;box-shadow:0 0 0 3px #fff16b,0 0 24px #ffdf57b8}
+.card-name{font:bold clamp(16px,1.3vw,19px)/1.18 Georgia,serif;min-height:42px;display:flex;align-items:center;justify-content:center;overflow-wrap:anywhere;word-break:normal;padding:3px 7px;border-bottom:2px solid #9c753d;color:#2d2112;text-shadow:0 1px #fff9}
+.card-type{font:900 10px/1.3 Arial,sans-serif;text-transform:uppercase;letter-spacing:1.4px;color:#6b542d;margin:0}
+.card-stats{display:flex;justify-content:space-evenly;gap:8px;margin:0}
+.stat{flex:1;background:linear-gradient(180deg,#493a26,#211b14);border:1px solid #d3b16d;border-radius:8px;padding:7px;color:#fff1cf;box-shadow:inset 0 1px #fff3}
+.stat strong{display:block;font:bold 22px Arial,sans-serif;color:#ffe18a}
+.stat small{font:900 9px Arial,sans-serif;color:#ead9b5;letter-spacing:1px}
+.card-ability{font:600 13px/1.42 Arial,sans-serif;background:#fff9e9;border:1px solid #b69a68;border-radius:8px;padding:10px 9px;color:#302719;flex:1 0 auto;min-height:66px;display:block;text-align:left;overflow:visible;white-space:normal;overflow-wrap:anywhere;word-break:normal;margin-top:0}
+.card-footer{font:900 9px/1.3 Arial,sans-serif;letter-spacing:1px;color:#70572f;margin-top:0;text-transform:uppercase}
+.boss-backdrop .card-ability{min-height:34px;text-align:center}
+.hand-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:17px;align-items:start}
+.hand-grid .game-card{min-height:310px}
+.card-actions{display:grid;gap:7px;margin-top:10px}
+.card-actions button{width:100%;padding:10px 7px;font:900 11px Arial,sans-serif;white-space:normal;line-height:1.25}
+.secondary{background:linear-gradient(180deg,#607b70,#344e44);border-color:#a9c5b4;color:white;box-shadow:0 3px 0 #1b3029,0 5px 10px #0005}
+.danger{background:linear-gradient(180deg,#d66a61,#9f3434);border-color:#f0a19a;color:white;box-shadow:0 3px 0 #662323,0 5px 10px #0005}
+.action-row{display:flex;flex-wrap:wrap;gap:12px;margin-top:15px}
+.action-row button{flex:1;min-width:140px}
+.dice{font:900 52px Arial,sans-serif;color:#ffe09a;text-align:center;margin:10px;text-shadow:0 5px 12px #0008}
+.message{background:#0d211c;border:1px solid #456b58;border-left:5px solid #f3c969;padding:13px;border-radius:8px;margin:14px 0;overflow-wrap:anywhere;color:#f4ead3;line-height:1.5}
+.muted{color:#c3d5c9}
+#bossChoices{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:16px}
+#bossChoices button{min-height:90px;font-size:16px}
+.gallery{max-width:1450px;margin:38px auto}
+.gallery h2{text-align:center;color:#ffe09a}
+.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:17px;align-items:start}
+.gallery .game-card{min-height:300px}
+.gallery .game-card .card-ability{font-size:13px}
+@media(min-width:1000px){#gameArea{display:none}.field{grid-template-columns:repeat(3,minmax(0,1fr))}.hand-grid{grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}}
+@media(max-width:700px){body{padding:10px}.panel{padding:20px 16px}.game-panel{padding:13px}.field{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.game-card{min-height:290px;padding:9px;border-width:3px}.hand-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.hand-grid .game-card{min-height:300px}.card-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.gallery .game-card{min-height:300px}.card-name{font-size:15px}.card-ability{font-size:12px;padding:8px;line-height:1.4}.stat strong{font-size:19px}.boss-backdrop{width:210px}.hp{font-size:17px}}
+@media(max-width:390px){.field,.hand-grid,.card-grid{grid-template-columns:minmax(0,1fr)}.game-card,.hand-grid .game-card,.gallery .game-card{min-height:0}.card-ability{font-size:13px}.action-row button{min-width:100%}}
 </style>
 </head>
 
@@ -1202,7 +140,7 @@ const cards = [
 ["Water Golem",175,4,"On death: destroy the Bodyguard that killed it."],
 ["Dragone",200,3,"On death: give one of your Bodyguards +50 Power for 1 turn."],
 ["Pedro",130,1,"No special ability."],
-["Fire Golem",200,4,"On death: roll; if even, Void the weakest enemy Bodyguard."],
+["Fire Golem",200,3,"On death: roll; if even, Void the weakest enemy Bodyguard."],
 ["Black Hole",null,2,"Void one of your Bodyguards and summon a card of the same Level."],
 ["Dirt Golem",310,5,"Once per turn: roll; on a 1, Void the weakest enemy Bodyguard."],
 ["Electric Golem",230,3,"On death: opponent's next roll gets -1."],
@@ -1233,8 +171,7 @@ const bosses = [
 // =======================================
 
 function statusMessage(message) {
-  const status = document.getElementById("status");
-  if (status) status.textContent = message;
+  document.getElementById("status").textContent = message;
 }
 
 function escapeHtml(value) {
@@ -1247,19 +184,13 @@ function escapeHtml(value) {
   })[char]);
 }
 
-function getPlayerField(player) {
-  if (Array.isArray(player?.field)) return player.field;
-  if (Array.isArray(player?.bodyguards)) return player.bodyguards;
-  return [];
-}
-
 function myPlayer() {
-  if (!gameView || !Array.isArray(gameView.players)) return null;
+  if (!gameView) return null;
   return gameView.players[gameView.yourSeat - 1];
 }
 
 function enemyPlayer() {
-  if (!gameView || !Array.isArray(gameView.players)) return null;
+  if (!gameView) return null;
   return gameView.players[2 - gameView.yourSeat];
 }
 
@@ -1267,6 +198,12 @@ function isMyTurn() {
   return gameView &&
     gameView.current === gameView.yourSeat - 1 &&
     !gameView.gameOver;
+}
+
+function setButtonsDisabled(disabled) {
+  document.querySelectorAll("#gameArea button").forEach(button => {
+    button.disabled = disabled || button.dataset.locked === "true";
+  });
 }
 
 // =======================================
@@ -1278,6 +215,7 @@ async function connect() {
     statusMessage("Connecting...");
 
     const { data, error } = await db.auth.signInAnonymously();
+
     if (error) throw error;
 
     user = data.user;
@@ -1312,6 +250,7 @@ async function createRoom() {
     }
 
     roomCode = result.room_code;
+
     document.getElementById("roomCodeDisplay").textContent = roomCode;
 
     statusMessage("Room created! Give your friend this code: " + roomCode);
@@ -1349,6 +288,7 @@ async function joinRoom() {
     }
 
     roomCode = code;
+
     document.getElementById("roomCodeDisplay").textContent = roomCode;
 
     statusMessage("Successfully joined room " + roomCode + "!");
@@ -1387,7 +327,9 @@ async function gameAction(action, extra = {}) {
     throw new Error(message);
   }
 
-  if (data && data.error) throw new Error(data.error);
+  if (data && data.error) {
+    throw new Error(data.error);
+  }
 
   return data;
 }
@@ -1397,10 +339,7 @@ async function gameAction(action, extra = {}) {
 // =======================================
 
 async function startGameSession() {
-  document.body.classList.add("in-game");
-
-  const area = document.getElementById("gameArea");
-  area.style.display = "grid";
+  document.getElementById("gameArea").style.display = "block";
 
   await refreshGame();
 
@@ -1419,9 +358,12 @@ async function startGameSession() {
 
 async function refreshGame() {
   const result = await gameAction("get_state");
+
   gameView = result.view;
 
-  if (gameView) renderGame();
+  if (gameView) {
+    renderGame();
+  }
 }
 
 // =======================================
@@ -1433,13 +375,18 @@ async function chooseBoss(index) {
 
   try {
     busy = true;
-    await gameAction("choose_boss", { bossIndex: index });
+    statusMessage("Choosing Boss...");
+
+    await gameAction("choose_boss", {
+      bossIndex: index
+    });
+
     await refreshGame();
+    statusMessage("Boss selected.");
   } catch (error) {
-    alert(error.message);
+    statusMessage(error.message);
   } finally {
     busy = false;
-    renderGame();
   }
 }
 
@@ -1452,24 +399,28 @@ async function performAction(action, extra = {}) {
 
   try {
     busy = true;
-    renderGame();
+    setButtonsDisabled(true);
 
     const result = await gameAction(action, extra);
 
     if (result.view) {
       gameView = result.view;
       selectedAttackerId = null;
+      renderGame();
     } else {
       await refreshGame();
     }
+
+    statusMessage("Move completed.");
   } catch (error) {
-    alert(error.message);
+    statusMessage(error.message);
 
     try {
       await refreshGame();
     } catch (_) {}
   } finally {
     busy = false;
+    setButtonsDisabled(false);
     renderGame();
   }
 }
@@ -1482,62 +433,52 @@ function endTurn() {
   performAction("end_turn");
 }
 
+function playCard(cardId) {
+  performAction("play_card", { cardId });
+}
+
 function attackBodyguard(attackerId, targetId) {
-  performAction("attack", { attackerId, targetId });
+  performAction("attack", {
+    attackerId,
+    targetId
+  });
 }
 
 function attackBoss(attackerId) {
-  performAction("attack", { attackerId });
+  performAction("attack", {
+    attackerId
+  });
 }
 
 async function playCard(cardId) {
   const me = myPlayer();
-  const myField = getPlayerField(me);
-  const myVoid = Array.isArray(me?.void) ? me.void : [];
   const card = (me?.hand || []).find(c => c.id === cardId);
-
   if (!card) return;
 
   const extra = { cardId };
 
   if (card.name === "Big Sacrifice") {
-    if (!myVoid.length) return alert("Your Void is empty.");
+    if (!me.void.length) return statusMessage("Your Void is empty.");
 
-    const options = myVoid
-      .map((c, i) => `${i + 1}. ${c.name} (Level ${c.l})`)
-      .join("\n");
-
-    const answer = prompt(
-      "Choose a Bodyguard from your Void to revive:\n" +
-      options +
-      "\nEnter its number:"
-    );
-
+    const options = me.void.map((c, i) => `${i + 1}. ${c.name} (Level ${c.l})`).join("\n");
+    const answer = prompt("Choose a Bodyguard from your Void to revive:\n" + options + "\nEnter its number:");
     const index = Number(answer) - 1;
 
-    if (!Number.isInteger(index) || index < 0 || index >= myVoid.length) return;
+    if (!Number.isInteger(index) || index < 0 || index >= me.void.length) return;
 
-    extra.voidCardId = myVoid[index].id;
+    extra.voidCardId = me.void[index].id;
   }
 
   if (card.name === "Black Hole") {
-    if (!myField.length) return alert("You need a Bodyguard on your field to sacrifice.");
+    if (!me.field.length) return statusMessage("You need a Bodyguard on your field to sacrifice.");
 
-    const options = myField
-      .map((c, i) => `${i + 1}. ${c.name} (Level ${c.l})`)
-      .join("\n");
-
-    const answer = prompt(
-      "Choose a Bodyguard to send to the Void:\n" +
-      options +
-      "\nEnter its number:"
-    );
-
+    const options = me.field.map((c, i) => `${i + 1}. ${c.name} (Level ${c.l})`).join("\n");
+    const answer = prompt("Choose a Bodyguard to send to the Void:\n" + options + "\nEnter its number:");
     const index = Number(answer) - 1;
 
-    if (!Number.isInteger(index) || index < 0 || index >= myField.length) return;
+    if (!Number.isInteger(index) || index < 0 || index >= me.field.length) return;
 
-    extra.sacrificeId = myField[index].id;
+    extra.sacrificeId = me.field[index].id;
   }
 
   performAction("play_card", extra);
@@ -1548,7 +489,9 @@ function useAbility(cardId) {
 }
 
 function selectAttacker(cardId) {
-  selectedAttackerId = selectedAttackerId === cardId ? null : cardId;
+  selectedAttackerId =
+    selectedAttackerId === cardId ? null : cardId;
+
   renderGame();
 }
 
@@ -1562,11 +505,27 @@ function makeGameCard(card, options = {}) {
   element.className = "game-card";
 
   if (card.t === "Tool") element.classList.add("tool");
-  if (options.boss) element.classList.add("boss");
+  if (options.boss) element.classList.add("boss", "boss-backdrop");
   if (options.selected) element.classList.add("selected");
 
-  const type = options.boss ? "BOSS" : (card.t || "BODYGUARD");
+  const type = card.t || "Bodyguard";
   const power = card.p ?? "—";
+
+  const frozen = card.frozen > 0
+    ? `<div class="card-footer">FROZEN</div>`
+    : "";
+
+  const used = card.used
+    ? `<div class="card-footer">ALREADY USED</div>`
+    : "";
+
+  const abilityUsed = card.abilityUsedTurn
+    ? `<div class="card-footer">ABILITY USED THIS TURN</div>`
+    : "";
+
+  const turns = card.turnsLeft !== undefined
+    ? `<div class="card-footer">${escapeHtml(card.turnsLeft)} TURNS LEFT</div>`
+    : "";
 
   element.innerHTML = `
     <div>
@@ -1577,8 +536,9 @@ function makeGameCard(card, options = {}) {
     <div class="card-stats">
       <div class="stat">
         <strong>${escapeHtml(power)}</strong>
-        <small>${options.boss ? "BOSS HP" : "POWER"}</small>
+        <small>POWER</small>
       </div>
+
       <div class="stat">
         <strong>${escapeHtml(card.l)}</strong>
         <small>LEVEL</small>
@@ -1589,216 +549,15 @@ function makeGameCard(card, options = {}) {
       ${escapeHtml(card.a || "No special ability.")}
     </div>
 
-    ${card.turnsLeft !== undefined
-      ? `<div class="card-footer">${escapeHtml(card.turnsLeft)} TURNS LEFT</div>`
-      : ""}
+    ${turns}
+    ${frozen}
+    ${used}
+    ${abilityUsed}
 
-    ${card.frozen > 0 ? `<div class="card-footer">❄ FROZEN</div>` : ""}
-    ${card.used ? `<div class="card-footer">ALREADY USED</div>` : ""}
-    ${card.abilityUsedTurn ? `<div class="card-footer">ABILITY USED</div>` : ""}
+    <div class="card-footer">BLAMMO TCG</div>
   `;
 
   return element;
-}
-
-// =======================================
-// BOSS CARD
-// =======================================
-
-function makeBossCard(boss) {
-  boss = boss || {};
-
-  const card = makeGameCard({
-    name: boss.name || "Boss",
-    p: boss.hp ?? "?",
-    l: boss.level ?? "—",
-    a: `BOSS • ${boss.hp ?? "?"} HP REMAINING`
-  }, { boss: true });
-
-  card.classList.add("boss");
-  return card;
-}
-
-// =======================================
-// CREATE PLAYER ZONE
-// =======================================
-
-function createPlayerZone(player, isMine) {
-  const zone = document.createElement("section");
-  zone.className = "player-zone";
-
-  const heading = document.createElement("div");
-  heading.className = "player-heading";
-
-  const boss = player?.boss || {};
-
-  heading.innerHTML = `
-    <h2>${isMine ? "YOUR FIELD" : "OPPONENT'S FIELD"}</h2>
-    <div class="hp">
-      ${escapeHtml(boss.name || "Boss")} · ${escapeHtml(boss.hp ?? "?")} HP
-    </div>
-  `;
-
-  zone.appendChild(heading);
-
-  const battlefield = document.createElement("div");
-  battlefield.className = "battlefield";
-
-  const bossSlot = document.createElement("div");
-  bossSlot.className = "boss-slot";
-  bossSlot.appendChild(makeBossCard(boss));
-  battlefield.appendChild(bossSlot);
-
-  const field = document.createElement("div");
-  field.className = "field";
-
-  const bodyguards = getPlayerField(player);
-
-  if (bodyguards.length === 0) {
-    const empty = document.createElement("div");
-    empty.className = "field-empty";
-    empty.textContent = isMine
-      ? "Your Bodyguards will appear here."
-      : "No enemy Bodyguards.";
-    field.appendChild(empty);
-  } else {
-    bodyguards.forEach(card => {
-      const wrapper = document.createElement("div");
-      wrapper.className = "field-card-wrap";
-
-      const selected = isMine && selectedAttackerId === card.id;
-      const cardElement = makeGameCard(card, { selected });
-
-      wrapper.appendChild(cardElement);
-
-      const actions = document.createElement("div");
-      actions.className = "card-actions";
-
-      if (isMine) {
-        const selectButton = document.createElement("button");
-
-        selectButton.textContent = selected ? "CANCEL" : "SELECT";
-        selectButton.className = "secondary";
-
-        selectButton.disabled =
-          !isMyTurn() ||
-          !gameView.rolled ||
-          card.used ||
-          card.frozen > 0 ||
-          busy;
-
-        selectButton.onclick = () => selectAttacker(card.id);
-        actions.appendChild(selectButton);
-
-        if (["Dirt Golem", "Frankenstein", "Time Machine"].includes(card.name)) {
-          const abilityButton = document.createElement("button");
-
-          abilityButton.textContent = "ABILITY";
-          abilityButton.className = "secondary";
-
-          abilityButton.disabled =
-            !isMyTurn() ||
-            !gameView.rolled ||
-            card.abilityUsedTurn ||
-            card.frozen > 0 ||
-            busy;
-
-          abilityButton.onclick = () => useAbility(card.id);
-          actions.appendChild(abilityButton);
-        }
-
-        const enemyField = getPlayerField(enemyPlayer());
-
-        if (enemyField.length === 0) {
-          const bossButton = document.createElement("button");
-
-          bossButton.textContent = "ATTACK BOSS";
-          bossButton.disabled =
-            !isMyTurn() ||
-            !gameView.rolled ||
-            card.used ||
-            card.frozen > 0 ||
-            gameView.round <= 1 ||
-            gameView.bossDamageThisTurn >= 1 ||
-            busy;
-
-          bossButton.onclick = () => attackBoss(card.id);
-          actions.appendChild(bossButton);
-        }
-      } else if (isMyTurn() && selectedAttackerId) {
-        const attackButton = document.createElement("button");
-
-        attackButton.textContent = "ATTACK HERE";
-        attackButton.disabled = busy;
-        attackButton.onclick = () => attackBodyguard(selectedAttackerId, card.id);
-
-        actions.appendChild(attackButton);
-      }
-
-      if (actions.children.length > 0) {
-        wrapper.appendChild(actions);
-      }
-
-      field.appendChild(wrapper);
-    });
-  }
-
-  battlefield.appendChild(field);
-  zone.appendChild(battlefield);
-
-  return zone;
-}
-
-// =======================================
-// WAITING ROOM
-// =======================================
-
-function renderWaitingRoom(area) {
-  area.className = "game-screen waiting-screen";
-
-  const joinedSeats = gameView.joinedSeats || [];
-  const playerOneConnected = joinedSeats.includes(1);
-  const playerTwoConnected = joinedSeats.includes(2);
-
-  const panel = document.createElement("div");
-  panel.className = "waiting-panel";
-
-  panel.innerHTML = `
-    <h1>BLAMMO</h1>
-    <h2>WAITING FOR PLAYER 2</h2>
-
-    <p>Your room is ready! Share this code with your friend.</p>
-
-    <div class="waiting-code">
-      <strong>${escapeHtml(roomCode || "------")}</strong>
-      <button id="copyRoomCode">COPY ROOM CODE</button>
-    </div>
-
-    <div class="player-status ${playerOneConnected ? "connected" : ""}">
-      ${playerOneConnected ? "✓" : "○"} PLAYER 1
-      ${playerOneConnected ? "CONNECTED" : "WAITING"}
-    </div>
-
-    <div class="player-status ${playerTwoConnected ? "connected" : ""}">
-      ${playerTwoConnected ? "✓" : "○"} PLAYER 2
-      ${playerTwoConnected ? "CONNECTED" : "WAITING"}
-    </div>
-
-    <div class="waiting-spinner"></div>
-
-    <p>Boss selection will begin automatically when both players are connected.</p>
-  `;
-
-  area.appendChild(panel);
-
-  panel.querySelector("#copyRoomCode").onclick = async () => {
-    try {
-      await navigator.clipboard.writeText(roomCode);
-      panel.querySelector("#copyRoomCode").textContent = "COPIED!";
-    } catch (error) {
-      alert("Your room code is: " + roomCode);
-    }
-  };
 }
 
 // =======================================
@@ -1810,82 +569,129 @@ function renderGame() {
 
   if (!gameView) return;
 
-  area.innerHTML = "";
-
-  if (
-    !gameView.started &&
-    Number(gameView.playersJoined || 0) < 2
-  ) {
-    renderWaitingRoom(area);
-    return;
-  }
-
   if (!gameView.started) {
     renderBossSelection(area);
     return;
   }
 
-  area.className = "game-screen";
-
   const me = myPlayer();
   const enemy = enemyPlayer();
-
-  if (!me || !enemy) {
-    area.textContent = "Waiting for player data...";
-    return;
-  }
-
   const myTurn = isMyTurn();
 
-  // TOP BAR
+  area.innerHTML = "";
 
-  const topbar = document.createElement("div");
-  topbar.className = "topbar";
+  // GAME HEADER
+  const header = document.createElement("div");
+  header.className = "game-panel";
 
-  topbar.innerHTML = `
-    <span class="brand">BLAMMO</span>
-    <span>ROOM ${escapeHtml(roomCode)}</span>
-    <span>ROUND ${escapeHtml(gameView.round)}</span>
-    <span class="turn-label">
-      ${gameView.gameOver
-        ? "GAME OVER"
-        : myTurn ? "YOUR TURN" : "OPPONENT'S TURN"}
-    </span>
+  header.innerHTML = `
+    <h2 style="text-align:center">BLAMMO BATTLE</h2>
+
+    <div class="player-heading">
+      <strong>ROOM: ${escapeHtml(roomCode)}</strong>
+      <strong>ROUND ${escapeHtml(gameView.round)}</strong>
+    </div>
+
+    <div class="message">
+      ${escapeHtml(gameView.message || "Game in progress.")}
+    </div>
+
+    <div style="text-align:center">
+      ${
+        gameView.gameOver
+          ? `<h2>GAME OVER — ${escapeHtml(gameView.winner)} WINS!</h2>`
+          : myTurn
+            ? `<h2 style="color:#69e69b">YOUR TURN</h2>`
+            : `<h2 style="color:#fca5a5">OPPONENT'S TURN</h2>`
+      }
+    </div>
   `;
 
-  area.appendChild(topbar);
+  area.appendChild(header);
 
-  // OPPONENT'S FIELD
+  // ENEMY
+  const enemyPanel = document.createElement("div");
+  enemyPanel.className = "game-panel";
 
-  area.appendChild(createPlayerZone(enemy, false));
+  enemyPanel.innerHTML = `
+    <div class="player-heading">
+      <h2>OPPONENT</h2>
+      <div class="hp">${escapeHtml(enemy.boss.name)}: ${escapeHtml(enemy.boss.hp)} HP</div>
+    </div>
 
-  // TURN CONTROLS
+    <div class="muted">Opponent's deck: ${escapeHtml(enemy.deckCount)} cards</div>
 
+    <h3 class="section-title">OPPONENT'S BODYGUARDS</h3>
+  `;
+
+  const enemyBattlefield = document.createElement("div");
+  enemyBattlefield.className = "battlefield";
+
+  const enemyBossCard = makeGameCard({
+    name: enemy.boss.name,
+    p: enemy.boss.level,
+    l: enemy.boss.level,
+    a: `BOSS • ${enemy.boss.hp} HP`
+  }, { boss: true });
+
+  enemyBattlefield.appendChild(enemyBossCard);
+
+  const enemyField = document.createElement("div");
+  enemyField.className = "field";
+
+  if (enemy.field.length === 0) {
+    enemyField.innerHTML = '<p class="muted">No Bodyguards on the field.</p>';
+  } else {
+    enemy.field.forEach(card => {
+      const cardElement = makeGameCard(card);
+
+      if (myTurn && selectedAttackerId) {
+        const attackButton = document.createElement("button");
+        attackButton.textContent = "Attack this Bodyguard";
+
+        attackButton.onclick = () => {
+          attackBodyguard(selectedAttackerId, card.id);
+        };
+
+        cardElement.appendChild(attackButton);
+      }
+
+      enemyField.appendChild(cardElement);
+    });
+  }
+
+  enemyBattlefield.appendChild(enemyField);
+  enemyPanel.appendChild(enemyBattlefield);
+  area.appendChild(enemyPanel);
+
+  // TURN PANEL
   const turnPanel = document.createElement("div");
-  turnPanel.className = "turn-panel";
+  turnPanel.className = "game-panel";
 
   turnPanel.innerHTML = `
-    <div class="dice-box">
-      🎲 ${gameView.rolled ? escapeHtml(gameView.rollValue) : "?"}
+    <h2 style="text-align:center">YOUR TURN STATUS</h2>
+
+    <div class="dice">
+      ${gameView.rolled ? "🎲 " + escapeHtml(gameView.rollValue) : "🎲 ?"}
     </div>
 
-    <div class="turn-stat">
-      LEVEL USED
-      <strong>${escapeHtml(gameView.spentThisTurn)} / ${escapeHtml(gameView.rollValue)}</strong>
-    </div>
+    <p style="text-align:center">
+      Level used: ${escapeHtml(gameView.spentThisTurn)}
+      /
+      ${escapeHtml(gameView.rollValue)}
+    </p>
 
-    <div class="turn-stat">
-      PLAYS LEFT
-      <strong>${escapeHtml(gameView.playsLeft)} / 2</strong>
-    </div>
+    <p style="text-align:center">
+      Cards remaining this turn: ${escapeHtml(gameView.playsLeft)}
+      / 2
+    </p>
 
-    <div class="turn-stat">
-      BOSS DAMAGE
-      <strong>${escapeHtml(gameView.bossDamageThisTurn)} / 1</strong>
-    </div>
+    <p style="text-align:center">
+      Boss damage this turn: ${escapeHtml(gameView.bossDamageThisTurn)} / 1
+    </p>
 
-    <div class="turn-buttons">
-      <button id="rollButton">ROLL</button>
+    <div class="action-row">
+      <button id="rollButton">ROLL DICE</button>
       <button id="endTurnButton" class="secondary">END TURN</button>
     </div>
   `;
@@ -1902,86 +708,167 @@ function renderGame() {
     !myTurn || !gameView.rolled || busy;
 
   // YOUR FIELD
+  const myFieldPanel = document.createElement("div");
+  myFieldPanel.className = "game-panel";
 
-  area.appendChild(createPlayerZone(me, true));
+  myFieldPanel.innerHTML = `
+    <div class="player-heading">
+      <h2>YOUR FIELD</h2>
+      <div class="hp">${escapeHtml(me.boss.name)}: ${escapeHtml(me.boss.hp)} HP</div>
+    </div>
 
-  // YOUR HAND
-
-  const handPanel = document.createElement("section");
-  handPanel.className = "hand-panel";
-
-  const handHeading = document.createElement("div");
-  handHeading.className = "hand-heading";
-
-  handHeading.innerHTML = `
-    <span>YOUR HAND</span>
-    <span>${(me.hand || []).length} / 3 CARDS</span>
+    <p class="muted">Your Bodyguards: ${me.field.length} / 3</p>
   `;
 
-  handPanel.appendChild(handHeading);
+  const myBattlefield = document.createElement("div");
+  myBattlefield.className = "battlefield";
+
+  const myBossCard = makeGameCard({
+    name: me.boss.name,
+    p: me.boss.level,
+    l: me.boss.level,
+    a: `BOSS • ${me.boss.hp} HP`
+  }, { boss: true });
+
+  myBattlefield.appendChild(myBossCard);
+
+  const myField = document.createElement("div");
+  myField.className = "field";
+
+  if (me.field.length === 0) {
+    myField.innerHTML = '<p class="muted">You have no Bodyguards on the field.</p>';
+  } else {
+    me.field.forEach(card => {
+      const selected = selectedAttackerId === card.id;
+      const cardElement = makeGameCard(card, { selected });
+
+      const actions = document.createElement("div");
+      actions.className = "card-actions";
+
+      const selectButton = document.createElement("button");
+      selectButton.textContent = selected
+        ? "Cancel selection"
+        : "Select attacker";
+
+      selectButton.className = "secondary";
+
+      selectButton.disabled =
+        !myTurn ||
+        !gameView.rolled ||
+        card.used ||
+        card.frozen > 0 ||
+        busy;
+
+      selectButton.onclick = () => selectAttacker(card.id);
+
+      actions.appendChild(selectButton);
+
+      if (["Dirt Golem", "Frankenstein", "Time Machine"].includes(card.name)) {
+        const abilityButton = document.createElement("button");
+        abilityButton.textContent = "USE ABILITY";
+        abilityButton.className = "secondary";
+        abilityButton.disabled = !myTurn || !gameView.rolled || card.abilityUsedTurn || card.frozen > 0 || busy;
+        abilityButton.onclick = () => useAbility(card.id);
+        actions.appendChild(abilityButton);
+      }
+
+      if (enemy.field.length === 0) {
+        const bossButton = document.createElement("button");
+        bossButton.textContent = "Attack Boss";
+
+        bossButton.disabled =
+          !myTurn ||
+          !gameView.rolled ||
+          card.used ||
+          card.frozen > 0 ||
+          gameView.round <= 1 ||
+          gameView.bossDamageThisTurn >= 1 ||
+          busy;
+
+        bossButton.onclick = () => attackBoss(card.id);
+
+        actions.appendChild(bossButton);
+      }
+
+      cardElement.appendChild(actions);
+      myField.appendChild(cardElement);
+    });
+  }
+
+  myBattlefield.appendChild(myField);
+  myFieldPanel.appendChild(myBattlefield);
+  area.appendChild(myFieldPanel);
+
+  // YOUR HAND
+  const handPanel = document.createElement("div");
+  handPanel.className = "game-panel";
+
+  handPanel.innerHTML = `
+    <h2>YOUR HAND</h2>
+    <p class="muted">
+      Playing a Bodyguard or Tool uses one of your two plays. Tools activate immediately.
+    </p>
+  `;
 
   const handGrid = document.createElement("div");
   handGrid.className = "hand-grid";
 
-  const myField = getPlayerField(me);
-  const myVoid = Array.isArray(me.void) ? me.void : [];
-
   (me.hand || []).forEach(card => {
-    const wrapper = document.createElement("div");
-    wrapper.className = "hand-card-wrap";
-
     const cardElement = makeGameCard(card);
     const actions = document.createElement("div");
     actions.className = "card-actions";
 
     const playButton = document.createElement("button");
-    playButton.textContent = card.t === "Tool" ? "USE TOOL" : "PLAY";
 
+    playButton.textContent = card.t === "Tool" ? "USE TOOL" : "PLAY BODYGUARD";
     playButton.disabled =
       !myTurn ||
       !gameView.rolled ||
       gameView.playsLeft <= 0 ||
-      (card.t !== "Tool" && myField.length >= 3) ||
+      (card.t !== "Tool" && me.field.length >= 3) ||
       gameView.spentThisTurn + card.l > gameView.rollValue ||
-      (card.name === "Big Sacrifice" &&
-        (myVoid.length === 0 || myField.length >= 3)) ||
-      (card.name === "Black Hole" && myField.length === 0) ||
+      (card.name === "Big Sacrifice" && (!me.void || me.void.length === 0 || me.field.length >= 3)) ||
+      (card.name === "Black Hole" && me.field.length === 0) ||
       busy;
 
     playButton.onclick = () => playCard(card.id);
 
     actions.appendChild(playButton);
-    wrapper.appendChild(cardElement);
-    wrapper.appendChild(actions);
-    handGrid.appendChild(wrapper);
+    cardElement.appendChild(actions);
+    handGrid.appendChild(cardElement);
   });
 
   if (!me.hand || me.hand.length === 0) {
-    const empty = document.createElement("div");
-    empty.className = "hand-empty";
-    empty.textContent = "Your hand is empty.";
-    handGrid.appendChild(empty);
+    handGrid.innerHTML = '<p class="muted">Your hand is empty.</p>';
   }
 
   handPanel.appendChild(handGrid);
   area.appendChild(handPanel);
 
-  // GAME MESSAGE
+  // VOID AND DECK
+  const extraPanel = document.createElement("div");
+  extraPanel.className = "game-panel";
 
-  if (gameView.message) {
-    const message = document.createElement("div");
-    message.className = "game-message";
-    message.textContent = gameView.message;
-    area.appendChild(message);
-  }
+  extraPanel.innerHTML = `
+    <h3>YOUR DECK</h3>
+    <p>${escapeHtml(me.deckCount)} cards remaining</p>
 
-  // GAME OVER
+    <h3>YOUR VOID</h3>
+    <p>${me.void.length ? me.void.map(c => escapeHtml(c.name)).join(", ") : "Your Void is empty."}</p>
+    ${me.peekedCard ? `<p class="message">Frankenstein saw: ${escapeHtml(me.peekedCard.name)} (Level ${escapeHtml(me.peekedCard.l)}, Power ${escapeHtml(me.peekedCard.p ?? "—")})</p>` : ""}
+  `;
+
+  area.appendChild(extraPanel);
 
   if (gameView.gameOver) {
-    const message = document.createElement("div");
-    message.className = "game-message";
-    message.textContent = `🏆 ${gameView.winner} WINS!`;
-    area.appendChild(message);
+    const winnerPanel = document.createElement("div");
+    winnerPanel.className = "game-panel";
+    winnerPanel.innerHTML = `
+      <h2 style="text-align:center">
+        🏆 ${escapeHtml(gameView.winner)} WINS!
+      </h2>
+    `;
+    area.appendChild(winnerPanel);
   }
 }
 
@@ -1990,54 +877,50 @@ function renderGame() {
 // =======================================
 
 function renderBossSelection(area) {
-  area.className = "game-screen boss-selection";
-
   const chosen = gameView.choices || {};
   const myChoice = chosen[String(gameView.yourSeat)];
 
-  const panel = document.createElement("div");
-  panel.className = "boss-selection-panel";
+  area.innerHTML = `
+    <div class="game-panel">
+      <h2 style="text-align:center">CHOOSE YOUR BOSS</h2>
+      <p style="text-align:center">
+        Both players must select a Boss before the battle begins.
+      </p>
 
-  panel.innerHTML = `
-    <h2>CHOOSE YOUR BOSS</h2>
-    <p>Choose your Boss before the battle begins.</p>
-    <div class="boss-choices" id="bossChoices"></div>
-    <div class="message" id="bossStatus">
-      ${myChoice !== undefined
-        ? "You have selected your Boss. Waiting for the other player..."
-        : "Choose your Boss below."}
+      <div id="bossChoices"></div>
+
+      <div class="message" id="bossStatus">
+        ${
+          myChoice !== undefined
+            ? "You have selected your Boss. Waiting for the other player..."
+            : "Choose your Boss below."
+        }
+      </div>
     </div>
   `;
 
-  area.appendChild(panel);
-
-  const choices = panel.querySelector("#bossChoices");
+  const choices = document.getElementById("bossChoices");
 
   bosses.forEach((boss, index) => {
-    const choice = document.createElement("div");
-    choice.className = "boss-choice";
-
-    if (myChoice === index) choice.classList.add("selected-choice");
-
-    const bossCard = makeGameCard({
-      name: boss[0],
-      p: boss[1],
-      l: boss[1],
-      a: "Starts with 6 Boss HP."
-    }, { boss: true });
-
-    choice.appendChild(bossCard);
-
     const button = document.createElement("button");
 
-    button.textContent =
-      myChoice === index ? "SELECTED" : "CHOOSE BOSS";
+    button.innerHTML = `
+      ${escapeHtml(boss[0])}
+      <br>
+      <small>Level ${escapeHtml(boss[1])} · 6 HP</small>
+    `;
 
-    button.disabled = myChoice !== undefined || busy;
+    if (myChoice !== undefined) {
+      button.disabled = true;
+
+      if (myChoice === index) {
+        button.textContent = boss[0] + " — SELECTED";
+      }
+    }
+
     button.onclick = () => chooseBoss(index);
 
-    choice.appendChild(button);
-    choices.appendChild(choice);
+    choices.appendChild(button);
   });
 }
 
@@ -2047,6 +930,7 @@ function renderBossSelection(area) {
 
 function makeGalleryCard(name, power, level, ability, type = "Bodyguard") {
   const card = document.createElement("div");
+
   card.className = "game-card";
 
   if (type === "Tool") card.classList.add("tool");
@@ -2063,6 +947,7 @@ function makeGalleryCard(name, power, level, ability, type = "Bodyguard") {
         <strong>${power === null ? "—" : escapeHtml(power)}</strong>
         <small>${type === "Boss" ? "BOSS" : "POWER"}</small>
       </div>
+
       <div class="stat">
         <strong>${escapeHtml(level)}</strong>
         <small>LEVEL</small>
@@ -2089,7 +974,9 @@ function renderGallery() {
   bodyGrid.className = "card-grid";
 
   bodyguards.forEach(c => {
-    bodyGrid.appendChild(makeGalleryCard(c[0], c[1], c[2], c[3]));
+    bodyGrid.appendChild(
+      makeGalleryCard(c[0], c[1], c[2], c[3])
+    );
   });
 
   bodySection.appendChild(bodyGrid);
@@ -2101,7 +988,9 @@ function renderGallery() {
   toolGrid.className = "card-grid";
 
   tools.forEach(c => {
-    toolGrid.appendChild(makeGalleryCard(c[0], c[1], c[2], c[3], "Tool"));
+    toolGrid.appendChild(
+      makeGalleryCard(c[0], c[1], c[2], c[3], "Tool")
+    );
   });
 
   toolSection.appendChild(toolGrid);
@@ -2114,7 +1003,13 @@ function renderGallery() {
 
   bosses.forEach(b => {
     bossGrid.appendChild(
-      makeGalleryCard(b[0], null, b[1], "Starts with 6 Boss HP.", "Boss")
+      makeGalleryCard(
+        b[0],
+        null,
+        b[1],
+        "Starts with 6 Boss HP.",
+        "Boss"
+      )
     );
   });
 
